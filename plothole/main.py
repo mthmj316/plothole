@@ -15,6 +15,8 @@ class Plothole(object):
     
     def __init__(self):
         self.main_window = tk.Tk()
+        self.main_window.grid_columnconfigure(0, weight=1)
+        self.main_window.grid_rowconfigure(0, weight=1)
         self.main_window.title(f"Plothole {VERSION}")
         
         self.menu_bar = tk.Menu(self.main_window)
@@ -46,6 +48,7 @@ class Plothole(object):
     def new_story(self):
         
         self.story_frame = sframe.StoryFrame(self.main_window) 
+        self.story_frame.grid(row=0, column=0, sticky="NSEW")
         self.story_frame.raise_frame()
         
         print("new story")
