@@ -4,8 +4,12 @@ Created on Mon Nov 10 20:45:21 2025
 
 @author: mthoma
 """
+from pathlib import Path
 
 __POSSIBLE_MODES__ = ['r', 'w', 'a', 'r+', 'w+', 'a+', 'b']
+
+def create_dir(path):    
+    Path(path).mkdir(parents=True, exist_ok=True)
 
 def open_file(path, mode='r'):
     
