@@ -7,6 +7,7 @@ Created on Wed Dec 10 14:40:56 2025
 import json
 from observers import UIObserver
 import file_access as fs
+import os.path
 
 
 class StoryModel(UIObserver):
@@ -46,17 +47,23 @@ class StoryModel(UIObserver):
         file_name = "".join(x for x in alias if x.isalnum())
                 
         story_path = f"{self.base_dir}/{file_name}"
-        fs.create_dir(story_path)
-        
         self.fq_file_name = f"{story_path}/{file_name}.story"
         
+        if not fs.exists(self.fq_file_name):            
+            fs.create_dir(story_path)  
+            
         fs.write(self.fq_file_name, story_data)
         
     
-    def onDelete(self):
-        pass
+    def onDelete(self):        
+        if len(self.fq_file_name) > 0:            
+            dirname = os.path.dirname(self.fq_file_name)            
+            fs.delete_folder(dirname)
+            self.onClose()
+        
     
     def onUpdate(self):
+        # Not relevant
         pass
     
     def onLoad(self, file_name):

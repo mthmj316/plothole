@@ -80,21 +80,17 @@ class StoryFrame(tk.Frame, UIObservable):
        btn_save.config(width=BUTTON_WIDTH)
        btn_save.grid(row=0, column=2, sticky="NSEW", padx=(1,1), pady=5)
        
-       btn_update = tk.Button(btn_frame, text="Aktualisieren", command=self.update)
-       btn_update.config(width=BUTTON_WIDTH)
-       btn_update.grid(row=0, column=3, sticky="NSEW", padx=(1,1), pady=5)
-       
        btn_revert = tk.Button(btn_frame, text="Zurücksetzen", command=self.revert)
        btn_revert.config(width=BUTTON_WIDTH)
-       btn_revert.grid(row=0, column=4, sticky="NSEW", padx=(1,1), pady=5)
+       btn_revert.grid(row=0, column=3, sticky="NSEW", padx=(1,1), pady=5)
        
        btn_delete = tk.Button(btn_frame, text="Löschen", command=self.delete)
        btn_delete.config(width=BUTTON_WIDTH)
-       btn_delete.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
+       btn_delete.grid(row=0, column=4, sticky="NSEW", padx=(1,0), pady=5)
        
        btn_close = tk.Button(btn_frame, text="Schließen", command=self.delete)
        btn_close.config(width=BUTTON_WIDTH)
-       btn_close.grid(row=0, column=6, sticky="NSEW", padx=(1,0), pady=5)
+       btn_close.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
     
     def set_base_dir(self, base_dir):
         self.base_dir = base_dir
