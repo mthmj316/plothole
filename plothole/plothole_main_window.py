@@ -13,6 +13,7 @@ import story_frame as sframe
 VERSION = "v0.1"
 
 
+
 class PlotholeMainWindow(object):
     
     def __init__(self):
@@ -29,6 +30,7 @@ class PlotholeMainWindow(object):
         self.__file_menu__()            
         self.story_frame = sframe.StoryFrame(self.main_window) 
         
+    
     def get_story_ui(self):
         return self.story_frame
         

@@ -19,8 +19,9 @@ if __name__ == '__main__':
         if o.startswith("path=prod"):
             path_repros = PROD_PLOTHOLE_REPOS        
         
-    
     w = win.PlotholeMainWindow()
+    
+    main_window_model = models.MainWindowModel(w, path_repros)
     
     story_ui = w.get_story_ui()
     story_model = models.StoryModel(story_ui, path_repros) 

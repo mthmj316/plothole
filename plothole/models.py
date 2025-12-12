@@ -9,6 +9,42 @@ from observers import UIObserver
 import file_access as fs
 import os.path
 
+from pathlib import Path 
+
+class MainWindowModel(UIObserver):
+    
+    def __init__(self, ui, base_dir):
+        self.ui = ui
+        self.base_dir = base_dir
+        
+        self.__load_stories__()
+        
+    def __load_stories__(self):
+        
+        _filter = f"{self.base_dir}/**/*.story"
+        
+        stories = fs.find_files(_filter, True)
+        
+        for story_path in stories:
+            print(Path(story_path).stem)
+    
+    def onClose(self):
+        pass
+    
+    def onDelete(self):
+        pass
+    
+    def onLoad(self, file_path):
+        pass
+    
+    def onRevert(self):
+        pass
+    
+    def onSave(self):
+        pass
+    
+    def onUpdate(self):
+        pass
 
 class StoryModel(UIObserver):
     
@@ -19,7 +55,6 @@ class StoryModel(UIObserver):
         self.ui.set_base_dir(base_dir)
         self.ui.register(self)
         self.fq_file_name = ""
-     
     
     def onSave(self):
         
@@ -28,7 +63,6 @@ class StoryModel(UIObserver):
         if alias == "":
             self.ui.raise_error("Alias muss gesetzt sein!")
             return
-        
         
         title = self.ui.get_title()
         accent = self.ui.get_accent()
