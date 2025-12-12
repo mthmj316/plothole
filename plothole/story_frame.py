@@ -37,7 +37,8 @@ class StoryFrame(tk.Frame, UIObservable):
        
        lb_alias = tk.Label(self, text="Alias")
        lb_title = tk.Label(self, text="Titel")
-       lb_accent = tk.Label(self, text="Tonfall")
+       lb_accent = tk.Label(self, text="Tonfall")       
+       lb_genre = tk.Label(self, text="Genre")
        lb_msg = tk.Label(self, text="Botschaft")
        lb_basic_idea = tk.Label(self, text="Grundidee")
        
@@ -49,6 +50,9 @@ class StoryFrame(tk.Frame, UIObservable):
        
        self.tb_accent_value = StringVar()
        tb_accent = tk.Entry(self, textvariable=self.tb_accent_value)
+       
+       self.tb_genre_value = StringVar()
+       tb_genre = tk.Entry(self, textvariable=self.tb_genre_value)
        
        self.sta_msg = stxt.ScrolledText(self, width=200, height=5)
        
@@ -63,14 +67,17 @@ class StoryFrame(tk.Frame, UIObservable):
        lb_accent.grid(row=2, column=0, sticky="NE", padx=PAD_X_LEFT_BOLD, pady=5)
        tb_accent.grid(row=2, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
        
-       lb_msg.grid(row=3, column=0, sticky="NE", padx=PAD_X_LEFT_BOLD, pady=5)
-       self.sta_msg.grid(row=3, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
+       lb_genre.grid(row=3, column=0, sticky="NE", padx=PAD_X_LEFT_BOLD, pady=5)
+       tb_genre.grid(row=3, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
        
-       lb_basic_idea.grid(row=4, column=0, sticky="NE", padx=PAD_X_LEFT_BOLD, pady=PAD_X_BOTTON_BOLD)
-       self.sta_basic_idea.grid(row=4, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
+       lb_msg.grid(row=4, column=0, sticky="NE", padx=PAD_X_LEFT_BOLD, pady=5)
+       self.sta_msg.grid(row=4, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
+       
+       lb_basic_idea.grid(row=5, column=0, sticky="NE", padx=PAD_X_LEFT_BOLD, pady=PAD_X_BOTTON_BOLD)
+       self.sta_basic_idea.grid(row=5, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
        
        btn_frame = tk.Frame(self)
-       btn_frame.grid(row=5, column=1, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
+       btn_frame.grid(row=6, column=1, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
        
        btn_open = tk.Button(btn_frame, text="Öffnen", command=self._open)
        btn_open.config(width=BUTTON_WIDTH)
@@ -80,21 +87,22 @@ class StoryFrame(tk.Frame, UIObservable):
        btn_save.config(width=BUTTON_WIDTH)
        btn_save.grid(row=0, column=2, sticky="NSEW", padx=(1,1), pady=5)
        
-       btn_update = tk.Button(btn_frame, text="Aktualisieren", command=self.update)
-       btn_update.config(width=BUTTON_WIDTH)
-       btn_update.grid(row=0, column=3, sticky="NSEW", padx=(1,1), pady=5)
-       
        btn_revert = tk.Button(btn_frame, text="Zurücksetzen", command=self.revert)
        btn_revert.config(width=BUTTON_WIDTH)
-       btn_revert.grid(row=0, column=4, sticky="NSEW", padx=(1,1), pady=5)
+       btn_revert.grid(row=0, column=3, sticky="NSEW", padx=(1,1), pady=5)
        
        btn_delete = tk.Button(btn_frame, text="Löschen", command=self.delete)
        btn_delete.config(width=BUTTON_WIDTH)
-       btn_delete.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
+       btn_delete.grid(row=0, column=4, sticky="NSEW", padx=(1,0), pady=5)
        
-       btn_close = tk.Button(btn_frame, text="Schließen", command=self.delete)
+       btn_close = tk.Button(btn_frame, text="Speichern / Schließen", command=self.close)
        btn_close.config(width=BUTTON_WIDTH)
-       btn_close.grid(row=0, column=6, sticky="NSEW", padx=(1,0), pady=5)
+       btn_close.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
+    
+    def close(self):
+        for observer in self.observers:
+            observer.onSave()
+            observer.onClose()
     
     def set_base_dir(self, base_dir):
         self.base_dir = base_dir
@@ -147,6 +155,12 @@ class StoryFrame(tk.Frame, UIObservable):
     
     def set_accent(self, accent):
         self.tb_accent_value.set(accent)
+  
+    def get_genre(self):
+        return self.tb_genre_value.get()
+    
+    def set_genre(self, genre):
+            self.tb_genre_value.set(genre)
     
     def get_message(self):
         return self.sta_msg.get("1.0", tk.END)

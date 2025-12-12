@@ -7,6 +7,7 @@ Created on Wed Dec 10 14:40:56 2025
 import json
 from observers import UIObserver
 import file_access as fs
+import os.path
 
 
 class StoryModel(UIObserver):
@@ -31,6 +32,7 @@ class StoryModel(UIObserver):
         
         title = self.ui.get_title()
         accent = self.ui.get_accent()
+        genre = self.ui.get_genre()
         message = self.ui.get_message()
         basic_idea = self.ui.get_basic_idea()
         
@@ -38,6 +40,7 @@ class StoryModel(UIObserver):
         story_data_temp["alias"] = alias
         story_data_temp["title"] = title
         story_data_temp["accent"] = accent
+        story_data_temp["genre"] = genre
         story_data_temp["message"] = message
         story_data_temp["basic_idea"] = basic_idea
         
@@ -46,17 +49,23 @@ class StoryModel(UIObserver):
         file_name = "".join(x for x in alias if x.isalnum())
                 
         story_path = f"{self.base_dir}/{file_name}"
-        fs.create_dir(story_path)
-        
         self.fq_file_name = f"{story_path}/{file_name}.story"
         
+        if not fs.exists(self.fq_file_name):            
+            fs.create_dir(story_path)  
+            
         fs.write(self.fq_file_name, story_data)
         
     
-    def onDelete(self):
-        pass
+    def onDelete(self):        
+        if len(self.fq_file_name) > 0:            
+            dirname = os.path.dirname(self.fq_file_name)            
+            fs.delete_folder(dirname)
+            self.onClose()
+        
     
     def onUpdate(self):
+        # Not relevant
         pass
     
     def onLoad(self, file_name):
@@ -69,6 +78,7 @@ class StoryModel(UIObserver):
             self.ui.set_alias(data.get('alias'))
             self.ui.set_title(data.get('title'))
             self.ui.set_accent(data.get('accent'))
+            self.ui.set_genre(data.get('genre'))
             self.ui.set_message(data.get('message'))
             self.ui.set_basic_idea(data.get('basic_idea'))
     
@@ -83,6 +93,7 @@ class StoryModel(UIObserver):
         self.ui.set_alias("")
         self.ui.set_title("")
         self.ui.set_accent("")
+        self.ui.set_genre("")
         self.ui.set_message("")
         self.ui.set_basic_idea("")
         self.fq_file_name = ""
