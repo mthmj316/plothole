@@ -43,7 +43,7 @@ class StoryFrame(tk.Frame, UIObservable):
        lb_basic_idea = tk.Label(self, text="Grundidee")
        
        self.tb_alias_value = StringVar()
-       tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
+       self.tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
        
        self.tb_title_value = StringVar()
        tb_title = tk.Entry(self, textvariable=self.tb_title_value)
@@ -59,7 +59,7 @@ class StoryFrame(tk.Frame, UIObservable):
        self.sta_basic_idea = stxt.ScrolledText(self, width=200, height=30)    
        
        lb_alias.grid(row=0, column=0, sticky="E", padx=PAD_X_LEFT_BOLD, pady=5)       
-       tb_alias.grid(row=0, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
+       self.tb_alias.grid(row=0, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
        
        lb_title.grid(row=1, column=0, sticky="E", padx=PAD_X_LEFT_BOLD, pady=5)
        tb_title.grid(row=1, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
@@ -178,3 +178,9 @@ class StoryFrame(tk.Frame, UIObservable):
     
     def raise_error(self, error):
         mb.showerror("Fehler", error)
+        
+    def disable_alias(self):
+        self.tb_alias.config(state='disabled')
+        
+    def enable_alias(self):
+        self.tb_alias.config(state='normal')

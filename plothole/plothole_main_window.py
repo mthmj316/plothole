@@ -28,8 +28,17 @@ class PlotholeMainWindow(object):
         
         self.menu_bar = tk.Menu(self.main_window)        
         self.__file_menu__()            
-        self.story_frame = sframe.StoryFrame(self.main_window) 
+        self.story_frame = sframe.StoryFrame(self.main_window)
         
+    
+    def create_story_button(self, alias):
+        
+        btn = tk.Button(self.main_window, text=alias, command=lambda: self.onStorySelect(alias))
+        btn.config(width=20, height=20)
+        btn.pack(side=tk.LEFT, anchor=tk.NW, padx=(5,5), pady=(5,5))
+        
+    def onStorySelect(self, alias):
+        print(alias)
     
     def get_story_ui(self):
         return self.story_frame
@@ -54,7 +63,8 @@ class PlotholeMainWindow(object):
             self.exit()
     
     def open_story(self):
-        self.story_frame.grid(row=0, column=0, sticky="NSEW")
+        self.story_frame.pack()
+        #.grid(row=0, column=0, sticky="NSEW")
         self.story_frame.raise_frame()
 
     

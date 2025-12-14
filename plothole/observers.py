@@ -93,3 +93,19 @@ class UIObserver(ABC):
         -------
         None.
         """
+        
+    @abstractmethod
+    def onSelect(self, selected):
+        """
+        Is called in case a specifc selection has been made
+
+        Parameters
+        ----------
+        selected : string
+            Id of the seletced element.
+
+        Returns
+        -------
+        None.
+
+        """

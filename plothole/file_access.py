@@ -11,6 +11,7 @@ __POSSIBLE_MODES__ = ['r', 'w', 'a', 'r+', 'w+', 'a+', 'b']
 
 from glob import glob
 
+
 def find_files(_filter, recursive):
     
     files = []
