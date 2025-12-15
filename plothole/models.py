@@ -10,7 +10,7 @@ import file_access as fs
 import os.path
 import helpers as h
 
-class MainWindowModel(UIObserver):
+class StoryOverviewModel(UIObserver):
     
     def __init__(self, ui, base_dir):
         self.ui = ui

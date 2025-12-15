@@ -29,7 +29,7 @@ class StoryFrame(tk.Frame, UIObservable):
         
        super().__init__(root, *args, **kwargs)
        # super().__init__(root, background="red", *args, **kwargs)
-       
+       self.root = root
        self.observers = []
        
        self.grid_columnconfigure(1, weight=1)
@@ -95,14 +95,15 @@ class StoryFrame(tk.Frame, UIObservable):
        btn_delete.config(width=BUTTON_WIDTH)
        btn_delete.grid(row=0, column=4, sticky="NSEW", padx=(1,0), pady=5)
        
-       btn_close = tk.Button(btn_frame, text="Speichern / Schließen", command=self.close)
+       btn_close = tk.Button(btn_frame, text="Schließen", command=self.close)
        btn_close.config(width=BUTTON_WIDTH)
        btn_close.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
     
     def close(self):
         for observer in self.observers:
-            observer.onSave()
             observer.onClose()
+        
+        self.root.close_me(self)
     
     def set_base_dir(self, base_dir):
         self.base_dir = base_dir
@@ -135,8 +136,8 @@ class StoryFrame(tk.Frame, UIObservable):
         for observer in self.observers:
             observer.onRevert()
     
-    def raise_frame(self):
-        self.tkraise()
+    def raise_frame(self, abovethis):
+        self.tkraise(aboveThis=abovethis)
         
     def get_alias(self):
         return self.tb_alias_value.get()

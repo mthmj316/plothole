@@ -21,7 +21,9 @@ if __name__ == '__main__':
         
     w = win.PlotholeMainWindow()
     
-    main_window_model = models.MainWindowModel(w, path_repros)
+    story_overview_ui = w.get_story_overview_ui()
+    story_overview_model = models.StoryOverviewModel(w, path_repros)
+    
     
     story_ui = w.get_story_ui()
     story_model = models.StoryModel(story_ui, path_repros) 
