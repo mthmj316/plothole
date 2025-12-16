@@ -135,7 +135,7 @@ class BookOverviewModel(UIObserver):
             self.selected_story_fqname = h.get_path_for_alias(self.base_dir, selected) 
             self.book_path = f"{pathlib.Path(self.selected_story_fqname).parent}/book"    
             self.ui.set_header(f"Bücher: {selected}")   
-            self.__load_aliases__()
+            # self.__load_aliases__()
             
     def onDisplay(self, origin):        
         if self.ui == origin:

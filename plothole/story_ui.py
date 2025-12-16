@@ -51,9 +51,10 @@ class StoryOverview(tk.Frame, UIObservable):
         self.observers.pop(self.observers.index(uiobserver))
     
     def onStorySelect(self, alias):
-        self.root.close_me(self)
         for observer in self.observers:
             observer.onSelect(alias, PlotHoleType.STORY)
+        
+        self.root.close_me(self)
             
     def create_story_button(self, alias):        
         btn = tk.Button(self, text=alias, command=lambda: self.onStorySelect(alias))
