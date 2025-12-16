@@ -7,7 +7,8 @@ Created on Tue Dec  9 14:36:56 2025
 
 import tkinter as tk
 from observers import UIObservable
-
+from tkinter import font as tkFont
+from plothole_types import PlotHoleType 
 from tkinter import scrolledtext as stxt
 from tkinter.filedialog import askopenfilename
 from tkinter import StringVar
@@ -22,6 +23,44 @@ PAD_X_BOTTON_BOLD = (5,20)
 COLSPAN_RIGHT = 5
 
 BUTTON_WIDTH = 20
+
+class StoryOverview(tk.Frame, UIObservable):
+    
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, *args, **kwargs)
+        self.grid_columnconfigure(0, weight=1)
+        self.next_button_row = 0
+        self.root = root
+        self.observers = []        
+        self.default_font = tkFont.Font(family='Helvetica', size=20, weight='bold')        
+        lb_header = tk.Label(self, text="Geschichten:", anchor=tk.W,)
+        lb_header.grid(row=self.next_button_row, column=0, sticky=tk.NSEW, padx=(5,5), pady=(5,5))
+        lb_header['font'] = self.default_font
+        
+        self.next_button_row += 1
+    
+    def raise_frame(self, abovethis):
+        self.tkraise(aboveThis=abovethis)
+        for observer in self.observers:
+            observer.onDisplay(self)      
+
+    def register(self, uiobserver):
+        self.observers.append(uiobserver)
+        
+    def unregister(self, uiobserver):
+        self.observers.pop(self.observers.index(uiobserver))
+    
+    def onStorySelect(self, alias):
+        self.root.close_me(self)
+        for observer in self.observers:
+            observer.onSelect(alias, PlotHoleType.STORY)
+            
+    def create_story_button(self, alias):        
+        btn = tk.Button(self, text=alias, command=lambda: self.onStorySelect(alias))
+        btn.grid(row=self.next_button_row, column=0, sticky="NSEW", padx=(5,5), pady=(5,5))
+        btn['font'] = self.default_font
+        
+        self.next_button_row += 1
 
 class StoryFrame(tk.Frame, UIObservable):
     
@@ -138,6 +177,8 @@ class StoryFrame(tk.Frame, UIObservable):
     
     def raise_frame(self, abovethis):
         self.tkraise(aboveThis=abovethis)
+        for observer in self.observers:
+            observer.onDisplay(self)      
         
     def get_alias(self):
         return self.tb_alias_value.get()

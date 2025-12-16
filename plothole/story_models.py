@@ -19,7 +19,6 @@ class StoryOverviewModel(UIObserver):
         self.__load_aliases__()
         
     def __load_aliases__(self):
-        
         for alias in h.get_all_aliases(self.base_dir):
             self.ui.create_story_button(alias)
     
@@ -41,8 +40,12 @@ class StoryOverviewModel(UIObserver):
     def onUpdate(self):
         pass
     
-    def onSelect(self, selected):
-        print(selected)
+    def onSelect(self, selected, _type):
+        pass
+    
+    def onDisplay(self, origin):
+        if self.ui == origin:
+            pass
 
 class StoryModel(UIObserver):
     
@@ -151,6 +154,7 @@ class StoryModel(UIObserver):
             self.onClose()
     
     def onClose(self):
+        
         self.ui.set_alias("")
         self.ui.set_title("")
         self.ui.set_accent("")
@@ -161,6 +165,9 @@ class StoryModel(UIObserver):
         self.fq_file_name = ""
         self.story = None
     
-    def onSelect(self, selected):
-        # not relevant
+    def onSelect(self, selected, _type):        
         pass
+    
+    def onDisplay(self, origin):
+        if self.ui == origin:
+            pass

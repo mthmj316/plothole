@@ -95,7 +95,7 @@ class UIObserver(ABC):
         """
         
     @abstractmethod
-    def onSelect(self, selected):
+    def onSelect(self, selected, _type):
         """
         Is called in case a specifc selection has been made
 
@@ -103,6 +103,24 @@ class UIObserver(ABC):
         ----------
         selected : string
             Id of the seletced element.
+        _type: PlotHoleType
+            the type of the seletced element
+            
+        Returns
+        -------
+        None.
+
+        """
+        
+    @abstractmethod
+    def onDisplay(self, origin):
+        """
+        Is called from a ui if it gets dispalyed.
+
+        Parameters
+        ----------
+        origin : tk.Frame
+            The frame which gets displayed
 
         Returns
         -------
