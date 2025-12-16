@@ -34,5 +34,6 @@ if __name__ == '__main__':
     
     story_overview_ui.register(book_overview_model)
     story_overview_ui.register(book_ui_model)
+    book_overview_ui.register(book_ui_model)
     
     w.run()

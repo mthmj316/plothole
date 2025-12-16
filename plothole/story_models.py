@@ -127,17 +127,7 @@ class StoryModel(UIObserver):
         fs.write(self.fq_file_name, story_data)
         
         self.updateUI()
-    
-    def onLoad(self, file_name):
-        
-        if file_name is not None and len(file_name) > 0:            
-            self.fq_file_name = file_name            
-            self.story = h.get_story(self.fq_file_name, as_dict=True)
-            self.updateUI()
-            self.ui.disable_alias()
-            
-
-            
+                        
     def updateUI(self):
         self.ui.set_alias(self.story.get('alias'))
         self.ui.set_title(self.story.get('title'))
@@ -145,7 +135,14 @@ class StoryModel(UIObserver):
         self.ui.set_genre(self.story.get('genre'))
         self.ui.set_message(self.story.get('message'))
         self.ui.set_basic_idea(self.story.get('basic_idea'))
+      
+    def onLoad(self, file_name):
         
+        if file_name is not None and len(file_name) > 0:            
+            self.fq_file_name = file_name            
+            self.story = h.get_story(self.fq_file_name, as_dict=True)
+            self.updateUI()
+            self.ui.disable_alias()
     
     def onRevert(self):        
         if len(self.fq_file_name) > 0:            

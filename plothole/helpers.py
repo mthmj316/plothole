@@ -25,11 +25,44 @@ def get_all_aliases(base_dir, extension='story'):
 
     """
     aliases = []
-    for story in get_all_stories(base_dir, as_dict=True, extension=extension):
+    for story in get_all(base_dir, as_dict=True, extension=extension):
         aliases.append(story.get('alias'))
     return aliases
+
+def get_book_path_by_alias(base_dir, alias):    
+    return get_path_for_alias(base_dir, alias, extension='book')
+
+def get_book_by_alias(base_dir, alias):
     
-def get_story(fq_path, as_dict=False, extension='story'):
+    for book in get_all(base_dir, as_dict=True, extension='book'):
+        if book.get('alias') == alias:
+            return book
+        
+    return None
+
+def get(fq_path, as_dict=False):
+    """
+    Returns the plothole element for the fully qulified apth
+
+    Parameters
+    ----------
+    fq_path : string
+        Fully qualified path of the plothole element
+    as_dict : bool, optional
+        If True the element is retured as dictionary, otherwise as string. 
+        The default is False.
+
+    Returns
+    -------
+    None.
+
+    """
+    e = fs.read_from_file(fq_path, as_list=False)        
+    if as_dict:
+        e = json.loads(e)      
+    return e
+
+def get_story(fq_path, as_dict=False):
     """
     Returns the story for the fully qulified apth
 
@@ -46,14 +79,11 @@ def get_story(fq_path, as_dict=False, extension='story'):
     None.
 
     """
-    story = fs.read_from_file(fq_path, as_list=False)        
-    if as_dict:
-        story = json.loads(story)      
-    return story
+    return get(fq_path, as_dict)
 
-def get_all_story_pathes(base_dir, extension='story'):
+def get_all_pathes(base_dir, extension):
     """
-    Returns for all stories the fully qualified name.
+    Returns for the given extension all fully qualified names.
 
     Parameters
     ----------
@@ -69,8 +99,54 @@ def get_all_story_pathes(base_dir, extension='story'):
     _filter = ALL_STORIES_FILE_FILTER.format(base_dir, extension)   
     pathes = fs.find_files(_filter, True)
     return pathes
- 
-def get_all_stories(base_dir, as_dict=False, extension='story'):
+
+def get_all_story_pathes(base_dir):
+    """
+    Returns for all stories the fully qualified name.
+
+    Parameters
+    ----------
+    base_dir : string
+        The directory which is recursively searched.
+
+    Returns
+    -------
+    pathes : string
+        A list of of all pathes.
+
+    """
+    return get_all_pathes(base_dir, 'story')
+
+def get_all(base_dir, extension, as_dict=False):
+    """
+    Returns all existing plothole elements with the given extenesion.
+    The search is recursive - subfolder will be searched, too.
+    In case as_dict==True the single stories will be returned as dictionaries
+    otherwise as string
+
+    Parameters
+    ----------
+    base_dir : String
+        The directory which is searched for the stories.
+    as_dict : bool, optional
+        If True the story is retured as dictionary, otherwise as string. 
+        The default is False.
+
+    Returns
+    -------
+    stories : list
+        ALl found stories. .
+
+    """
+    elements = []    
+    for path in get_all_pathes(base_dir, extension=extension):
+        elements.append(get_story(path, as_dict))
+    return elements
+
+def get_all_books(base_dir, as_dict=False):
+    return get_all(base_dir, 'book', as_dict)
+   
+def get_all_stories(base_dir, as_dict=False):
     """
     Returns all existing stories.
     The search is recursive - subfolder will be searched, too.
@@ -91,10 +167,7 @@ def get_all_stories(base_dir, as_dict=False, extension='story'):
         ALl found stories. .
 
     """
-    stories = []    
-    for path in get_all_story_pathes(base_dir, extension=extension):
-        stories.append(get_story(path, as_dict))
-    return stories
+    return get_all(base_dir, 'story', as_dict)
 
 def exists_alias(base_dir, alias, extension='story'):
     """
@@ -114,8 +187,8 @@ def exists_alias(base_dir, alias, extension='story'):
         True in case the alias exists otherwise false.
 
     """
-    stories = get_all_stories(base_dir, as_dict=True, extension=extension)
-    for story in stories:
+    elements = get_all(base_dir, as_dict=True, extension=extension)
+    for story in elements:
         if alias.casefold() == story.get('alias').casefold():
             return True  
     return False
@@ -137,8 +210,8 @@ def get_path_for_alias(base_dir, alias, extension='story'):
         Fully qulified name of the story with the given alias.
 
     """
-    for path in get_all_story_pathes(base_dir, extension=extension):
-        story = get_story(path, as_dict=True, extension=extension)
+    for path in get_all_pathes(base_dir, extension=extension):
+        story = get_story(path, as_dict=True)
         if story.get('alias') == alias:
             return path
     return None

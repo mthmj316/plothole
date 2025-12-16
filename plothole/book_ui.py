@@ -225,13 +225,13 @@ class BookOverviewFrame(tk.Frame, UIObservable):
         self.observers.pop(self.observers.index(uiobserver))
     
     def on_book_select(self, alias):
-        pass
+        self.root.close_me(self, back=False)
+        for observer in self.observers:
+            observer.onSelect(alias, PlotHoleType.BOOK)
     
-    def remove_all_book_buttons(self):
-        
+    def remove_all_book_buttons(self):        
         for btn in self.book_buttons:
-            btn.destroy()
-            
+            btn.destroy()            
         self.next_button_row = 1
         self.book_buttons.clear()
         
@@ -240,8 +240,7 @@ class BookOverviewFrame(tk.Frame, UIObservable):
         btn.grid(row=self.next_button_row, column=0, columnspan=2, sticky="NSEW", padx=(5,5), pady=(5,5))
         btn['font'] = tkFont.Font(family='Helvetica', size=20, weight='bold')
         
-        self.next_button_row += 1
-        
+        self.next_button_row += 1        
         self.book_buttons.append(btn)
         
     def set_header(self, header):
