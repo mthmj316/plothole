@@ -9,6 +9,7 @@ from observers import UIObserver
 import file_access as fs
 import os.path
 import helpers as h
+import plothole_core  as pcore
 
 class StoryOverviewModel(UIObserver):
     
@@ -102,10 +103,9 @@ class StoryModel(UIObserver):
         self.ui.disable_alias()
         
     
-    def onDelete(self):        
+    def onDelete(self):
         if len(self.fq_file_name) > 0:            
-            dirname = os.path.dirname(self.fq_file_name)            
-            fs.delete_folder(dirname)
+            pcore.delete_story(self.base_dir, self.story.get('alias'))
             self.onClose()
         
     

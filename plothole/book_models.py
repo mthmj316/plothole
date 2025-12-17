@@ -10,6 +10,7 @@ import file_access as fs
 import helpers as h
 import pathlib
 
+from plothole_core import delete_book
 from plothole_types import PlotHoleType
 
 class BookModel(UIObserver):
@@ -24,10 +25,20 @@ class BookModel(UIObserver):
         self.book = None
     
     def onClose(self):
-        pass
+        self.ui.set_alias("")
+        self.ui.set_title("")
+        self.ui.set_accent("")
+        self.ui.set_message("")
+        self.ui.set_basic_idea("")
+        self.ui.enable_alias()
+        self.fq_file_name = ""
+        self.book = None
     
-    def onDelete(self):
-        pass
+    def onDelete(self):        
+        if self.book is not None:
+           p = pathlib.Path(self.selected_story_fqname)
+           delete_book(p.parent.as_posix(), self.book.get('alias')) 
+           self.onClose()
     
     def onLoad(self, file_path):
         pass
@@ -93,11 +104,11 @@ class BookModel(UIObserver):
         self.updateUI()
                         
     def updateUI(self):
-        self.ui.set_alias(self.story.get('alias'))
-        self.ui.set_title(self.story.get('title'))
-        self.ui.set_accent(self.story.get('accent'))
-        self.ui.set_message(self.story.get('message'))
-        self.ui.set_basic_idea(self.story.get('basic_idea'))
+        self.ui.set_alias(self.book.get('alias'))
+        self.ui.set_title(self.book.get('title'))
+        self.ui.set_accent(self.book.get('accent'))
+        self.ui.set_message(self.book.get('message'))
+        self.ui.set_basic_idea(self.book.get('basic_idea'))
     
     def onSelect(self, selected, _type):
         if _type == PlotHoleType.STORY:
@@ -106,10 +117,10 @@ class BookModel(UIObserver):
             self.book_path = f"{pathlib.Path(self.selected_story_fqname).parent}/book"     
             self.ui.set_header(f"Neues Buch für: {selected}")
         elif _type == PlotHoleType.BOOK:  
-            print(f"book#OnSelect: {selected} - {_type}")          
+            # print(f"book#OnSelect: {selected} - {_type}")          
             self.fq_file_name = h.get_book_path_by_alias(self.book_path, selected)          
             self.book = h.get(self.fq_file_name, as_dict=True)
-            print(self.book)
+            # print(self.book)
             self.ui.set_alias(self.book.get('alias'))
             self.ui.set_title(self.book.get('title'))
             self.ui.set_accent(self.book.get('accent'))
@@ -120,7 +131,7 @@ class BookModel(UIObserver):
     def onDisplay(self, origin): 
         
         if self.ui == origin:
-            print(f"book#onDisplay: {origin}")
+            # print(f"book#onDisplay: {origin}")
             self.ui.set_alias("")
             self.ui.set_title("")
             self.ui.set_accent("")

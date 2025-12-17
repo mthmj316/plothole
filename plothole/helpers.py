@@ -6,8 +6,13 @@ Created on Mon Dec  8 20:26:25 2025
 """
 import file_access as fs
 import json
+import time
 
 ALL_STORIES_FILE_FILTER = "{0}/**/*.{1}"
+
+def get_current_time_stamp(_format='%Y%m%d-%H%M%S'):
+    timestr = time.strftime(_format)
+    return timestr
 
 def get_all_aliases(base_dir, extension='story'):
     """
@@ -29,16 +34,27 @@ def get_all_aliases(base_dir, extension='story'):
         aliases.append(story.get('alias'))
     return aliases
 
-def get_book_path_by_alias(base_dir, alias):    
-    return get_path_for_alias(base_dir, alias, extension='book')
+def get_story_path_by_alias(base_dir, alias): 
+    extension='story'
+    return get_path_for_alias(base_dir, alias, extension)
 
-def get_book_by_alias(base_dir, alias):
-    
-    for book in get_all(base_dir, as_dict=True, extension='book'):
+def get_book_path_by_alias(base_dir, alias): 
+    extension='book'
+    return get_path_for_alias(base_dir, alias, extension)
+
+def get_by_alias(base_dir, alias, extension):
+    for book in get_all(base_dir, as_dict=True, extension=extension):
         if book.get('alias') == alias:
             return book
-        
     return None
+
+def get_book_by_alias(base_dir, alias):
+    extension='book'    
+    return get_by_alias(base_dir, alias, extension)
+
+def get_story_by_alias(base_dir, alias):
+    extension='story'    
+    return get_by_alias(base_dir, alias, extension)
 
 def get(fq_path, as_dict=False):
     """
@@ -99,6 +115,23 @@ def get_all_pathes(base_dir, extension):
     _filter = ALL_STORIES_FILE_FILTER.format(base_dir, extension)   
     pathes = fs.find_files(_filter, True)
     return pathes
+
+def get_all_book_pathes(base_dir):
+    """
+    Returns for all books the fully qualified name.
+
+    Parameters
+    ----------
+    base_dir : string
+        The directory which is recursively searched.
+
+    Returns
+    -------
+    pathes : string
+        A list of of all pathes.
+
+    """
+    return get_all_pathes(base_dir, 'book')
 
 def get_all_story_pathes(base_dir):
     """

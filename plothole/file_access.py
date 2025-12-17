@@ -11,6 +11,8 @@ __POSSIBLE_MODES__ = ['r', 'w', 'a', 'r+', 'w+', 'a+', 'b']
 
 from glob import glob
 
+def move(old, new):
+    Path(old).rename(new)
 
 def find_files(_filter, recursive):
     

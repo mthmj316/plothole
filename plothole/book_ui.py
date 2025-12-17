@@ -119,6 +119,7 @@ class BookFrame(tk.Frame, UIObservable):
     def delete(self):
         for observer in self.observers:
             observer.onDelete()
+        self.root.close_me(self)
 
     def revert(self):
         for observer in self.observers:
