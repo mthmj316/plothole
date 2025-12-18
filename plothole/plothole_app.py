@@ -10,7 +10,7 @@ import story_models
 import sys
 
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
-PROD_PLOTHOLE_REPOS = "C:/Users/mthoma/Documents/PlotHole_Repos"
+PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
 
 if __name__ == '__main__':
     

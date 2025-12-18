@@ -117,21 +117,18 @@ class BookModel(UIObserver):
             self.book_path = f"{pathlib.Path(self.selected_story_fqname).parent}/book"     
             self.ui.set_header(f"Neues Buch für: {selected}")
         elif _type == PlotHoleType.BOOK:  
-            # print(f"book#OnSelect: {selected} - {_type}")          
             self.fq_file_name = h.get_book_path_by_alias(self.book_path, selected)          
             self.book = h.get(self.fq_file_name, as_dict=True)
-            # print(self.book)
             self.ui.set_alias(self.book.get('alias'))
             self.ui.set_title(self.book.get('title'))
             self.ui.set_accent(self.book.get('accent'))
             self.ui.set_message( self.book.get('message'))
             self.ui.set_basic_idea(self.book.get('basic_idea'))
             self.ui.set_header(f"{self.selected_story}: {selected}")
+            self.ui.disable_alias()
             
     def onDisplay(self, origin): 
-        
         if self.ui == origin:
-            # print(f"book#onDisplay: {origin}")
             self.ui.set_alias("")
             self.ui.set_title("")
             self.ui.set_accent("")
@@ -140,6 +137,7 @@ class BookModel(UIObserver):
             self.ui.enable_alias()
             self.fq_file_name = ""
             self.book = None
+            self.ui.enable_alias()
     
 class BookOverviewModel(UIObserver):
     
@@ -148,7 +146,6 @@ class BookOverviewModel(UIObserver):
         self.base_dir = base_dir  
         self.selected_story_fqname = ''
         self.book_path = ''
-        
         self.ui.register(self)
         
     def __load_aliases__(self):        
