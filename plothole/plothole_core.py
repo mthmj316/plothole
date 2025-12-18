@@ -10,6 +10,11 @@ import pathlib
 
 from plothole_types import FILE_EXTENSIONS_DUMP as fed
 
+def delete_part(base_dir, alias):
+    part_path = hlp.get_part_path_by_alias(base_dir, alias)
+    part_dump_path = dump_file_extension(part_path, 'part')
+    fa.move(part_path, part_dump_path)
+
 def delete_book(base_dir, alias):
     book_path = hlp.get_book_path_by_alias(base_dir, alias)
     book_dump_path = dump_file_extension(book_path, 'book')
