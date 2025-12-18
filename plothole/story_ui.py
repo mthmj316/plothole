@@ -7,7 +7,8 @@ Created on Tue Dec  9 14:36:56 2025
 
 import tkinter as tk
 from observers import UIObservable
-
+from tkinter import font as tkFont
+from plothole_types import PlotHoleType 
 from tkinter import scrolledtext as stxt
 from tkinter.filedialog import askopenfilename
 from tkinter import StringVar
@@ -23,13 +24,52 @@ COLSPAN_RIGHT = 5
 
 BUTTON_WIDTH = 20
 
+class StoryOverview(tk.Frame, UIObservable):
+    
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, *args, **kwargs)
+        self.grid_columnconfigure(0, weight=1)
+        self.next_button_row = 0
+        self.root = root
+        self.observers = []        
+        self.default_font = tkFont.Font(family='Helvetica', size=20, weight='bold')        
+        lb_header = tk.Label(self, text="Geschichten:", anchor=tk.W,)
+        lb_header.grid(row=self.next_button_row, column=0, sticky=tk.NSEW, padx=(5,5), pady=(5,5))
+        lb_header['font'] = self.default_font
+        
+        self.next_button_row += 1
+    
+    def raise_frame(self, abovethis):
+        self.tkraise(aboveThis=abovethis)
+        for observer in self.observers:
+            observer.onDisplay(self)      
+
+    def register(self, uiobserver):
+        self.observers.append(uiobserver)
+        
+    def unregister(self, uiobserver):
+        self.observers.pop(self.observers.index(uiobserver))
+    
+    def onStorySelect(self, alias):
+        for observer in self.observers:
+            observer.onSelect(alias, PlotHoleType.STORY)
+        
+        self.root.close_me(self)
+            
+    def create_story_button(self, alias):        
+        btn = tk.Button(self, text=alias, command=lambda: self.onStorySelect(alias))
+        btn.grid(row=self.next_button_row, column=0, sticky="NSEW", padx=(5,5), pady=(5,5))
+        btn['font'] = self.default_font
+        
+        self.next_button_row += 1
+
 class StoryFrame(tk.Frame, UIObservable):
     
     def __init__(self, root, *args, **kwargs):
         
        super().__init__(root, *args, **kwargs)
        # super().__init__(root, background="red", *args, **kwargs)
-       
+       self.root = root
        self.observers = []
        
        self.grid_columnconfigure(1, weight=1)
@@ -43,7 +83,7 @@ class StoryFrame(tk.Frame, UIObservable):
        lb_basic_idea = tk.Label(self, text="Grundidee")
        
        self.tb_alias_value = StringVar()
-       tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
+       self.tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
        
        self.tb_title_value = StringVar()
        tb_title = tk.Entry(self, textvariable=self.tb_title_value)
@@ -59,7 +99,7 @@ class StoryFrame(tk.Frame, UIObservable):
        self.sta_basic_idea = stxt.ScrolledText(self, width=200, height=30)    
        
        lb_alias.grid(row=0, column=0, sticky="E", padx=PAD_X_LEFT_BOLD, pady=5)       
-       tb_alias.grid(row=0, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
+       self.tb_alias.grid(row=0, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
        
        lb_title.grid(row=1, column=0, sticky="E", padx=PAD_X_LEFT_BOLD, pady=5)
        tb_title.grid(row=1, column=1, columnspan=COLSPAN_RIGHT, sticky="NSEW", padx=PAD_X_RIGHT_BOLD, pady=5)
@@ -95,14 +135,15 @@ class StoryFrame(tk.Frame, UIObservable):
        btn_delete.config(width=BUTTON_WIDTH)
        btn_delete.grid(row=0, column=4, sticky="NSEW", padx=(1,0), pady=5)
        
-       btn_close = tk.Button(btn_frame, text="Speichern / Schließen", command=self.close)
+       btn_close = tk.Button(btn_frame, text="Schließen", command=self.close)
        btn_close.config(width=BUTTON_WIDTH)
        btn_close.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
     
     def close(self):
         for observer in self.observers:
-            observer.onSave()
             observer.onClose()
+        
+        self.root.close_me(self)
     
     def set_base_dir(self, base_dir):
         self.base_dir = base_dir
@@ -135,8 +176,10 @@ class StoryFrame(tk.Frame, UIObservable):
         for observer in self.observers:
             observer.onRevert()
     
-    def raise_frame(self):
-        self.tkraise()
+    def raise_frame(self, abovethis):
+        self.tkraise(aboveThis=abovethis)
+        for observer in self.observers:
+            observer.onDisplay(self)      
         
     def get_alias(self):
         return self.tb_alias_value.get()
@@ -178,3 +221,9 @@ class StoryFrame(tk.Frame, UIObservable):
     
     def raise_error(self, error):
         mb.showerror("Fehler", error)
+        
+    def disable_alias(self):
+        self.tb_alias.config(state='disabled')
+        
+    def enable_alias(self):
+        self.tb_alias.config(state='normal')
