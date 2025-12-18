@@ -9,6 +9,19 @@ import shutil
 
 __POSSIBLE_MODES__ = ['r', 'w', 'a', 'r+', 'w+', 'a+', 'b']
 
+from glob import glob
+
+def move(old, new):
+    Path(old).rename(new)
+
+def find_files(_filter, recursive):
+    
+    files = []
+    for filename in glob(_filter, recursive=recursive):
+        files.append(filename)
+        
+    return files
+
 def delete_folder(path):
     dirpath = Path(path)    
     if dirpath.exists() and dirpath.is_dir():
