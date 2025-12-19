@@ -9,16 +9,30 @@ import book_models
 import story_models
 import sys
 
+from inspect import currentframe
+import logger as log
+
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
 
 if __name__ == '__main__':
     
     path_repros = TEST_PLOTHOLE_REPOS
-    
     for o in sys.argv:        
-        if o.startswith("path=prod"):
-            path_repros = PROD_PLOTHOLE_REPOS        
+        if o == "path=prod":
+            path_repros = PROD_PLOTHOLE_REPOS  
+        elif o == "logging=on":
+            log.ENABLE_LOGGING=True
+        elif o == "trace_only=off":
+            log.TRACE_ONLY = False
+    
+    log.log(None, currentframe(), "plothole started ...")
+    
+    if path_repros == TEST_PLOTHOLE_REPOS:
+        log.ENABLE_LOGGING=True
+        log.TRACE_ONLY = False
+    
+    log.log_var(None, currentframe(), ('path_repros',path_repros))
         
     w = win.PlotholeMainWindow()
     
@@ -37,3 +51,5 @@ if __name__ == '__main__':
     book_overview_ui.register(book_ui_model)
     
     w.run()
+    
+    log.log(None, currentframe(), "... plothole terminated!")

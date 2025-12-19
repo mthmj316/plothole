@@ -1,0 +1,1 @@
+python "plothole_app.py" "path=prod" "logging=on" "trace_only=on"

@@ -8,6 +8,8 @@ import file_access as fs
 import json
 import time
 from datetime import datetime
+from inspect import currentframe
+import logger as log
 
 ALL_STORIES_FILE_FILTER = "{0}/**/*.{1}"
 
@@ -29,10 +31,14 @@ def exists_alias(base_dir, alias, extension='story'):
         True in case the alias exists otherwise false.
 
     """
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias), ('extension',extension))
+    
     elements = get_all(base_dir, as_dict=True, extension=extension)
     for story in elements:
         if alias.casefold() == story.get('alias').casefold():
-            return True  
+            log.log_var(None, currentframe(), ('return',True))
+            return True
+    log.log_var(None, currentframe(), ('return',False))
     return False
     
 def get_path_for_alias(base_dir, alias, extension='story'):
@@ -52,17 +58,26 @@ def get_path_for_alias(base_dir, alias, extension='story'):
         Fully qulified name of the story with the given alias.
 
     """
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias), ('extension',extension))
     for path in get_all_pathes(base_dir, extension=extension):
         story = get_story(path, as_dict=True)
         if story.get('alias') == alias:
+            log.log_var(None, currentframe(), ('return',True))
             return path
+    log.log_var(None, currentframe(), ('return',False))
     return None
-def get_current_time_stamp(millis=False):    
+
+def get_current_time_stamp(millis=False): 
+    
+    log.log_var(None, currentframe(), ('millis',millis))
     if millis:
-        return datetime.utcnow().strftime('%F %T.%f')[:-3]
+        timestamp = datetime.utcnow().strftime('%F %T.%f')[:-3]
+        log.log_var(None, currentframe(), ('return',timestamp))
+        return timestamp
     
     _format='%Y%m%d-%H%M%S'
     timestr = time.strftime(_format)
+    log.log_var(None, currentframe(), ('return',timestr))
     return timestr
 
 def get_all_aliases(base_dir, extension='story'):
@@ -80,9 +95,11 @@ def get_all_aliases(base_dir, extension='story'):
         All found aliaese
 
     """
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('extension',extension))
     aliases = []
     for story in get_all(base_dir, as_dict=True, extension=extension):
         aliases.append(story.get('alias'))
+    log.log_var(None, currentframe(), ('return',aliases))
     return aliases
 
 def get_by_alias(base_dir, alias, extension):
