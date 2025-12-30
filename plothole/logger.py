@@ -8,6 +8,7 @@ from inspect import currentframe, getframeinfo
 from pathlib import Path
 import sys
 import datetime
+import logger_conf as logconf
 
 # Global parameter
 ENABLE_LOGGING = False
@@ -36,8 +37,12 @@ def log(clazz, current_frame, log='void'):
         else:
             source = Path(file_info.filename).stem
         
-        lineno = file_info.lineno
         function = file_info.function
+
+        if not logconf.is_log_on(source, function):
+            return            
+
+        lineno = file_info.lineno
         
         log_entry = ""
         if TRACE_ONLY:
