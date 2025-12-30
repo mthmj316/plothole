@@ -25,7 +25,7 @@ def log_var(clazz, current_frame, *args):
             
         log(clazz, current_frame, '; '.join(logs))
 
-def log(clazz, current_frame, log):
+def log(clazz, current_frame, log='void'):
     if ENABLE_LOGGING:
         
         file_info = getframeinfo(current_frame)
@@ -48,8 +48,7 @@ def log(clazz, current_frame, log):
         print(log_entry)
        
     
-class Test():
-    
+class Test():    
     def test(self):
         log_var(self, currentframe(), ("username", "Hans Gans"))
         

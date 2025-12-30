@@ -9,13 +9,15 @@ from observers import UIObserver
 import file_access as fs
 import helpers as h
 import pathlib
-
+from inspect import currentframe
+import logger as log
 from plothole_core import delete_book
 from plothole_types import PlotHoleType
 
 class BookModel(UIObserver):
     
     def __init__(self, ui, base_dir):
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
         self.ui = ui
         self.base_dir = base_dir  
         self.selected_story_fqname = ''
@@ -25,6 +27,7 @@ class BookModel(UIObserver):
         self.book = None
     
     def onClose(self):
+        log.log(self, currentframe())
         self.ui.set_alias("")
         self.ui.set_title("")
         self.ui.set_accent("")
@@ -34,25 +37,28 @@ class BookModel(UIObserver):
         self.fq_file_name = ""
         self.book = None
     
-    def onDelete(self):        
+    def onDelete(self):
+        log.log(self, currentframe())
         if self.book is not None:
            p = pathlib.Path(self.selected_story_fqname)
            delete_book(p.parent.as_posix(), self.book.get('alias')) 
            self.onClose()
     
     def onLoad(self, file_path):
-        pass
+        log.log(self, currentframe())
     
     def onRevert(self):
-        pass
+        log.log(self, currentframe())
     
     def onSave(self):
+        log.log(self, currentframe())
         
         if self.book is not None:
             self.onUpdate()
             return
         
         alias = self.ui.get_alias()       
+        log.log_var(self, currentframe(), ('alias',alias))
 
         if alias == "":
             self.ui.raise_error("Alias muss gesetzt sein!")
@@ -73,6 +79,7 @@ class BookModel(UIObserver):
         self.book["accent"] = accent
         self.book["message"] = message
         self.book["basic_idea"] = basic_idea
+        log.log_var(self, currentframe(), ('book',self.book))
         
         story_data = json.dumps(self.book) 
         
@@ -81,12 +88,15 @@ class BookModel(UIObserver):
             
         file_name = "".join(x for x in alias if x.isalnum())
         self.fq_file_name = f"{self.book_path}/{file_name}.book"
+        
+        log.log_var(self, currentframe(), ('fq_file_name',self.fq_file_name))
             
         fs.write(self.fq_file_name, story_data)
         
         self.ui.disable_alias()
     
     def onUpdate(self):
+        log.log(self, currentframe())     
         
         title = self.ui.get_title()
         accent = self.ui.get_accent()
@@ -97,6 +107,8 @@ class BookModel(UIObserver):
         self.book["accent"] = accent
         self.book["message"] = message
         self.book["basic_idea"] = basic_idea
+        log.log_var(self, currentframe(), ('book',self.book))
+        log.log_var(self, currentframe(), ('fq_file_name',self.fq_file_name))
         
         data = json.dumps(self.book)
         fs.write(self.fq_file_name, data)
@@ -104,6 +116,8 @@ class BookModel(UIObserver):
         self.updateUI()
                         
     def updateUI(self):
+        log.log(self, currentframe())
+        
         self.ui.set_alias(self.book.get('alias'))
         self.ui.set_title(self.book.get('title'))
         self.ui.set_accent(self.book.get('accent'))
@@ -111,6 +125,8 @@ class BookModel(UIObserver):
         self.ui.set_basic_idea(self.book.get('basic_idea'))
     
     def onSelect(self, selected, _type):
+        log.log_var(self, currentframe(), ("selected", selected), ("_type", _type))
+        
         if _type == PlotHoleType.STORY:
             self.selected_story = selected
             self.selected_story_fqname = h.get_path_for_alias(self.base_dir, selected) 
@@ -128,6 +144,7 @@ class BookModel(UIObserver):
             self.ui.disable_alias()
             
     def onDisplay(self, origin): 
+        log.log_var(self, currentframe(), ("origin", origin))
         if self.ui == origin:
             self.ui.set_alias("")
             self.ui.set_title("")
@@ -142,36 +159,39 @@ class BookModel(UIObserver):
 class BookOverviewModel(UIObserver):
     
     def __init__(self, ui, base_dir):
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
         self.ui = ui
         self.base_dir = base_dir  
         self.selected_story_fqname = ''
         self.book_path = ''
         self.ui.register(self)
         
-    def __load_aliases__(self):        
+    def __load_aliases__(self):
+        log.log(self, currentframe())        
         if len(self.book_path) > 0:
             for alias in h.get_all_aliases(self.book_path, extension='book'):
                 self.ui.create_book_button(alias)
     
     def onClose(self):
-        pass
+        log.log(self, currentframe())
     
     def onDelete(self):
-        pass
+        log.log(self, currentframe())
     
     def onLoad(self, file_path):
-        pass
+        log.log_var(self, currentframe(), ("file_path", file_path))
     
     def onRevert(self):
-        pass
+        log.log(self, currentframe())
     
     def onSave(self):
-        pass
+        log.log(self, currentframe())
     
     def onUpdate(self):
-        pass
+        log.log(self, currentframe())
     
     def onSelect(self, selected, _type):
+        log.log_var(self, currentframe(), ("selected", selected), ("_type", _type))
         if _type == PlotHoleType.STORY:
             self.selected_story = selected
             self.selected_story_fqname = h.get_path_for_alias(self.base_dir, selected) 
@@ -179,7 +199,8 @@ class BookOverviewModel(UIObserver):
             self.ui.set_header(f"Bücher: {selected}")   
             # self.__load_aliases__()
             
-    def onDisplay(self, origin):        
+    def onDisplay(self, origin):  
+        log.log_var(self, currentframe(), ("origin", origin))      
         if self.ui == origin:
             self.ui.remove_all_book_buttons()
             self.__load_aliases__()
