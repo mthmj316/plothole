@@ -13,6 +13,8 @@ from tkinter import scrolledtext as stxt
 from tkinter.filedialog import askopenfilename
 from tkinter import StringVar
 from tkinter import messagebox as mb
+from inspect import currentframe
+import logger as log
 
 PAD_X_RIGHT_BOLD = (5, 20)
 PAD_X_LEFT_BOLD = (20, 5)
@@ -28,6 +30,9 @@ class StoryOverview(tk.Frame, UIObservable):
     
     def __init__(self, root, *args, **kwargs):
         super().__init__(root, *args, **kwargs)
+       
+        log.log_var(self, currentframe(), ("args", args), ("kwargs", kwargs))
+        
         self.grid_columnconfigure(0, weight=1)
         self.next_button_row = 0
         self.root = root
@@ -40,23 +45,28 @@ class StoryOverview(tk.Frame, UIObservable):
         self.next_button_row += 1
     
     def raise_frame(self, abovethis):
+        log.log_var(self, currentframe(), ("abovethis", abovethis))
         self.tkraise(aboveThis=abovethis)
         for observer in self.observers:
             observer.onDisplay(self)      
 
     def register(self, uiobserver):
+        log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.append(uiobserver)
         
     def unregister(self, uiobserver):
+        log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.pop(self.observers.index(uiobserver))
     
     def onStorySelect(self, alias):
+        log.log_var(self, currentframe(), ("alias", alias))
         for observer in self.observers:
             observer.onSelect(alias, PlotHoleType.STORY)
         
         self.root.close_me(self)
             
-    def create_story_button(self, alias):        
+    def create_story_button(self, alias): 
+        log.log_var(self, currentframe(), ("alias", alias))       
         btn = tk.Button(self, text=alias, command=lambda: self.onStorySelect(alias))
         btn.grid(row=self.next_button_row, column=0, sticky="NSEW", padx=(5,5), pady=(5,5))
         btn['font'] = self.default_font
@@ -65,10 +75,11 @@ class StoryOverview(tk.Frame, UIObservable):
 
 class StoryFrame(tk.Frame, UIObservable):
     
-    def __init__(self, root, *args, **kwargs):
-        
+    def __init__(self, root, *args, **kwargs):        
        super().__init__(root, *args, **kwargs)
-       # super().__init__(root, background="red", *args, **kwargs)
+      
+       log.log_var(self, currentframe(), ("args", args), ("kwargs", kwargs))
+       
        self.root = root
        self.observers = []
        
@@ -140,90 +151,114 @@ class StoryFrame(tk.Frame, UIObservable):
        btn_close.grid(row=0, column=5, sticky="NSEW", padx=(1,0), pady=5)
     
     def close(self):
+        log.log(self, currentframe())
         for observer in self.observers:
             observer.onClose()
         
         self.root.close_me(self)
     
     def set_base_dir(self, base_dir):
+        log.log_var(self, currentframe(), ("base_dir", base_dir))
         self.base_dir = base_dir
      
     def register(self, uiobserver):
+        log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.append(uiobserver)
     
     def unregister(self, uiobserver):
+        log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.pop(self.observers.index(uiobserver))
 
     def _open(self):
-       # Tk().withdraw()
-       self.story_file = askopenfilename(initialdir=self.base_dir)
-       for observer in self.observers:
-           observer.onLoad(self.story_file)
+        log.log(self, currentframe())
+        self.story_file = askopenfilename(initialdir=self.base_dir)
+        for observer in self.observers:
+            observer.onLoad(self.story_file)
         
     def save(self):
+        log.log(self, currentframe())
         for observer in self.observers:
             observer.onSave()
 
     def update(self):
+        log.log(self, currentframe())
         for observer in self.observers:
             observer.onUpdate()
     
     def delete(self):
+        log.log(self, currentframe())
         for observer in self.observers:
             observer.onDelete()
 
     def revert(self):
+        log.log(self, currentframe())
         for observer in self.observers:
             observer.onRevert()
     
     def raise_frame(self, abovethis):
+        log.log_var(self, currentframe(), ("abovethis", abovethis))
         self.tkraise(aboveThis=abovethis)
         for observer in self.observers:
             observer.onDisplay(self)      
         
     def get_alias(self):
+        log.log(self, currentframe())
         return self.tb_alias_value.get()
     
     def set_alias(self, alias):
+        log.log_var(self, currentframe(), ("alias", alias))
         self.tb_alias_value.set(alias)
     
     def get_title(self):
+        log.log(self, currentframe())
         return self.tb_title_value.get()
     
     def set_title(self, title):
+        log.log_var(self, currentframe(), ("title", title))
         self.tb_title_value.set(title)
     
     def get_accent(self):
+        log.log(self, currentframe())
         return self.tb_accent_value.get()
     
     def set_accent(self, accent):
+        log.log_var(self, currentframe(), ("accent", accent))
         self.tb_accent_value.set(accent)
   
     def get_genre(self):
+        log.log(self, currentframe())
         return self.tb_genre_value.get()
     
     def set_genre(self, genre):
-            self.tb_genre_value.set(genre)
+        log.log_var(self, currentframe(), ("genre", genre))
+        self.tb_genre_value.set(genre)
     
     def get_message(self):
+        log.log(self, currentframe())
         return self.sta_msg.get("1.0", tk.END)
     
     def set_message(self, msg):
+        log.log_var(self, currentframe(), ("msg", msg))
         self.sta_msg.delete('1.0', tk.END)
         self.sta_msg.insert(tk.INSERT, msg)
     
     def get_basic_idea(self):
+        log.log(self, currentframe())
         return self.sta_basic_idea.get("1.0", tk.END)
     
     def set_basic_idea(self, basic_idea):
+        log.log_var(self, currentframe(), ("basic_idea", basic_idea))
         self.sta_basic_idea.delete('1.0', tk.END)
         self.sta_basic_idea.insert(tk.INSERT, basic_idea)
     
     def raise_error(self, error):
+        log.log_var(self, currentframe(), ("error", error))
         mb.showerror("Fehler", error)
         
     def disable_alias(self):
+        log.log(self, currentframe())
         self.tb_alias.config(state='disabled')
         
     def enable_alias(self):
+        log.log(self, currentframe())
         self.tb_alias.config(state='normal')
