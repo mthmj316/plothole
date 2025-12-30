@@ -7,51 +7,56 @@ Created on Wed Dec 10 14:40:56 2025
 import json
 from observers import UIObserver
 import file_access as fs
-import os.path
+
 import helpers as h
 import plothole_core  as pcore
+from inspect import currentframe
+import logger as log
 
 class StoryOverviewModel(UIObserver):
     
     def __init__(self, ui, base_dir):
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
         self.ui = ui
         self.base_dir = base_dir
         
         self.__load_aliases__()
         
     def __load_aliases__(self):
+        log.log(self, currentframe())
         for alias in h.get_all_aliases(self.base_dir):
             self.ui.create_story_button(alias)
     
     def onClose(self):
-        pass
+        log.log(self, currentframe())
     
     def onDelete(self):
-        pass
+        log.log(self, currentframe())
     
     def onLoad(self, file_path):
-        pass
+        log.log_var(self, currentframe(), ("file_path", file_path))
     
     def onRevert(self):
-        pass
+        log.log(self, currentframe())
     
     def onSave(self):
-        pass
+        log.log(self, currentframe())
     
     def onUpdate(self):
-        pass
+        log.log(self, currentframe())
     
     def onSelect(self, selected, _type):
         pass
     
     def onDisplay(self, origin):
+        log.log_var(self, currentframe(), ("origin", origin))
         if self.ui == origin:
             pass
 
 class StoryModel(UIObserver):
     
     def __init__(self, ui, base_dir):
-        
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
         self.base_dir = base_dir
         self.ui = ui
         self.ui.set_base_dir(base_dir)
@@ -60,12 +65,14 @@ class StoryModel(UIObserver):
         self.story = None
     
     def onSave(self):
+        log.log(self, currentframe())
         
         if self.story is not None:
             self.onUpdate()
             return
         
-        alias = self.ui.get_alias()       
+        alias = self.ui.get_alias()  
+        log.log_var(self, currentframe(), ("alias", alias))     
 
         if alias == "":
             self.ui.raise_error("Alias muss gesetzt sein!")
@@ -86,14 +93,16 @@ class StoryModel(UIObserver):
         self.story["accent"] = accent
         self.story["genre"] = genre
         self.story["message"] = message
-        self.story["basic_idea"] = basic_idea
+        self.story["basic_idea"] = basic_idea  
+        log.log_var(self, currentframe(), ("story", self.story))
         
         story_data = json.dumps(self.story) 
         
         file_name = "".join(x for x in alias if x.isalnum())
                 
         story_path = f"{self.base_dir}/{file_name}"
-        self.fq_file_name = f"{story_path}/{file_name}.story"
+        self.fq_file_name = f"{story_path}/{file_name}.story"  
+        log.log_var(self, currentframe(), ("fq_file_name", self.fq_file_name))
         
         if not fs.exists(self.fq_file_name):            
             fs.create_dir(story_path)  
@@ -104,12 +113,14 @@ class StoryModel(UIObserver):
         
     
     def onDelete(self):
+        log.log(self, currentframe())
         if len(self.fq_file_name) > 0:            
             pcore.delete_story(self.base_dir, self.story.get('alias'))
             self.onClose()
         
     
     def onUpdate(self):
+        log.log(self, currentframe())
         
         title = self.ui.get_title()
         accent = self.ui.get_accent()
@@ -129,6 +140,7 @@ class StoryModel(UIObserver):
         self.updateUI()
                         
     def updateUI(self):
+        log.log(self, currentframe())
         self.ui.set_alias(self.story.get('alias'))
         self.ui.set_title(self.story.get('title'))
         self.ui.set_accent(self.story.get('accent'))
@@ -137,6 +149,7 @@ class StoryModel(UIObserver):
         self.ui.set_basic_idea(self.story.get('basic_idea'))
       
     def onLoad(self, file_name):
+        log.log_var(self, currentframe(), ("file_name", file_name))
         
         if file_name is not None and len(file_name) > 0:            
             self.fq_file_name = file_name            
@@ -144,13 +157,15 @@ class StoryModel(UIObserver):
             self.updateUI()
             self.ui.disable_alias()
     
-    def onRevert(self):        
+    def onRevert(self): 
+        log.log(self, currentframe())       
         if len(self.fq_file_name) > 0:            
             self.onLoad(self.fq_file_name)
         else:
             self.onClose()
     
     def onClose(self):
+        log.log(self, currentframe())
         
         self.ui.set_alias("")
         self.ui.set_title("")
@@ -162,9 +177,11 @@ class StoryModel(UIObserver):
         self.fq_file_name = ""
         self.story = None
     
-    def onSelect(self, selected, _type):        
-        pass
+    def onSelect(self, selected, _type): 
+        log.log_var(self, currentframe(), ("selected", selected), ("_type", _type))
+        log.log(self, currentframe())
     
     def onDisplay(self, origin):
+        log.log_var(self, currentframe(), ("origin", origin))
         if self.ui == origin:
             pass
