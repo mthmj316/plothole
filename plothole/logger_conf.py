@@ -1,7 +1,7 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    'PlotholeMainWindow#*',
+    'StoryModel#*',
     '*#onSelect'
     ]
 

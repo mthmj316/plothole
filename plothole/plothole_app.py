@@ -46,8 +46,9 @@ if __name__ == '__main__':
     book_overview_model = book_models.BookOverviewModel(book_overview_ui, path_repros)
     book_ui_model = book_models.BookModel(book_ui, path_repros)
     
-    story_overview_ui.register(book_overview_model)
-    story_overview_ui.register(book_ui_model)
+    # story_overview_ui.register(book_overview_model)
+    # story_overview_ui.register(book_ui_model)
+    story_overview_ui.register(story_model)
     book_overview_ui.register(book_ui_model)
     
     w.run()

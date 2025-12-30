@@ -67,17 +67,21 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
         
     def close_me(self, frame, back=True):
         log.log_var(self, currentframe(), ("frame", frame), ("back", back))
-        if frame == self.story_frame:
-            self.story_overview_frame.raise_frame(frame)
-        elif frame == self.story_overview_frame:
-            self.book_overview_frame.raise_frame(frame)
-        elif frame == self.book_overview_frame:
-            if back:
-                self.story_overview_frame.raise_frame(frame)
-            else:
-                self.book_frame.raise_frame(frame)
-        elif frame == self.book_frame:
-            self.book_overview_frame.raise_frame(frame)
+        
+        if frame == self.story_overview_frame:
+            self.story_frame.raise_frame(frame)
+        
+        # if frame == self.story_frame:
+        #     self.story_overview_frame.raise_frame(frame)
+        # elif frame == self.story_overview_frame:
+        #     self.book_overview_frame.raise_frame(frame)
+        # elif frame == self.book_overview_frame:
+        #     if back:
+        #         self.story_overview_frame.raise_frame(frame)
+        #     else:
+        #         self.book_frame.raise_frame(frame)
+        # elif frame == self.book_frame:
+        #     self.book_overview_frame.raise_frame(frame)
 
     def get_book_ui(self):
         log.log(self, currentframe())
@@ -98,19 +102,7 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
     def __file_menu__(self):
         log.log(self, currentframe())
         self.file_menu = tk.Menu(self.menu_bar, tearoff=False)
-        self.new_menu = tk.Menu(self.file_menu, tearoff=False)       
-        self.file_menu.add_command(label="Story", command=self.open_story)
-        self.file_menu.add_separator()        
         self.file_menu.add_command(label="Exit", command=self.exit)
-    
-    def save(self, _exit):
-        log.log_var(self, currentframe(), ("_exit", _exit))
-        if _exit:
-            self.exit()
-    
-    def open_story(self):
-        log.log(self, currentframe())
-        self.story_frame.raise_frame(self.story_overview_frame)
     
     def exit(self):
         log.log(self, currentframe())

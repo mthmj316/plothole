@@ -12,6 +12,7 @@ import helpers as h
 import plothole_core  as pcore
 from inspect import currentframe
 import logger as log
+from plothole_types import PlotHoleType as pht
 
 class StoryOverviewModel(UIObserver):
     
@@ -177,8 +178,12 @@ class StoryModel(UIObserver):
         self.fq_file_name = ""
         self.story = None
     
-    def onSelect(self, selected, _type): 
+    def onSelect(self, selected, _type):
         log.log_var(self, currentframe(), ("selected", selected), ("_type", _type))
+        
+        if _type == pht.STORY:
+            story_path = h.get_story_path_by_alias(self.base_dir, selected)
+            self.onLoad(story_path)
     
     def onDisplay(self, origin):
         log.log_var(self, currentframe(), ("origin", origin))
