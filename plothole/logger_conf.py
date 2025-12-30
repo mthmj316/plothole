@@ -1,8 +1,8 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    # 'file_access#read_from_file',
-    # '*#onLoad'
+    'PlotholeMainWindow#*',
+    '*#onSelect'
     ]
 
 

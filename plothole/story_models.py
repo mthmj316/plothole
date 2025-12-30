@@ -179,7 +179,6 @@ class StoryModel(UIObserver):
     
     def onSelect(self, selected, _type): 
         log.log_var(self, currentframe(), ("selected", selected), ("_type", _type))
-        log.log(self, currentframe())
     
     def onDisplay(self, origin):
         log.log_var(self, currentframe(), ("origin", origin))

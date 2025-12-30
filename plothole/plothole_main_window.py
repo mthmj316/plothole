@@ -11,6 +11,8 @@ import book_ui
 from abc import ABC
 from abc import abstractclassmethod
 from observers import UIObservable
+from inspect import currentframe
+import logger as log
 
 VERSION = "v0.1"
 
@@ -39,7 +41,10 @@ class MainWindow(ABC):
 class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
     
     def __init__(self, *args, **kwargs):
+
         tk.Tk.__init__(self, *args, **kwargs)
+
+        log.log_var(self, currentframe(), ("args", args), ("kwargs", kwargs))
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.title(f"Plothole {VERSION}")
@@ -61,6 +66,7 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
         self.observers = []
         
     def close_me(self, frame, back=True):
+        log.log_var(self, currentframe(), ("frame", frame), ("back", back))
         if frame == self.story_frame:
             self.story_overview_frame.raise_frame(frame)
         elif frame == self.story_overview_frame:
@@ -74,18 +80,23 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
             self.book_overview_frame.raise_frame(frame)
 
     def get_book_ui(self):
+        log.log(self, currentframe())
         return self.book_frame
     
     def get_story_ui(self):
+        log.log(self, currentframe())
         return self.story_frame
     
     def get_story_overview_ui(self):
+        log.log(self, currentframe())
         return self.story_overview_frame
     
     def get_book_overview_ui(self):
+        log.log(self, currentframe())
         return self.book_overview_frame
         
     def __file_menu__(self):
+        log.log(self, currentframe())
         self.file_menu = tk.Menu(self.menu_bar, tearoff=False)
         self.new_menu = tk.Menu(self.file_menu, tearoff=False)       
         self.file_menu.add_command(label="Story", command=self.open_story)
@@ -93,16 +104,20 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
         self.file_menu.add_command(label="Exit", command=self.exit)
     
     def save(self, _exit):
+        log.log_var(self, currentframe(), ("_exit", _exit))
         if _exit:
             self.exit()
     
     def open_story(self):
+        log.log(self, currentframe())
         self.story_frame.raise_frame(self.story_overview_frame)
     
     def exit(self):
+        log.log(self, currentframe())
         self.destroy()
         
     def run(self):
+        log.log(self, currentframe())
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.config(menu=self.menu_bar)
         self.mainloop()
@@ -116,6 +131,7 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
         None.
 
         """
+        log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.append(uiobserver)
         
     def unregister(self, uiobserver):
@@ -127,6 +143,7 @@ class PlotholeMainWindow(tk.Tk, MainWindow, UIObservable):
         None.
 
         """
+        log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.pop(self.observers.index(uiobserver))
     
     
