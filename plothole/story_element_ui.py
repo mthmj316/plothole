@@ -67,11 +67,11 @@ class StoryElement(tk.Frame, UIObservable):
         if not conf.is_hidden(__SEControlls__.ALIAS):
             self.lb_alias = tk.Label(self, text=conf.get_label(__SEControlls__.ALIAS))
             pos = conf.get_label_position(__SEControlls__.ALIAS)
-            self.lb_alias.grid(row=pos[1], column=pos[0], sticky="E", padx=5, pady=5)  
+            self.lb_alias.grid(row=pos[1], column=pos[0], sticky=tk.E, padx=5, pady=5)  
             self.tb_alias_value = StringVar()
             self.tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
             pos = conf.get_control_position(__SEControlls__.ALIAS)
-            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=conf.get_input_colspan(), sticky="NSEW", padx=(20,30), pady=(10,10))
+            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=conf.get_input_colspan(), sticky=tk.NSEW, padx=5, pady=5)
     
     def raise_frame(self, abovethis):
         log.log_var(self, currentframe(), ("abovethis", abovethis)) 
@@ -83,6 +83,10 @@ class StoryElement(tk.Frame, UIObservable):
     def unregister(self, uiobserver):
         log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.pop(self.observers.index(uiobserver))
+
+    def set_header(self, header):
+        log.log_var(self, currentframe(), ("header", header))
+        self.lb_header.config(text=header)
 
 class __SEConfiguration__():
     def __init__(self):
