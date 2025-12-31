@@ -1,8 +1,8 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    'StoryModel#*',
-    '*#onSelect'
+    'StoryElement#*',
+    '__SEConfiguration__#*'
     ]
 
 
