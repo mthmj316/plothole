@@ -16,7 +16,7 @@ from inspect import currentframe
 import logger as log
 import enum
 
-class __SEControlls__(enum.StrEnum):
+class __SEControls__(enum.StrEnum):
     ACCENT = 'accent'
     ALIAS = 'alias'
     CLOSE_BTN = 'close'
@@ -45,56 +45,87 @@ class StoryElement(tk.Frame, UIObservable):
         self.observers = []
         
         self.labels = {}
-        self.contols = {}
-        self.controls_content = {}
+        self.controls = {}
+        self.controls_vars = {}
         
         self.configure_grid(conf)
         self.configure_header(conf)
-        self.configure_alias_ui(conf)
+        self.configure_alias(conf)
         self.configure_sequential_no(conf)
         
     def configure_sequential_no(self, conf):
-        log.log_var(self, currentframe(), ("conf", conf)) 
+        log.log_var(self, currentframe(), ("conf", conf))
+        self.configure_label(conf, __SEControls__.SEQUENTIAL_NO)
+        self.configure_option_menu(conf, __SEControls__.SEQUENTIAL_NO)
         
-
-    def configure_alias_ui(self, conf):
+    def set_sequential_no(self, no):
+        log.log_var(self, currentframe(), ("no", no))
+        self.controls_vars.get(__SEControls__.SEQUENTIAL_NO).set(no)
+        
+    def get_sequential_no(self):
+        log.log(self, currentframe())
+        no =  self.controls_vars.get(__SEControls__.SEQUENTIAL_NO).get()
+        log.log_var(self, currentframe(), ("no", no))
+        return no
+        
+    def configure_alias(self, conf):
         log.log_var(self, currentframe(), ("conf", conf)) 
-        if not conf.is_hidden(__SEControlls__.ALIAS):
-            self.lb_alias = tk.Label(self, text=conf.get_label(__SEControlls__.ALIAS))
-            pos = conf.get_label_position(__SEControlls__.ALIAS)
-            self.lb_alias.grid(row=pos[1], column=pos[0], sticky=tk.E, 
-                               padx=conf.get_label_padx(__SEControlls__.ALIAS), pady=conf.get_label_pady(__SEControlls__.ALIAS))  
-            self.tb_alias_value = StringVar()
-            self.tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
-            pos = conf.get_control_position(__SEControlls__.ALIAS)
-            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=1, sticky=tk.NSEW, 
-                               padx=conf.get_control_padx(__SEControlls__.HEADER), 
-                               pady=conf.get_control_pady(__SEControlls__.HEADER))
+        self.configure_label(conf, __SEControls__.ALIAS)
+        self.configure_entry(conf, __SEControls__.ALIAS)
+
     def disable_alias(self):
         log.log(self, currentframe())
-        self.tb_alias.config(state='disabled')
+        self.controls.get(__SEControls__.ALIAS).config(state='disabled')
         
     def enable_alias(self):
         log.log(self, currentframe())
-        self.tb_alias.config(state='normal')
+        self.controls.get(__SEControls__.ALIAS).config(state='normal')
         
     def get_alias(self):
         log.log(self, currentframe())
-        return self.tb_alias_value.get()
+        alias = self.controls_vars.get(__SEControls__.ALIAS).get()
+        log.log_var(self, currentframe(), ("alias", alias))
+        return alias
     
     def set_alias(self, alias):
         log.log_var(self, currentframe(), ("alias", alias))
-        self.tb_alias_value.set(alias)
+        self.controls_vars.get(__SEControls__.ALIAS).set(alias)
     
     def configure_header(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
-        self.configure_label(conf, __SEControlls__.HEADER)
-        # if not conf.is_hidden(__SEControlls__.HEADER):
-        #     self.lb_header = tk.Label(self, text=conf.get_label(__SEControlls__.HEADER), anchor=tk.W,)
-        #     pos = conf.get_label_position(__SEControlls__.HEADER)
-        #     self.lb_header.grid(row=pos[1], column=pos[0], columnspan=conf.get_header_colspan(), sticky=tk.W, 
-        #                         padx=conf.get_label_padx(__SEControlls__.HEADER), pady=conf.get_label_pady(__SEControlls__.HEADER))
-        #     self.lb_header['font'] = self.default_font  
+        self.configure_label(conf, __SEControls__.HEADER)
+
+    def set_header(self, header):
+        log.log_var(self, currentframe(), ("header", header))
+        self.labels.get(__SEControls__.HEADER).config(text=header)
+
+    def configure_option_menu(self, conf, secontrol):
+        log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
+        if not conf.is_hidden(secontrol):
+            values = conf.get_option_menu_values(secontrol)
+            menu_value = StringVar(self)
+            self.controls_vars[secontrol.value] = menu_value
+            menu_value.set(values[0])
+            menu = tk.OptionMenu(self, menu_value, *values)            
+            pos = conf.get_control_position(secontrol)
+            menu.grid(row=pos[1], column=pos[0], columnspan=1, 
+                       sticky=conf.get_control_sticky(secontrol), 
+                       padx=conf.get_control_padx(secontrol), 
+                       pady=conf.get_control_pady(secontrol))
+            self.controls[secontrol.value] = menu   
+
+    def configure_entry(self, conf, secontrol):
+        log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
+        if not conf.is_hidden(secontrol):
+            entry_value = StringVar(self)
+            self.controls_vars[secontrol.value] = entry_value
+            entry = tk.Entry(self, textvariable=entry_value)
+            pos = conf.get_control_position(secontrol)
+            entry.grid(row=pos[1], column=pos[0], columnspan=1, 
+                       sticky=conf.get_control_sticky(secontrol), 
+                       padx=conf.get_control_padx(secontrol), 
+                       pady=conf.get_control_pady(secontrol))
+            self.controls[secontrol.value] = entry
 
     def configure_label(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -109,10 +140,6 @@ class StoryElement(tk.Frame, UIObservable):
                          pady=conf.get_label_pady(secontrol))
             lb['font'] = conf.get_label_font(secontrol)
             self.labels[secontrol.value] = lb
-
-    def set_header(self, header):
-        log.log_var(self, currentframe(), ("header", header))
-        self.lb_header.config(text=header)
         
     def configure_grid(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))        
@@ -148,11 +175,14 @@ class __SEConfiguration__():
         self.control_padx = {}
         self.control_pady = {}
         self.label_anchor = {}
-        self.control_anchor = {}        
+        self.control_anchor = {}   
+        self.label_sticky = {}
+        self.control_sticky = {}   
         self.label_colspan = {}
         self.control_colspan = {}        
         self.label_font = {}
         self.control_font = {}
+        self.option_menu_values = {}
         
     def __str__(self):        
         _str = (f"lables={self.lables};"
@@ -166,11 +196,24 @@ class __SEConfiguration__():
                 f"label_padx={self.control_padx};"
                 f"label_anchor={self.label_anchor};"
                 f"control_anchor={self.control_anchor};"
+                f"label_sticky={self.label_sticky};"
+                f"control_sticky={self.control_sticky};"
                 f"label_colspan={self.label_colspan};"
                 f"control_colspan={self.control_colspan};"
                 f"label_font={self.label_font};"
+                f"control_font={self.control_font};"
                 f"control_font={self.control_font};")
         return _str
+
+    def get_option_menu_values(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        values = range(1,11) if secontrol not in self.option_menu_values.keys() else self.option_menu_values.get(secontrol)
+        log.log_var(self, currentframe(), ("values", values))
+        return values
+
+    def set_option_menu_values(self, secontrol, values):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("values", values))
+        self.option_menu_values[secontrol.value] = values  
 
     def set_label_font(self, secontrol, font):
         log.log_var(self, currentframe(), ("secontrol", secontrol), ("font", font))
@@ -178,8 +221,8 @@ class __SEConfiguration__():
 
     def get_label_font(self, secontrol):
         log.log_var(self, currentframe(), ("secontrol", secontrol))
-        font = tkFont.Font(family='Helvetica', size=12, weight=tkFont.NORMAL) if secontrol not in self.label_font.keys() else self.label_font.get(secontrol)
-        log.log_var(self, currentframe(), ("colspan", font))
+        font = tkFont.nametofont('TkDefaultFont') if secontrol not in self.label_font.keys() else self.label_font.get(secontrol)
+        log.log_var(self, currentframe(), ("font", font))
         return font
     
     def set_control_font(self, secontrol, font):
@@ -222,12 +265,16 @@ class __SEConfiguration__():
         log.log_var(self, currentframe(), ("anchor", anchor))
         return anchor
 
+    def set_control_sticky(self, secontrol, sticky):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("sticky", sticky))
+        self.control_sticky[secontrol.value] = sticky
+
     def get_control_sticky(self, secontrol):
         # is currently anchor values
         log.log_var(self, currentframe(), ("secontrol", secontrol))
-        anchor = tk.NSEW if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
-        log.log_var(self, currentframe(), ("anchor", anchor))
-        return anchor
+        sticky = tk.NSEW if secontrol not in self.control_sticky.keys() else self.control_sticky.get(secontrol)
+        log.log_var(self, currentframe(), ("sticky", sticky))
+        return sticky
 
     def set_label_anchor(self, secontrol, anchor):
         log.log_var(self, currentframe(), ("secontrol", secontrol), ("anchor", anchor))
@@ -238,13 +285,17 @@ class __SEConfiguration__():
         anchor = tk.E if secontrol not in self.label_anchor.keys() else self.label_anchor.get(secontrol)
         log.log_var(self, currentframe(), ("anchor", anchor))
         return anchor
+ 
+    def set_label_sticky(self, secontrol, sticky):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("sticky", sticky))
+        self.label_sticky[secontrol.value] = sticky
     
     def get_label_sticky(self, secontrol):
         # is currently anchor values
         log.log_var(self, currentframe(), ("secontrol", secontrol))
-        anchor = tk.E if secontrol not in self.label_anchor.keys() else self.label_anchor.get(secontrol)
-        log.log_var(self, currentframe(), ("anchor", anchor))
-        return anchor
+        sticky = tk.E if secontrol not in self.label_sticky.keys() else self.label_sticky.get(secontrol)
+        log.log_var(self, currentframe(), ("sticky", sticky))
+        return sticky
 
     def set_control_pady(self, secontrol, pady):
         log.log_var(self, currentframe(), ("secontrol", secontrol), ("pady", pady))
@@ -372,20 +423,52 @@ class __SEConfiguration__():
         log.log_var(self, currentframe(), ("weight", weight))        
         return weight
 
+def create_book_conf():
+    
+    conf = __SEConfiguration__()
+    conf.set_column_weigth(1, 1)
+    conf.set_row_weigth(4, 1)
+    conf.set_grid_column_ctn(2)
+    conf.set_grid_row_ctn(8)
+    
+    conf.set_label_colspan(__SEControls__.HEADER, 7)
+    conf.set_label(__SEControls__.HEADER,'Neue Buch')
+    conf.set_label_position(__SEControls__.HEADER, (0,0))
+    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+    
+    conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
+    conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
+    conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
+    conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.W)
+    
+    conf.set_label(__SEControls__.ALIAS,'Alias')
+    conf.set_label_position(__SEControls__.ALIAS, (0,2))
+    conf.set_control_position(__SEControls__.ALIAS, (1,2))
+    
+    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+    
+    return conf
+
 def create_story_conf():
     conf = __SEConfiguration__()
     conf.set_column_weigth(1, 1)
     conf.set_row_weigth(4, 1)
     conf.set_grid_column_ctn(2)
     conf.set_grid_row_ctn(7)
-    conf.set_label_colspan(__SEControlls__.HEADER, 7)
-    conf.set_label(__SEControlls__.HEADER,'Neue Geschicht')
-    conf.set_label(__SEControlls__.ALIAS,'Alias')
-    conf.set_label_position(__SEControlls__.HEADER, (0,0))
-    conf.set_label_position(__SEControlls__.ALIAS, (0,1))
-    conf.set_control_position(__SEControlls__.ALIAS, (1,1))
-    conf.set_label_font(__SEControlls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControlls__.HEADER, tk.W)
+    
+    conf.set_label_colspan(__SEControls__.HEADER, 7)
+    conf.set_label(__SEControls__.HEADER,'Neue Geschicht')
+    conf.set_label_position(__SEControls__.HEADER, (0,0))
+    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+    
+    conf.set_label(__SEControls__.ALIAS,'Alias')
+    conf.set_label_position(__SEControls__.ALIAS, (0,1))
+    conf.set_control_position(__SEControls__.ALIAS, (1,1))
+    
+    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+    conf.hide_control(__SEControls__.SEQUENTIAL_NO)
     return conf
         
 if __name__ == '__main__':
@@ -399,9 +482,17 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    conf = create_story_conf()    
+    # conf = create_story_conf()    
+    conf = create_book_conf()
     
     frame = StoryElement(w, conf)
     frame.grid(row=0, column=0, sticky="NSEW")
+    frame.set_alias("Alles nur geklaut")
+    frame.disable_alias()
+    frame.enable_alias()
+    print(frame.get_alias())
+    
+    frame.set_sequential_no(5)
+    print(frame.get_sequential_no())
     
     w.mainloop()
