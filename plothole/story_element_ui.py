@@ -19,23 +19,23 @@ import enum
 class __SEControls__(enum.StrEnum):
     ACCENT = 'accent'
     ALIAS = 'alias'
-    CLOSE_BTN = 'close'
+    CLOSE_BTN = 'close_btn'
     CONTENT = 'content'
-    DELETE_BTN = 'delete'
+    DELETE_BTN = 'delete_btn'
     DIALOG = 'dialog'
     GENRE = 'genre'
     HEADER = 'header'
     MESSAGE = 'msg'
-    NEW_BTN = 'new'
-    OPEN_BTN = 'open'
-    PLOTHOLE_PTN = 'plothole'
-    REVERT_BTN = 'revert'
-    SAVE_BTN = 'save'
+    NEW_BTN = 'new_btn'
+    OPEN_BTN = 'open_btn'
+    PLOTHOLE_PTN = 'plothole_btn'
+    REVERT_BTN = 'revert_btn'
+    SAVE_BTN = 'save_btn'
     SEQUENTIAL_NO = 'sequential_no'
-    SUB_BTN = 'sub'
+    SUB_BTN = 'sub_btn'
     TITLE = 'title'
-    TOP_BTN = 'top'
-    UPDATE_BTN = 'update'
+    TOP_BTN = 'top_btn'
+    UPDATE_BTN = 'update_btn'
 
 class StoryElement(tk.Frame, UIObservable):
     def __init__(self, root, conf, *args, **kwargs):
@@ -432,7 +432,7 @@ def create_book_conf():
     conf.set_grid_row_ctn(8)
     
     conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Neue Buch')
+    conf.set_label(__SEControls__.HEADER,'Neues Buch')
     conf.set_label_position(__SEControls__.HEADER, (0,0))
     conf.set_label_sticky(__SEControls__.HEADER, tk.W)
     
