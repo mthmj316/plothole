@@ -46,15 +46,7 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_grid(conf)
         self.configure_header(conf)
         self.configure_alias_ui(conf)
-    
-    def configure_header(self, conf):
-        log.log_var(self, currentframe(), ("conf", conf))
-        if not conf.is_hidden(__SEControlls__.HEADER):
-            self.lb_header = tk.Label(self, text=conf.get_label(__SEControlls__.HEADER), anchor=tk.W,)
-            pos = conf.get_label_position(__SEControlls__.HEADER)
-            self.lb_header.grid(row=pos[1], column=pos[0], columnspan=conf.get_header_colspan(), sticky=tk.W, padx=5, pady=5)
-            self.lb_header['font'] = self.default_font  
-    
+
     def configure_grid(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))        
         for i in range(conf.grid_column_ctn()):
@@ -62,17 +54,47 @@ class StoryElement(tk.Frame, UIObservable):
         for i in range(conf.grid_row_ctn()):
             self.grid_rowconfigure(i, weight=conf.get_row_weight(i))
     
+    def configure_header(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
+        if not conf.is_hidden(__SEControlls__.HEADER):
+            self.lb_header = tk.Label(self, text=conf.get_label(__SEControlls__.HEADER), anchor=tk.W,)
+            pos = conf.get_label_position(__SEControlls__.HEADER)
+            self.lb_header.grid(row=pos[1], column=pos[0], columnspan=conf.get_header_colspan(), sticky=tk.W, 
+                                padx=conf.get_label_padx(__SEControlls__.HEADER), pady=conf.get_label_pady(__SEControlls__.HEADER))
+            self.lb_header['font'] = self.default_font  
+
+    def set_header(self, header):
+        log.log_var(self, currentframe(), ("header", header))
+        self.lb_header.config(text=header)
+        
     def configure_alias_ui(self, conf):
         log.log_var(self, currentframe(), ("conf", conf)) 
         if not conf.is_hidden(__SEControlls__.ALIAS):
             self.lb_alias = tk.Label(self, text=conf.get_label(__SEControlls__.ALIAS))
             pos = conf.get_label_position(__SEControlls__.ALIAS)
-            self.lb_alias.grid(row=pos[1], column=pos[0], sticky=tk.E, padx=5, pady=5)  
+            self.lb_alias.grid(row=pos[1], column=pos[0], sticky=tk.E, 
+                               padx=conf.get_label_padx(__SEControlls__.ALIAS), pady=conf.get_label_pady(__SEControlls__.ALIAS))  
             self.tb_alias_value = StringVar()
             self.tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
             pos = conf.get_control_position(__SEControlls__.ALIAS)
-            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=conf.get_input_colspan(), sticky=tk.NSEW, padx=5, pady=5)
+            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=conf.get_input_colspan(), sticky=tk.NSEW, 
+                               padx=conf.get_control_padx(__SEControlls__.HEADER), pady=conf.get_control_pady(__SEControlls__.HEADER))
+    def disable_alias(self):
+        log.log(self, currentframe())
+        self.tb_alias.config(state='disabled')
+        
+    def enable_alias(self):
+        log.log(self, currentframe())
+        self.tb_alias.config(state='normal')
+        
+    def get_alias(self):
+        log.log(self, currentframe())
+        return self.tb_alias_value.get()
     
+    def set_alias(self, alias):
+        log.log_var(self, currentframe(), ("alias", alias))
+        self.tb_alias_value.set(alias)
+        
     def raise_frame(self, abovethis):
         log.log_var(self, currentframe(), ("abovethis", abovethis)) 
 
@@ -84,10 +106,6 @@ class StoryElement(tk.Frame, UIObservable):
         log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.pop(self.observers.index(uiobserver))
 
-    def set_header(self, header):
-        log.log_var(self, currentframe(), ("header", header))
-        self.lb_header.config(text=header)
-
 class __SEConfiguration__():
     def __init__(self):
         log.log(self, currentframe())
@@ -98,13 +116,61 @@ class __SEConfiguration__():
         self.hidden_controls = []
         self.label_positions = {}
         self.control_positions = {}
+        self.label_padx = {}
+        self.label_pady = {}
+        self.control_padx = {}
+        self.control_pady = {}
         
     def __str__(self):        
         _str = (f"lables={self.lables};"
                 f"hidden_controls={self.hidden_controls};"
                 f"label_positions={self.label_positions};"
-                f"control_positions={self.control_positions};")
+                f"control_positions={self.control_positions};"
+                f"label_padx={self.label_padx};"
+                f"label_pady={self.label_pady};"
+                f"label_padx={self.control_padx};"
+                f"label_pady={self.control_pady};")
         return _str
+
+    def set_control_pady(self, secontrol, pady):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("pady", pady))
+        self.control_pady[secontrol.value] = pady
+
+    def get_control_pady(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        pady = (5, 5) if secontrol not in self.control_pady.keys() else self.control_pady.get(secontrol)
+        log.log_var(self, currentframe(), ("pady", pady))
+        return pady
+
+    def set_control_padx(self, secontrol, padx):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("padx", padx))
+        self.control_padx[secontrol.value] = padx
+
+    def get_control_padx(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        padx = (5, 20) if secontrol not in self.control_padx.keys() else self.control_padx.get(secontrol)
+        log.log_var(self, currentframe(), ("padx", padx))
+        return padx 
+
+    def set_label_pady(self, secontrol, pady):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("pady", pady))
+        self.label_pady[secontrol.value] = pady
+
+    def get_label_pady(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        pady = (5, 5) if secontrol not in self.label_pady.keys() else self.label_pady.get(secontrol)
+        log.log_var(self, currentframe(), ("pady", pady))
+        return pady
+
+    def set_label_padx(self, secontrol, padx):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("padx", padx))
+        self.label_padx[secontrol.value] = padx
+
+    def get_label_padx(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        padx = (20, 5) if secontrol not in self.label_padx.keys() else self.label_padx.get(secontrol)
+        log.log_var(self, currentframe(), ("padx", padx))
+        return padx 
 
     def set_label_position(self, secontrol, position):
         log.log_var(self, currentframe(), ("secontrol", secontrol), ("position", position))
