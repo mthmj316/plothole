@@ -31,6 +31,7 @@ class __SEControlls__(enum.StrEnum):
     PLOTHOLE = 'plothole'
     REVERT = 'revert'
     SAVE = 'save'
+    SEQUENTIAL_NO = 'sequential_no'
     SUB = 'sub'
     TITLE = 'title'
     UPDATE = 'update'
@@ -41,32 +42,20 @@ class StoryElement(tk.Frame, UIObservable):
         log.log_var(self, currentframe(), ("args", args), ("kwargs", kwargs))
         self.root = root
         self.observers = []
-        self.default_font = tkFont.Font(family='Helvetica', size=20, weight='bold')    
+        
+        self.labels = {}
+        self.contols = {}
+        self.controls_content = {}
         
         self.configure_grid(conf)
         self.configure_header(conf)
         self.configure_alias_ui(conf)
-
-    def configure_grid(self, conf):
-        log.log_var(self, currentframe(), ("conf", conf))        
-        for i in range(conf.grid_column_ctn()):
-            self.grid_columnconfigure(i, weight=conf.get_col_weight(i))
-        for i in range(conf.grid_row_ctn()):
-            self.grid_rowconfigure(i, weight=conf.get_row_weight(i))
-    
-    def configure_header(self, conf):
-        log.log_var(self, currentframe(), ("conf", conf))
-        if not conf.is_hidden(__SEControlls__.HEADER):
-            self.lb_header = tk.Label(self, text=conf.get_label(__SEControlls__.HEADER), anchor=tk.W,)
-            pos = conf.get_label_position(__SEControlls__.HEADER)
-            self.lb_header.grid(row=pos[1], column=pos[0], columnspan=conf.get_header_colspan(), sticky=tk.W, 
-                                padx=conf.get_label_padx(__SEControlls__.HEADER), pady=conf.get_label_pady(__SEControlls__.HEADER))
-            self.lb_header['font'] = self.default_font  
-
-    def set_header(self, header):
-        log.log_var(self, currentframe(), ("header", header))
-        self.lb_header.config(text=header)
+        self.configure_sequential_no(conf)
         
+    def configure_sequential_no(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf)) 
+        
+
     def configure_alias_ui(self, conf):
         log.log_var(self, currentframe(), ("conf", conf)) 
         if not conf.is_hidden(__SEControlls__.ALIAS):
@@ -77,8 +66,9 @@ class StoryElement(tk.Frame, UIObservable):
             self.tb_alias_value = StringVar()
             self.tb_alias = tk.Entry(self, textvariable=self.tb_alias_value)
             pos = conf.get_control_position(__SEControlls__.ALIAS)
-            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=conf.get_input_colspan(), sticky=tk.NSEW, 
-                               padx=conf.get_control_padx(__SEControlls__.HEADER), pady=conf.get_control_pady(__SEControlls__.HEADER))
+            self.tb_alias.grid(row=pos[1], column=pos[0], columnspan=1, sticky=tk.NSEW, 
+                               padx=conf.get_control_padx(__SEControlls__.HEADER), 
+                               pady=conf.get_control_pady(__SEControlls__.HEADER))
     def disable_alias(self):
         log.log(self, currentframe())
         self.tb_alias.config(state='disabled')
@@ -94,6 +84,41 @@ class StoryElement(tk.Frame, UIObservable):
     def set_alias(self, alias):
         log.log_var(self, currentframe(), ("alias", alias))
         self.tb_alias_value.set(alias)
+    
+    def configure_header(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
+        self.configure_label(conf, __SEControlls__.HEADER)
+        # if not conf.is_hidden(__SEControlls__.HEADER):
+        #     self.lb_header = tk.Label(self, text=conf.get_label(__SEControlls__.HEADER), anchor=tk.W,)
+        #     pos = conf.get_label_position(__SEControlls__.HEADER)
+        #     self.lb_header.grid(row=pos[1], column=pos[0], columnspan=conf.get_header_colspan(), sticky=tk.W, 
+        #                         padx=conf.get_label_padx(__SEControlls__.HEADER), pady=conf.get_label_pady(__SEControlls__.HEADER))
+        #     self.lb_header['font'] = self.default_font  
+
+    def configure_label(self, conf, secontrol):
+        log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
+        if not conf.is_hidden(secontrol):
+            lb = tk.Label(self, text=conf.get_label(secontrol), 
+                               anchor=conf.get_label_anchor(secontrol))
+            pos = conf.get_label_position(secontrol)
+            lb.grid(row=pos[1], column=pos[0], 
+                         columnspan=conf.get_label_colspan(secontrol), 
+                         sticky=conf.get_label_sticky(secontrol),
+                         padx=conf.get_label_padx(secontrol), 
+                         pady=conf.get_label_pady(secontrol))
+            lb['font'] = conf.get_label_font(secontrol)
+            self.labels[secontrol.value] = lb
+
+    def set_header(self, header):
+        log.log_var(self, currentframe(), ("header", header))
+        self.lb_header.config(text=header)
+        
+    def configure_grid(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))        
+        for i in range(conf.get_grid_column_ctn()):
+            self.grid_columnconfigure(i, weight=conf.get_col_weight(i))
+        for i in range(conf.get_grid_row_ctn()):
+            self.grid_rowconfigure(i, weight=conf.get_row_weight(i))
         
     def raise_frame(self, abovethis):
         log.log_var(self, currentframe(), ("abovethis", abovethis)) 
@@ -109,10 +134,11 @@ class StoryElement(tk.Frame, UIObservable):
 class __SEConfiguration__():
     def __init__(self):
         log.log(self, currentframe())
+        self.column_ctn = 0
+        self.row_ctn = 0
         self.column_weigths = {}
         self.row_weigths = {}
         self.lables = {}
-        self.set_label(__SEControlls__.HEADER, "New Element")
         self.hidden_controls = []
         self.label_positions = {}
         self.control_positions = {}
@@ -120,17 +146,104 @@ class __SEConfiguration__():
         self.label_pady = {}
         self.control_padx = {}
         self.control_pady = {}
+        self.label_anchor = {}
+        self.control_anchor = {}        
+        self.label_colspan = {}
+        self.control_colspan = {}        
+        self.label_font = {}
+        self.control_font = {}
         
     def __str__(self):        
         _str = (f"lables={self.lables};"
+                f"column_ctn={self.column_ctn};"
+                f"row_ctn={self.row_ctn};"
                 f"hidden_controls={self.hidden_controls};"
                 f"label_positions={self.label_positions};"
                 f"control_positions={self.control_positions};"
                 f"label_padx={self.label_padx};"
                 f"label_pady={self.label_pady};"
                 f"label_padx={self.control_padx};"
-                f"label_pady={self.control_pady};")
+                f"label_anchor={self.label_anchor};"
+                f"control_anchor={self.control_anchor};"
+                f"label_colspan={self.label_colspan};"
+                f"control_colspan={self.control_colspan};"
+                f"label_font={self.label_font};"
+                f"control_font={self.control_font};")
         return _str
+
+    def set_label_font(self, secontrol, font):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("font", font))
+        self.label_font[secontrol.value] = font
+
+    def get_label_font(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        font = tkFont.Font(family='Helvetica', size=12, weight=tkFont.NORMAL) if secontrol not in self.label_font.keys() else self.label_font.get(secontrol)
+        log.log_var(self, currentframe(), ("colspan", font))
+        return font
+    
+    def set_control_font(self, secontrol, font):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("font", font))
+        self.control_font[secontrol.value] = font
+
+    def get_control_font(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        font = tkFont.Font(family='Helvetica', size=12, weight=tkFont.NORMAL) if secontrol not in self.control_font.keys() else self.control_font.get(secontrol)
+        log.log_var(self, currentframe(), ("colspan", font))
+        return font
+
+    def set_control_colspan(self, secontrol, colspan):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("colspan", colspan))
+        self.control_colspan[secontrol.value] = colspan
+
+    def get_control_colspan(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        colspan = 1 if secontrol not in self.control_colspan.keys() else self.control_colspan.get(secontrol)
+        log.log_var(self, currentframe(), ("colspan", colspan))
+        return colspan
+
+    def set_label_colspan(self, secontrol, colspan):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("colspan", colspan))
+        self.label_colspan[secontrol.value] = colspan
+
+    def get_label_colspan(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        colspan = 1 if secontrol not in self.label_colspan.keys() else self.label_colspan.get(secontrol)
+        log.log_var(self, currentframe(), ("colspan", colspan))
+        return colspan
+
+    def set_control_anchor(self, secontrol, anchor):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("anchor", anchor))
+        self.control_anchor[secontrol.value] = anchor
+
+    def get_control_anchor(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        anchor = tk.NSEW if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
+        log.log_var(self, currentframe(), ("anchor", anchor))
+        return anchor
+
+    def get_control_sticky(self, secontrol):
+        # is currently anchor values
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        anchor = tk.NSEW if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
+        log.log_var(self, currentframe(), ("anchor", anchor))
+        return anchor
+
+    def set_label_anchor(self, secontrol, anchor):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("anchor", anchor))
+        self.label_anchor[secontrol.value] = anchor
+
+    def get_label_anchor(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        anchor = tk.E if secontrol not in self.label_anchor.keys() else self.label_anchor.get(secontrol)
+        log.log_var(self, currentframe(), ("anchor", anchor))
+        return anchor
+    
+    def get_label_sticky(self, secontrol):
+        # is currently anchor values
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        anchor = tk.E if secontrol not in self.label_anchor.keys() else self.label_anchor.get(secontrol)
+        log.log_var(self, currentframe(), ("anchor", anchor))
+        return anchor
 
     def set_control_pady(self, secontrol, pady):
         log.log_var(self, currentframe(), ("secontrol", secontrol), ("pady", pady))
@@ -191,18 +304,6 @@ class __SEConfiguration__():
         position = (0,0) if secontrol not in self.control_positions.keys() else self.control_positions.get(secontrol)
         log.log_var(self, currentframe(), ("position", position))
         return position    
-
-    def get_header_colspan(self):
-        log.log(self, currentframe())
-        colspan = self.grid_column_ctn()
-        log.log_var(self, currentframe(), ("colspan", colspan))         
-        return colspan
-    
-    def get_input_colspan(self):
-        log.log(self, currentframe())
-        colspan = self.grid_column_ctn() - 1
-        log.log_var(self, currentframe(), ("colspan", colspan))         
-        return colspan
         
     def hide_control(self, secontrol):
         log.log_var(self, currentframe(), ("secontrol", secontrol))   
@@ -234,17 +335,25 @@ class __SEConfiguration__():
         log.log_var(self, currentframe(), ("row_num", row_num), ("weight", weight)) 
         self.row_weigths[row_num] = weight
 
-    def grid_column_ctn(self):
+    def get_grid_column_ctn(self):
         log.log(self, currentframe())
-        col_count = 2
+        col_count = self.column_ctn
         log.log_var(self, currentframe(), ("col_count", col_count)) 
         return col_count
     
-    def grid_row_ctn(self):
+    def set_grid_column_ctn(self, ctn):
+        log.log_var(self, currentframe(), ("ctn", ctn)) 
+        self.column_ctn = ctn
+    
+    def get_grid_row_ctn(self):
         log.log(self, currentframe())
-        row_count = 7
+        row_count = self.row_ctn
         log.log_var(self, currentframe(), ("row_count", row_count)) 
         return row_count
+    
+    def set_grid_row_ctn(self, ctn):
+        log.log_var(self, currentframe(), ("ctn", ctn))   
+        self.row_ctn = ctn
     
     def get_col_weight(self, col_num):
         log.log_var(self, currentframe(), ("col_num", col_num))        
@@ -266,11 +375,16 @@ def create_story_conf():
     conf = __SEConfiguration__()
     conf.set_column_weigth(1, 1)
     conf.set_row_weigth(4, 1)
-    conf.set_label(__SEControlls__.HEADER,'Guter alter junger Dorian')
+    conf.set_grid_column_ctn(2)
+    conf.set_grid_row_ctn(7)
+    conf.set_label_colspan(__SEControlls__.HEADER, 7)
+    conf.set_label(__SEControlls__.HEADER,'Neue Geschicht')
     conf.set_label(__SEControlls__.ALIAS,'Alias')
     conf.set_label_position(__SEControlls__.HEADER, (0,0))
     conf.set_label_position(__SEControlls__.ALIAS, (0,1))
     conf.set_control_position(__SEControlls__.ALIAS, (1,1))
+    conf.set_label_font(__SEControlls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+    conf.set_label_anchor(__SEControlls__.HEADER, tk.W)
     return conf
         
 if __name__ == '__main__':
