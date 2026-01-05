@@ -15,9 +15,11 @@ from tkinter import messagebox as mb
 from inspect import currentframe
 import logger as log
 import enum
+from tkinter import scrolledtext as stxt
+
+GENRES = ['Abenteuer','Action','Alltag','Alternative','Comedy','Fantasy','Graphic Novel','Historie','Horror','Krimi','Manga','Mystery','Romantik','Science Fiction','Superhelden','Underground ','Western']
 
 class __SEControls__(enum.StrEnum):
-    ACCENT = 'accent'
     ALIAS = 'alias'
     CLOSE_BTN = 'close_btn'
     CONTENT = 'content'
@@ -34,6 +36,7 @@ class __SEControls__(enum.StrEnum):
     SEQUENTIAL_NO = 'sequential_no'
     SUB_BTN = 'sub_btn'
     TITLE = 'title'
+    TONE = 'tone'
     TOP_BTN = 'top_btn'
     UPDATE_BTN = 'update_btn'
 
@@ -53,6 +56,73 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_alias(conf)
         self.configure_sequential_no(conf)
         self.configure_title(conf)
+        self.configure_tone(conf)
+        self.configure_genre(conf)
+        self.configure_message(conf)
+        self.configure_content(conf)
+
+    def configure_content(self, content):
+        log.log_var(self, currentframe(), ("content", content))
+        self.configure_label(conf, __SEControls__.CONTENT)
+        self.configure_scrolled_text(conf, __SEControls__.CONTENT)
+
+    def set_content(self, content):
+        log.log_var(self, currentframe(), ("content", content))
+        content_stxt = self.controls.get(__SEControls__.CONTENT)
+        content_stxt.delete('1.0', tk.END)
+        content_stxt.insert(tk.INSERT, content)
+        
+    def get_content(self):
+        log.log(self, currentframe())
+        content_stxt = self.controls.get(__SEControls__.CONTENT)
+        content =  content_stxt.get("1.0", tk.END)
+        log.log_var(self, currentframe(), ("content", content))
+        return content
+        
+    def configure_message(self, message):
+        log.log_var(self, currentframe(), ("message", message))
+        self.configure_label(conf, __SEControls__.MESSAGE)
+        self.configure_entry(conf, __SEControls__.MESSAGE)
+
+    def set_message(self, message):
+        log.log_var(self, currentframe(), ("message", message))
+        self.controls_vars.get(__SEControls__.MESSAGE).set(message)
+        
+    def get_message(self):
+        log.log(self, currentframe())
+        message =  self.controls_vars.get(__SEControls__.MESSAGE).get()
+        log.log_var(self, currentframe(), ("message", message))
+        return message
+        
+    def configure_genre(self, genre):
+        log.log_var(self, currentframe(), ("genre", genre))
+        self.configure_label(conf, __SEControls__.GENRE)
+        self.configure_option_menu(conf, __SEControls__.GENRE)
+
+    def set_genre(self, genre):
+        log.log_var(self, currentframe(), ("genre", genre))
+        self.controls_vars.get(__SEControls__.GENRE).set(genre)
+        
+    def get_genre(self):
+        log.log(self, currentframe())
+        genre =  self.controls_vars.get(__SEControls__.GENRE).get()
+        log.log_var(self, currentframe(), ("genre", genre))
+        return genre
+        
+    def configure_tone(self, tone):
+        log.log_var(self, currentframe(), ("tone", tone))
+        self.configure_label(conf, __SEControls__.TONE)
+        self.configure_entry(conf, __SEControls__.TONE)
+
+    def set_tone(self, tone):
+        log.log_var(self, currentframe(), ("tone", tone))
+        self.controls_vars.get(__SEControls__.TONE).set(tone)
+        
+    def get_tone(self):
+        log.log(self, currentframe())
+        tone =  self.controls_vars.get(__SEControls__.TONE).get()
+        log.log_var(self, currentframe(), ("tone", tone))
+        return tone
         
     def configure_title(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
@@ -114,6 +184,20 @@ class StoryElement(tk.Frame, UIObservable):
     def set_header(self, header):
         log.log_var(self, currentframe(), ("header", header))
         self.labels.get(__SEControls__.HEADER).config(text=header)
+
+    def configure_scrolled_text(self, conf, secontrol):
+        log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
+        if not conf.is_hidden(secontrol):
+            scrolled_text = stxt.ScrolledText(self)
+            self.controls[secontrol.value] = scrolled_text           
+            pos = conf.get_control_position(secontrol)
+            scrolled_text.grid(
+                row=pos[1], 
+                column=pos[0], 
+                columnspan=conf.get_control_colspan(secontrol), 
+                sticky=conf.get_control_sticky(secontrol), 
+                padx=conf.get_control_padx(secontrol), 
+                pady=conf.get_control_pady(secontrol))
 
     def configure_option_menu(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -444,9 +528,9 @@ def create_book_conf():
     conf = __SEConfiguration__()
     conf.set_column_weigth(3, 1)
     conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(4, 1)
+    conf.set_row_weigth(3, 1)
     conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(8)
+    conf.set_grid_row_ctn(5)
     
     conf.set_label_colspan(__SEControls__.HEADER, 7)
     conf.set_label(__SEControls__.HEADER,'Neues Buch')
@@ -456,7 +540,7 @@ def create_book_conf():
     conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
     conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
     conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
-    conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.W)
+    conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
     
     secontrol = __SEControls__.ALIAS
     
@@ -471,6 +555,37 @@ def create_book_conf():
     conf.set_label_position(secontrol, (4,1))
     conf.set_control_position(secontrol, (5,1))
     conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.TONE
+
+    conf.set_label(secontrol,'Tonfall')
+    conf.set_label_position(secontrol, (2,2))
+    conf.set_control_position(secontrol, (3,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.GENRE
+
+    conf.set_label(secontrol,'Genre')
+    conf.set_label_position(secontrol, (0,2))
+    conf.set_control_position(secontrol, (1,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    conf.set_option_menu_values(secontrol, GENRES)
+    
+    secontrol = __SEControls__.MESSAGE
+
+    conf.set_label(secontrol,'Botschaft')
+    conf.set_label_position(secontrol, (4,2))
+    conf.set_control_position(secontrol, (5,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.CONTENT
+
+    conf.set_label(secontrol,'Inhalt')
+    conf.set_label_position(secontrol, (0,3))
+    conf.set_label_sticky(secontrol, tk.N)
+    conf.set_control_position(secontrol, (1,3))
+    conf.set_control_sticky(secontrol, tk.NSEW)
+    conf.set_control_colspan(secontrol, 5)
     
     conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
     conf.set_label_anchor(__SEControls__.HEADER, tk.W)
