@@ -586,6 +586,7 @@ def create_book_conf():
     conf.set_control_position(secontrol, (1,3))
     conf.set_control_sticky(secontrol, tk.NSEW)
     conf.set_control_colspan(secontrol, 5)
+    conf.set_control_pady(secontrol, (5,20))
     
     conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
     conf.set_label_anchor(__SEControls__.HEADER, tk.W)
