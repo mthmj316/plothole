@@ -29,8 +29,10 @@ class __SEControls__(enum.StrEnum):
     HEADER = 'header'
     MESSAGE = 'msg'
     NEW_BTN = 'new_btn'
+    NEXT_BTN = 'next_btn'
     OPEN_BTN = 'open_btn'
-    PLOTHOLE_PTN = 'plothole_btn'
+    PLOTHOLE_BTN = 'plothole_btn'
+    PREVIOUS_BTN = 'previous_btn'
     REVERT_BTN = 'revert_btn'
     SAVE_BTN = 'save_btn'
     SEQUENTIAL_NO = 'sequential_no'
@@ -60,6 +62,17 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_genre(conf)
         self.configure_message(conf)
         self.configure_content(conf)
+        self.configure_actions(conf)
+        
+    def configure_actions(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
+        btn_frame = tk.Frame(self)
+        btn_frame.grid(row=conf.get_grid_row_ctn() - 1, column=1, sticky="NSEW", padx=(5,5), pady=(5,5))
+    
+    def configure_button(self, conf, secontrol):
+        log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
+        if not conf.is_hidden(secontrol):
+            pass
 
     def configure_content(self, content):
         log.log_var(self, currentframe(), ("content", content))
@@ -536,6 +549,8 @@ def create_book_conf():
     conf.set_label(__SEControls__.HEADER,'Neues Buch')
     conf.set_label_position(__SEControls__.HEADER, (0,0))
     conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
     
     conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
     conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
@@ -588,30 +603,71 @@ def create_book_conf():
     conf.set_control_colspan(secontrol, 5)
     conf.set_control_pady(secontrol, (5,20))
     
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
     return conf
 
 def create_story_conf():
     conf = __SEConfiguration__()
-    conf.set_column_weigth(1, 1)
-    conf.set_row_weigth(4, 1)
-    conf.set_grid_column_ctn(2)
-    conf.set_grid_row_ctn(7)
+    conf.set_column_weigth(3, 1)
+    conf.set_column_weigth(5, 1)
+    conf.set_row_weigth(3, 1)
+    conf.set_grid_column_ctn(6)
+    conf.set_grid_row_ctn(5)
     
     conf.set_label_colspan(__SEControls__.HEADER, 7)
     conf.set_label(__SEControls__.HEADER,'Neue Geschicht')
     conf.set_label_position(__SEControls__.HEADER, (0,0))
     conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    
-    conf.set_label(__SEControls__.ALIAS,'Alias')
-    conf.set_label_position(__SEControls__.ALIAS, (0,1))
-    conf.set_control_position(__SEControls__.ALIAS, (1,1))
-    
     conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
     conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+    
     conf.hide_control(__SEControls__.SEQUENTIAL_NO)
+    
+    secontrol = __SEControls__.ALIAS
+    
+    conf.set_label(secontrol,'Alias')
+    conf.set_label_position(secontrol, (2,1))
+    conf.set_control_position(secontrol, (3,1))
+    conf.set_control_sticky(secontrol, tk.EW)
+
+    secontrol = __SEControls__.TITLE
+
+    conf.set_label(secontrol,'Titel')
+    conf.set_label_position(secontrol, (4,1))
+    conf.set_control_position(secontrol, (5,1))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.TONE
+
+    conf.set_label(secontrol,'Tonfall')
+    conf.set_label_position(secontrol, (2,2))
+    conf.set_control_position(secontrol, (3,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.GENRE
+
+    conf.set_label(secontrol,'Genre')
+    conf.set_label_position(secontrol, (0,2))
+    conf.set_control_position(secontrol, (1,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    conf.set_option_menu_values(secontrol, GENRES)
+    
+    secontrol = __SEControls__.MESSAGE
+
+    conf.set_label(secontrol,'Botschaft')
+    conf.set_label_position(secontrol, (4,2))
+    conf.set_control_position(secontrol, (5,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.CONTENT
+
+    conf.set_label(secontrol,'Inhalt')
+    conf.set_label_position(secontrol, (0,3))
+    conf.set_label_sticky(secontrol, tk.N)
+    conf.set_control_position(secontrol, (1,3))
+    conf.set_control_sticky(secontrol, tk.NSEW)
+    conf.set_control_colspan(secontrol, 5)
+    conf.set_control_pady(secontrol, (5,20))
+    
     return conf
         
 if __name__ == '__main__':
@@ -625,8 +681,8 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    # conf = create_story_conf()    
-    conf = create_book_conf()
+    conf = create_story_conf()    
+    # conf = create_book_conf()
     
     frame = StoryElement(w, conf)
     frame.grid(row=0, column=0, sticky="NSEW")
