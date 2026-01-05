@@ -58,7 +58,17 @@ class StoryElement(tk.Frame, UIObservable):
         log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.TITLE)
         self.configure_entry(conf, __SEControls__.TITLE)
+
+    def set_title(self, title):
+        log.log_var(self, currentframe(), ("title", title))
+        self.controls_vars.get(__SEControls__.TITLE).set(title)
         
+    def get_title(self):
+        log.log(self, currentframe())
+        title =  self.controls_vars.get(__SEControls__.TITLE).get()
+        log.log_var(self, currentframe(), ("title", title))
+        return title
+    
     def configure_sequential_no(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.SEQUENTIAL_NO)
