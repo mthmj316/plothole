@@ -1,8 +1,8 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    'StoryElement#*',
-    '__SEConfiguration__#*'
+    # 'StoryElement#*',
+    '*#get_col_weight'
     ]
 
 

@@ -52,6 +52,12 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_header(conf)
         self.configure_alias(conf)
         self.configure_sequential_no(conf)
+        self.configure_title(conf)
+        
+    def configure_title(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
+        self.configure_label(conf, __SEControls__.TITLE)
+        self.configure_entry(conf, __SEControls__.TITLE)
         
     def configure_sequential_no(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
@@ -426,9 +432,10 @@ class __SEConfiguration__():
 def create_book_conf():
     
     conf = __SEConfiguration__()
-    conf.set_column_weigth(1, 1)
+    conf.set_column_weigth(3, 1)
+    conf.set_column_weigth(5, 1)
     conf.set_row_weigth(4, 1)
-    conf.set_grid_column_ctn(2)
+    conf.set_grid_column_ctn(6)
     conf.set_grid_row_ctn(8)
     
     conf.set_label_colspan(__SEControls__.HEADER, 7)
@@ -441,9 +448,19 @@ def create_book_conf():
     conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
     conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.W)
     
-    conf.set_label(__SEControls__.ALIAS,'Alias')
-    conf.set_label_position(__SEControls__.ALIAS, (0,2))
-    conf.set_control_position(__SEControls__.ALIAS, (1,2))
+    secontrol = __SEControls__.ALIAS
+    
+    conf.set_label(secontrol,'Alias')
+    conf.set_label_position(secontrol, (2,1))
+    conf.set_control_position(secontrol, (3,1))
+    conf.set_control_sticky(secontrol, tk.EW)
+
+    secontrol = __SEControls__.TITLE
+
+    conf.set_label(secontrol,'Titel')
+    conf.set_label_position(secontrol, (4,1))
+    conf.set_control_position(secontrol, (5,1))
+    conf.set_control_sticky(secontrol, tk.EW)
     
     conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
     conf.set_label_anchor(__SEControls__.HEADER, tk.W)
@@ -487,12 +504,6 @@ if __name__ == '__main__':
     
     frame = StoryElement(w, conf)
     frame.grid(row=0, column=0, sticky="NSEW")
-    frame.set_alias("Alles nur geklaut")
-    frame.disable_alias()
-    frame.enable_alias()
-    print(frame.get_alias())
-    
-    frame.set_sequential_no(5)
-    print(frame.get_sequential_no())
+
     
     w.mainloop()
