@@ -7,15 +7,12 @@ Created on Wed Dec 31 10:45:35 2025
 import tkinter as tk
 from observers import UIObservable
 from tkinter import font as tkFont
-from plothole_types import PlotHoleType 
 from tkinter import scrolledtext as stxt
-from tkinter.filedialog import askopenfilename
 from tkinter import StringVar
 from tkinter import messagebox as mb
 from inspect import currentframe
 import logger as log
 import enum
-from tkinter import scrolledtext as stxt
 
 GENRES = ['', 'Abenteuer','Action','Alltag','Alternative','Comedy', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
@@ -65,7 +62,11 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_genre(conf)
         self.configure_message(conf)
         self.configure_content(conf)
-        self.configure_actions(conf)    
+        self.configure_actions(conf) 
+        
+    def raise_error(self, error):
+        log.log_var(self, currentframe(), ("error", error))
+        mb.showerror("Fehler", error)
     
     def configure_actions(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
@@ -90,39 +91,63 @@ class StoryElement(tk.Frame, UIObservable):
         
     def on_close(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_close()
         
     def on_delete(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_delete()
 
     def on_new(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_new()
 
     def on_next(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_next()
 
     def on_open(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_open()
 
     def on_plothole(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_plothole()
 
     def on_previous(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_previous()
 
     def on_revert(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_revert()
 
     def on_save(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_save()
 
     def on_sub(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_sub()
 
     def on_top(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_top()
         
     def on_update(self):
         log.log(self, currentframe())
+        for observer in self.observers:
+            observer.on_update()
     
     def configure_button(self, conf, secontrol, action, parent):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -141,8 +166,8 @@ class StoryElement(tk.Frame, UIObservable):
                 pady=conf.get_control_pady(secontrol))
             self.controls[secontrol.value] = btn
 
-    def configure_content(self, content):
-        log.log_var(self, currentframe(), ("content", content))
+    def configure_content(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.CONTENT)
         self.configure_scrolled_text(conf, __SEControls__.CONTENT)
 
@@ -159,8 +184,8 @@ class StoryElement(tk.Frame, UIObservable):
         log.log_var(self, currentframe(), ("content", content))
         return content
         
-    def configure_message(self, message):
-        log.log_var(self, currentframe(), ("message", message))
+    def configure_message(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.MESSAGE)
         self.configure_entry(conf, __SEControls__.MESSAGE)
 
@@ -174,8 +199,8 @@ class StoryElement(tk.Frame, UIObservable):
         log.log_var(self, currentframe(), ("message", message))
         return message
         
-    def configure_genre(self, genre):
-        log.log_var(self, currentframe(), ("genre", genre))
+    def configure_genre(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.GENRE)
         self.configure_option_menu(conf, __SEControls__.GENRE)
 
@@ -189,8 +214,8 @@ class StoryElement(tk.Frame, UIObservable):
         log.log_var(self, currentframe(), ("genre", genre))
         return genre
         
-    def configure_tone(self, tone):
-        log.log_var(self, currentframe(), ("tone", tone))
+    def configure_tone(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.TONE)
         self.configure_entry(conf, __SEControls__.TONE)
 

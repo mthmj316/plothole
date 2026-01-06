@@ -29,6 +29,8 @@ def log_var(clazz, current_frame, *args):
 def log(clazz, current_frame, log='void'):
     if ENABLE_LOGGING:
         
+        log = log.strip()
+        
         file_info = getframeinfo(current_frame)
         
         source = ""

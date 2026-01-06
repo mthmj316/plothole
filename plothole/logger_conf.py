@@ -1,7 +1,9 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    'StoryElement#*'
+    'StoryElement#*',
+    'StoryElementModel#*',
+    'StoryModel#*'
     # '*#get_control_sticky'
     ]
 

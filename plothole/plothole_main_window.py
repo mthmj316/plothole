@@ -13,6 +13,7 @@ from abc import abstractclassmethod
 from observers import UIObservable
 from inspect import currentframe
 import logger as log
+from story_element_ui import StoryElement, create_story_conf
 
 VERSION = "v0.1"
 

@@ -8,9 +8,13 @@ import plothole_main_window as win
 import book_models
 import story_models
 import sys
+import tkinter as tk
 
 from inspect import currentframe
 import logger as log
+
+from story_element_ui import StoryElement, create_story_conf
+from story_element_model import StoryModel
 
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
@@ -33,24 +37,38 @@ if __name__ == '__main__':
         log.TRACE_ONLY = False
     
     log.log_var(None, currentframe(), ('path_repros',path_repros))
+    
+    w = tk.Tk()
+    w.title("Story Element")
+    w.geometry("1250x750+300+100")
+    w.grid_columnconfigure(0, weight=1)
+    w.grid_rowconfigure(0, weight=1)
+
+    conf = create_story_conf()    
+    
+    story_ui = StoryElement(w, conf)
+    story_ui.grid(row=0, column=0, sticky="NSEW")
+    story_model = StoryModel(story_ui, path_repros)
+    
+    w.mainloop()
         
-    w = win.PlotholeMainWindow()
+    # w = win.PlotholeMainWindow()
     
-    story_overview_ui = w.get_story_overview_ui()
-    story_ui = w.get_story_ui()
-    book_overview_ui = w.get_book_overview_ui()
-    book_ui = w.get_book_ui()
+    # story_overview_ui = w.get_story_overview_ui()
+    # story_ui = w.get_story_ui()
+    # book_overview_ui = w.get_book_overview_ui()
+    # book_ui = w.get_book_ui()
     
-    story_overview_model = story_models.StoryOverviewModel(story_overview_ui, path_repros)
-    story_model = story_models.StoryModel(story_ui, path_repros)
-    book_overview_model = book_models.BookOverviewModel(book_overview_ui, path_repros)
-    book_ui_model = book_models.BookModel(book_ui, path_repros)
+    # story_overview_model = story_models.StoryOverviewModel(story_overview_ui, path_repros)
+    # story_model = story_models.StoryModel(story_ui, path_repros)
+    # book_overview_model = book_models.BookOverviewModel(book_overview_ui, path_repros)
+    # book_ui_model = book_models.BookModel(book_ui, path_repros)
     
     # story_overview_ui.register(book_overview_model)
     # story_overview_ui.register(book_ui_model)
-    story_overview_ui.register(story_model)
-    book_overview_ui.register(book_ui_model)
+    # story_overview_ui.register(story_model)
+    # book_overview_ui.register(book_ui_model)
     
-    w.run()
+    # w.run()
     
     log.log(None, currentframe(), "... plothole terminated!")

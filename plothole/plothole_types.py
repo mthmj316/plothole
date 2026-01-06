@@ -14,15 +14,17 @@ FILE_EXTENSIONS_DUMP = {
     'scene': 'scenedump',
     'page': 'pagedump',
     'panel': 'paneldump',
-    'plothole': 'plotholedump'
+    'plothole': 'plotholedump',
+    'character': 'characterdump'
     }
 
-class PlotHoleType(enum.IntEnum):    
-    STORY = 0
-    BOOK = 1
-    PART = 2
-    CHAPTER = 3
-    SCENE = 4
-    PAGE = 5
-    PANEL = 6
-    PLOTHOLE = 7
+class PlotHoleType(enum.StrEnum):    
+    STORY = 'story'
+    BOOK = 'book'
+    PART = 'part'
+    CHAPTER = 'chapter'
+    SCENE = 'scene'
+    PAGE = 'page'
+    PANEL = 'panel'
+    PLOTHOLE = 'plothole'
+    CHARATCTER = 'character'

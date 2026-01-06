@@ -11,6 +11,18 @@ import logger as log
 from inspect import currentframe
 
 from plothole_types import FILE_EXTENSIONS_DUMP as fed
+from plothole_types import PlotHoleType
+
+def delete(base_dir, alias, plothole_type):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias), ('plothole_type',plothole_type))    
+    if plothole_type == PlotHoleType.STORY:
+        delete_story(base_dir, alias)
+        log.log_var(None, currentframe(), ('return',"void"))
+    else:
+        path = hlp.get_path_by_alias(base_dir, alias)
+        dump_path = dump_file_extension(path, plothole_type.value)
+        fa.move(path, dump_path)
+    log.log_var(None, currentframe(), ('return',"void"))
 
 def delete_part(base_dir, alias):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
