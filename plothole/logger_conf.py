@@ -1,8 +1,8 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    # 'StoryElement#*',
-    '*#get_col_weight'
+    'StoryElement#*'
+    # '*#get_control_sticky'
     ]
 
 

@@ -17,30 +17,33 @@ import logger as log
 import enum
 from tkinter import scrolledtext as stxt
 
-GENRES = ['Abenteuer','Action','Alltag','Alternative','Comedy','Fantasy','Graphic Novel','Historie','Horror','Krimi','Manga','Mystery','Romantik','Science Fiction','Superhelden','Underground ','Western']
+GENRES = ['', 'Abenteuer','Action','Alltag','Alternative','Comedy', 'Erotic', 
+          'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
+          'Manga','Mystery','Romantik','Science Fiction','Superhelden',
+          'Underground ','Western']
 
 class __SEControls__(enum.StrEnum):
     ALIAS = 'alias'
-    CLOSE_BTN = 'close_btn'
+    BTN_CLOSE = 'btn_close'
+    BTN_DELETE = 'btn_delete'
+    BTN_NEW = 'btn_new'
+    BTN_NEXT = 'btn_next'
+    BTN_OPEN = 'btn_open'
+    BTN_PLOTHOLE = 'btn_plothole'
+    BTN_PREVIOUS = 'btn_previous'
+    BTN_REVERT = 'btn_revert'
+    BTN_SAVE = 'btn_save'
+    BTN_SUB = 'btn_sub'
+    BTN_TOP = 'btn_top'
+    BTN_UPDATE = 'btn_update'
     CONTENT = 'content'
-    DELETE_BTN = 'delete_btn'
     DIALOG = 'dialog'
     GENRE = 'genre'
     HEADER = 'header'
     MESSAGE = 'msg'
-    NEW_BTN = 'new_btn'
-    NEXT_BTN = 'next_btn'
-    OPEN_BTN = 'open_btn'
-    PLOTHOLE_BTN = 'plothole_btn'
-    PREVIOUS_BTN = 'previous_btn'
-    REVERT_BTN = 'revert_btn'
-    SAVE_BTN = 'save_btn'
     SEQUENTIAL_NO = 'sequential_no'
-    SUB_BTN = 'sub_btn'
     TITLE = 'title'
     TONE = 'tone'
-    TOP_BTN = 'top_btn'
-    UPDATE_BTN = 'update_btn'
 
 class StoryElement(tk.Frame, UIObservable):
     def __init__(self, root, conf, *args, **kwargs):
@@ -62,17 +65,81 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_genre(conf)
         self.configure_message(conf)
         self.configure_content(conf)
-        self.configure_actions(conf)
-        
+        self.configure_actions(conf)    
+    
     def configure_actions(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
         btn_frame = tk.Frame(self)
-        btn_frame.grid(row=conf.get_grid_row_ctn() - 1, column=1, sticky="NSEW", padx=(5,5), pady=(5,5))
+        btn_frame.grid(row=conf.get_grid_row_ctn() - 1, column=1, 
+                       columnspan=conf.get_grid_column_ctn() - 1,
+                       sticky="NSEW", padx=(5,5), pady=(5,5))
+        
+        self.configure_button(conf, __SEControls__.BTN_CLOSE, self.on_close, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_DELETE, self.on_delete, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_NEW, self.on_new, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_NEXT, self.on_next, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_OPEN, self.on_open, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_PLOTHOLE, self.on_plothole, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_PREVIOUS, self.on_previous, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_REVERT, self.on_revert, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_SAVE, self.on_save, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_SUB, self.on_sub, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_TOP, self.on_top, btn_frame)
+        self.configure_button(conf, __SEControls__.BTN_UPDATE, self.on_update, btn_frame)  
+        
+        
+    def on_close(self):
+        log.log(self, currentframe())
+        
+    def on_delete(self):
+        log.log(self, currentframe())
+
+    def on_new(self):
+        log.log(self, currentframe())
+
+    def on_next(self):
+        log.log(self, currentframe())
+
+    def on_open(self):
+        log.log(self, currentframe())
+
+    def on_plothole(self):
+        log.log(self, currentframe())
+
+    def on_previous(self):
+        log.log(self, currentframe())
+
+    def on_revert(self):
+        log.log(self, currentframe())
+
+    def on_save(self):
+        log.log(self, currentframe())
+
+    def on_sub(self):
+        log.log(self, currentframe())
+
+    def on_top(self):
+        log.log(self, currentframe())
+        
+    def on_update(self):
+        log.log(self, currentframe())
     
-    def configure_button(self, conf, secontrol):
+    def configure_button(self, conf, secontrol, action, parent):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
-            pass
+            btn = tk.Button(
+                parent, 
+                text=conf.get_label(secontrol), 
+                command=action)
+            btn.config(width=conf.get_button_width(secontrol))
+            pos = conf.get_control_position(secontrol)
+            btn.grid(
+                row=pos[1], 
+                column=pos[0], 
+                sticky=conf.get_control_sticky(secontrol), 
+                padx=conf.get_control_padx(secontrol), 
+                pady=conf.get_control_pady(secontrol))
+            self.controls[secontrol.value] = btn
 
     def configure_content(self, content):
         log.log_var(self, currentframe(), ("content", content))
@@ -221,10 +288,11 @@ class StoryElement(tk.Frame, UIObservable):
             menu_value.set(values[0])
             menu = tk.OptionMenu(self, menu_value, *values)            
             pos = conf.get_control_position(secontrol)
-            menu.grid(row=pos[1], column=pos[0], columnspan=1, 
-                       sticky=conf.get_control_sticky(secontrol), 
-                       padx=conf.get_control_padx(secontrol), 
-                       pady=conf.get_control_pady(secontrol))
+            menu.grid(row=pos[1], column=pos[0], 
+                      columnspan=conf.get_control_colspan(secontrol), 
+                      sticky=conf.get_control_sticky(secontrol), 
+                      padx=conf.get_control_padx(secontrol), 
+                      pady=conf.get_control_pady(secontrol))
             self.controls[secontrol.value] = menu   
 
     def configure_entry(self, conf, secontrol):
@@ -234,7 +302,8 @@ class StoryElement(tk.Frame, UIObservable):
             self.controls_vars[secontrol.value] = entry_value
             entry = tk.Entry(self, textvariable=entry_value)
             pos = conf.get_control_position(secontrol)
-            entry.grid(row=pos[1], column=pos[0], columnspan=1, 
+            entry.grid(row=pos[1], column=pos[0], 
+                       columnspan=conf.get_control_colspan(secontrol), 
                        sticky=conf.get_control_sticky(secontrol), 
                        padx=conf.get_control_padx(secontrol), 
                        pady=conf.get_control_pady(secontrol))
@@ -296,6 +365,8 @@ class __SEConfiguration__():
         self.label_font = {}
         self.control_font = {}
         self.option_menu_values = {}
+        # self.button_width = 20
+        self.button_width = {}
         
     def __str__(self):        
         _str = (f"lables={self.lables};"
@@ -315,9 +386,20 @@ class __SEConfiguration__():
                 f"control_colspan={self.control_colspan};"
                 f"label_font={self.label_font};"
                 f"control_font={self.control_font};"
-                f"control_font={self.control_font};")
+                f"control_font={self.control_font};"
+                f"button_width={self.button_width};")
         return _str
+ 
+    def set_button_width(self, secontrol, width):
+        log.log_var(self, currentframe(),("secontrol", secontrol), ("width", width))
+        self.button_width[secontrol.value] = width
 
+    def get_button_width(self, secontrol):
+        log.log_var(self, currentframe(), ("secontrol", secontrol))
+        width = 20 if secontrol not in self.button_width.keys() else self.button_width.get(secontrol)
+        log.log_var(self, currentframe(), ("width", width))
+        return width
+        
     def get_option_menu_values(self, secontrol):
         log.log_var(self, currentframe(), ("secontrol", secontrol))
         values = range(1,11) if secontrol not in self.option_menu_values.keys() else self.option_menu_values.get(secontrol)
@@ -601,7 +683,54 @@ def create_book_conf():
     conf.set_control_position(secontrol, (1,3))
     conf.set_control_sticky(secontrol, tk.NSEW)
     conf.set_control_colspan(secontrol, 5)
-    conf.set_control_pady(secontrol, (5,20))
+    conf.set_control_pady(secontrol, (5,5))
+    
+    secontrol = __SEControls__.BTN_CLOSE    
+    conf.set_control_position(secontrol, (3,0))
+    conf.set_label(secontrol,'Schließen')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_DELETE   
+    conf.set_control_position(secontrol, (2,0))
+    conf.set_label(secontrol,'Löschen')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_PLOTHOLE   
+    conf.set_control_position(secontrol, (5,0))
+    conf.set_label(secontrol,'Plothole')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_REVERT   
+    conf.set_control_position(secontrol, (1,0))
+    conf.set_label(secontrol,'Zurücksetzen')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_SAVE
+    conf.set_control_position(secontrol, (0,0))
+    conf.set_label(secontrol,'Speichern')
+    conf.set_control_padx(secontrol, (0,1))
+    
+    secontrol = __SEControls__.BTN_SUB
+    conf.set_control_position(secontrol, (4,0))
+    conf.set_label(secontrol,'Teile')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_NEXT
+    conf.set_control_position(secontrol, (7,0))
+    conf.set_label(secontrol,'>')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, 5)
+    
+    secontrol = __SEControls__.BTN_PREVIOUS
+    conf.set_control_position(secontrol, (6,0))
+    conf.set_label(secontrol,'<')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, 5)
+    
+    conf.hide_control(__SEControls__.BTN_NEW)
+    conf.hide_control(__SEControls__.BTN_TOP)
+    conf.hide_control(__SEControls__.BTN_OPEN)
+    conf.hide_control(__SEControls__.BTN_UPDATE)
     
     return conf
 
@@ -666,7 +795,44 @@ def create_story_conf():
     conf.set_control_position(secontrol, (1,3))
     conf.set_control_sticky(secontrol, tk.NSEW)
     conf.set_control_colspan(secontrol, 5)
-    conf.set_control_pady(secontrol, (5,20))
+    conf.set_control_pady(secontrol, (5,5))
+    
+    secontrol = __SEControls__.BTN_CLOSE    
+    conf.set_control_position(secontrol, (3,0))
+    conf.set_label(secontrol,'Schließen')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_DELETE   
+    conf.set_control_position(secontrol, (2,0))
+    conf.set_label(secontrol,'Löschen')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_PLOTHOLE   
+    conf.set_control_position(secontrol, (5,0))
+    conf.set_label(secontrol,'Plothole')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_REVERT   
+    conf.set_control_position(secontrol, (1,0))
+    conf.set_label(secontrol,'Zurücksetzen')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    secontrol = __SEControls__.BTN_SAVE
+    conf.set_control_position(secontrol, (0,0))
+    conf.set_label(secontrol,'Speichern')
+    conf.set_control_padx(secontrol, (0,1))
+    
+    secontrol = __SEControls__.BTN_SUB
+    conf.set_control_position(secontrol, (4,0))
+    conf.set_label(secontrol,'Bücher')
+    conf.set_control_padx(secontrol, (1,1))
+    
+    conf.hide_control(__SEControls__.BTN_NEW)
+    conf.hide_control(__SEControls__.BTN_NEXT)
+    conf.hide_control(__SEControls__.BTN_OPEN)
+    conf.hide_control(__SEControls__.BTN_PREVIOUS)
+    conf.hide_control(__SEControls__.BTN_TOP)
+    conf.hide_control(__SEControls__.BTN_UPDATE)
     
     return conf
         
@@ -681,8 +847,8 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    conf = create_story_conf()    
-    # conf = create_book_conf()
+    # conf = create_story_conf()    
+    conf = create_book_conf()
     
     frame = StoryElement(w, conf)
     frame.grid(row=0, column=0, sticky="NSEW")
