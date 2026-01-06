@@ -716,8 +716,14 @@ def create_book_conf():
     conf.set_control_padx(secontrol, (1,1))
     
     secontrol = __SEControls__.BTN_NEXT
-    conf.set_control_position(secontrol, (7,0))
+    conf.set_control_position(secontrol, (8,0))
     conf.set_label(secontrol,'>')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, 5)
+    
+    secontrol = __SEControls__.BTN_TOP
+    conf.set_control_position(secontrol, (7,0))
+    conf.set_label(secontrol,'^')
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, 5)
     
@@ -728,7 +734,6 @@ def create_book_conf():
     conf.set_button_width(secontrol, 5)
     
     conf.hide_control(__SEControls__.BTN_NEW)
-    conf.hide_control(__SEControls__.BTN_TOP)
     conf.hide_control(__SEControls__.BTN_OPEN)
     conf.hide_control(__SEControls__.BTN_UPDATE)
     
