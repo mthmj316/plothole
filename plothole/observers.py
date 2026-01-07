@@ -33,6 +33,10 @@ class UIObservable(ABC):
         """
 
 class UIObserver(ABC):
+    
+    @abstractmethod
+    def on_character(self):
+        pass
         
     @abstractmethod
     def on_close(self):

@@ -21,6 +21,7 @@ GENRES = ['', 'Abenteuer','Action','Alltag','Alternative','Comedy', 'Erotic',
 
 class __SEControls__(enum.StrEnum):
     ALIAS = 'alias'
+    BTN_CHARACTER = 'character'
     BTN_CLOSE = 'btn_close'
     BTN_DELETE = 'btn_delete'
     BTN_NEW = 'btn_new'
@@ -38,6 +39,7 @@ class __SEControls__(enum.StrEnum):
     GENRE = 'genre'
     HEADER = 'header'
     MESSAGE = 'msg'
+    NOTE = 'note'
     SEQUENTIAL_NO = 'sequential_no'
     TITLE = 'title'
     TONE = 'tone'
@@ -62,6 +64,7 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_genre(conf)
         self.configure_message(conf)
         self.configure_content(conf)
+        self.configure_note(conf)
         self.configure_actions(conf) 
         
     def raise_error(self, error):
@@ -75,6 +78,7 @@ class StoryElement(tk.Frame, UIObservable):
                        columnspan=conf.get_grid_column_ctn() - 1,
                        sticky="NSEW", padx=(5,5), pady=(5,5))
         
+        self.configure_button(conf, __SEControls__.BTN_CHARACTER, self.on_character, btn_frame)
         self.configure_button(conf, __SEControls__.BTN_CLOSE, self.on_close, btn_frame)
         self.configure_button(conf, __SEControls__.BTN_DELETE, self.on_delete, btn_frame)
         self.configure_button(conf, __SEControls__.BTN_NEW, self.on_new, btn_frame)
@@ -87,7 +91,11 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_button(conf, __SEControls__.BTN_SUB, self.on_sub, btn_frame)
         self.configure_button(conf, __SEControls__.BTN_TOP, self.on_top, btn_frame)
         self.configure_button(conf, __SEControls__.BTN_UPDATE, self.on_update, btn_frame)  
-        
+
+    def on_character(self):
+       log.log(self, currentframe())
+       for observer in self.observers:
+           observer.on_character()        
         
     def on_close(self):
         log.log(self, currentframe())
@@ -165,6 +173,11 @@ class StoryElement(tk.Frame, UIObservable):
                 padx=conf.get_control_padx(secontrol), 
                 pady=conf.get_control_pady(secontrol))
             self.controls[secontrol.value] = btn
+
+    def configure_note(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf))
+        self.configure_label(conf, __SEControls__.NOTE)
+        self.configure_scrolled_text(conf, __SEControls__.NOTE)
 
     def configure_content(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
@@ -710,50 +723,64 @@ def create_book_conf():
     conf.set_control_colspan(secontrol, 5)
     conf.set_control_pady(secontrol, (5,5))
     
+    btn_width = 15
+    
+    secontrol = __SEControls__.BTN_CHARACTER 
+    conf.set_control_position(secontrol, (6,0))
+    conf.set_label(secontrol,'Charakter')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
     secontrol = __SEControls__.BTN_CLOSE    
     conf.set_control_position(secontrol, (3,0))
     conf.set_label(secontrol,'Schließen')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_DELETE   
     conf.set_control_position(secontrol, (2,0))
     conf.set_label(secontrol,'Löschen')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_PLOTHOLE   
     conf.set_control_position(secontrol, (5,0))
     conf.set_label(secontrol,'Plothole')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_REVERT   
     conf.set_control_position(secontrol, (1,0))
     conf.set_label(secontrol,'Zurücksetzen')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_SAVE
     conf.set_control_position(secontrol, (0,0))
     conf.set_label(secontrol,'Speichern')
     conf.set_control_padx(secontrol, (0,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_SUB
     conf.set_control_position(secontrol, (4,0))
     conf.set_label(secontrol,'Teile')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_NEXT
-    conf.set_control_position(secontrol, (8,0))
+    conf.set_control_position(secontrol, (9,0))
     conf.set_label(secontrol,'>')
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, 5)
     
     secontrol = __SEControls__.BTN_TOP
-    conf.set_control_position(secontrol, (7,0))
+    conf.set_control_position(secontrol, (8,0))
     conf.set_label(secontrol,'^')
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, 5)
     
     secontrol = __SEControls__.BTN_PREVIOUS
-    conf.set_control_position(secontrol, (6,0))
+    conf.set_control_position(secontrol, (7,0))
     conf.set_label(secontrol,'<')
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, 5)
@@ -761,6 +788,7 @@ def create_book_conf():
     conf.hide_control(__SEControls__.BTN_NEW)
     conf.hide_control(__SEControls__.BTN_OPEN)
     conf.hide_control(__SEControls__.BTN_UPDATE)
+    conf.hide_control(__SEControls__.NOTE)
     
     return conf
 
@@ -778,8 +806,6 @@ def create_story_conf():
     conf.set_label_sticky(__SEControls__.HEADER, tk.W)
     conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
     conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    conf.hide_control(__SEControls__.SEQUENTIAL_NO)
     
     secontrol = __SEControls__.ALIAS
     
@@ -827,35 +853,49 @@ def create_story_conf():
     conf.set_control_colspan(secontrol, 5)
     conf.set_control_pady(secontrol, (5,5))
     
+    btn_width = 15
+    
+    secontrol = __SEControls__.BTN_CHARACTER 
+    conf.set_control_position(secontrol, (6,0))
+    conf.set_label(secontrol,'Charakter')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
     secontrol = __SEControls__.BTN_CLOSE    
     conf.set_control_position(secontrol, (3,0))
     conf.set_label(secontrol,'Schließen')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_DELETE   
     conf.set_control_position(secontrol, (2,0))
     conf.set_label(secontrol,'Löschen')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_PLOTHOLE   
     conf.set_control_position(secontrol, (5,0))
     conf.set_label(secontrol,'Plothole')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_REVERT   
     conf.set_control_position(secontrol, (1,0))
     conf.set_label(secontrol,'Zurücksetzen')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_SAVE
     conf.set_control_position(secontrol, (0,0))
     conf.set_label(secontrol,'Speichern')
     conf.set_control_padx(secontrol, (0,1))
+    conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_SUB
     conf.set_control_position(secontrol, (4,0))
     conf.set_label(secontrol,'Bücher')
     conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
     
     conf.hide_control(__SEControls__.BTN_NEW)
     conf.hide_control(__SEControls__.BTN_NEXT)
@@ -863,6 +903,8 @@ def create_story_conf():
     conf.hide_control(__SEControls__.BTN_PREVIOUS)
     conf.hide_control(__SEControls__.BTN_TOP)
     conf.hide_control(__SEControls__.BTN_UPDATE)
+    conf.hide_control(__SEControls__.NOTE)
+    conf.hide_control(__SEControls__.SEQUENTIAL_NO)
     
     return conf
         
@@ -877,8 +919,8 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    # conf = create_story_conf()    
-    conf = create_book_conf()
+    conf = create_story_conf()    
+    # conf = create_book_conf()
     
     frame = StoryElement(w, conf)
     frame.grid(row=0, column=0, sticky="NSEW")

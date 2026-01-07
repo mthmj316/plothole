@@ -63,7 +63,10 @@ class StoryElementModel(UIObserver):
     def on_close(self):
         log.log(self, currentframe())
         self.clear()
-        
+    
+    def on_character(self):
+        pass
+    
     def on_delete(self):
         log.log(super, currentframe())
         _id = self.get_id(False)
