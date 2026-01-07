@@ -54,6 +54,10 @@ class StoryElementModel(UIObserver):
     def after_save(self):
         pass
     
+    @abstractmethod
+    def load():
+        pass
+    
     def get_file_name(self):
         log.log(super, currentframe())
         file_name = self.get_id(False)
@@ -93,6 +97,7 @@ class StoryElementModel(UIObserver):
 
     def on_revert(self):
         log.log(self, currentframe())
+        self.load()
 
     def on_save(self):
         log.log(self, currentframe())
@@ -145,6 +150,11 @@ class StoryModel(StoryElementModel):
     def clear(self):
         log.log(self, currentframe())
         self.ui.set_alias('')
+        self.ui.set_title('')
+        self.ui.set_genre('')
+        self.ui.set_tone('')
+        self.ui.set_message('')
+        self.ui.set_content('')
         self.ui.enable_alias()
         super().clear()
     
@@ -201,4 +211,17 @@ class StoryModel(StoryElementModel):
         self.this_story_element = story
         
     def after_save(self):
+        log.log(self, currentframe())
         self.ui.disable_alias()
+        
+    def load(self):
+        log.log(self, currentframe())
+        story = self.this_story_element
+        
+        self.ui.set_alias(story.get(sec.ALIAS))
+        self.ui.set_title(story.get(sec.TITLE))
+        self.ui.set_tone(story.get(sec.TONE))
+        self.ui.set_genre(story.get(sec.GENRE))
+        self.ui.set_message(story.get(sec.MESSAGE))
+        self.ui.set_content(story.get(sec.CONTENT))
+        

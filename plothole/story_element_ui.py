@@ -16,7 +16,7 @@ import enum
 
 GENRES = ['', 'Abenteuer','Action','Alltag','Alternative','Comedy', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
-          'Manga','Mystery','Romantik','Science Fiction','Superhelden',
+          'Manga','Märchen', 'Mystery', 'Politik', 'Romantik','Science Fiction','Superhelden',
           'Underground ','Western']
 
 class __SEControls__(enum.StrEnum):
