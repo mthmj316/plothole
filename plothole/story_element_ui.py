@@ -13,6 +13,7 @@ from tkinter import messagebox as mb
 from inspect import currentframe
 import logger as log
 import enum
+from navigator import NavigationPoint
 
 GENRES = ['', 'Abenteuer','Action','Alltag','Alternative','Comedy', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
@@ -44,12 +45,13 @@ class __SEControls__(enum.StrEnum):
     TITLE = 'title'
     TONE = 'tone'
 
-class StoryElement(tk.Frame, UIObservable):
+class StoryElement(tk.Frame, UIObservable, NavigationPoint):
     def __init__(self, root, conf, *args, **kwargs):
         super().__init__(root, *args, **kwargs)       
-        log.log_var(self, currentframe(), ("args", args), ("kwargs", kwargs))
+        log.log_var(self, currentframe(),("root", root), ("conf", conf), ("args", args), ("kwargs", kwargs))
         self.root = root
         self.observers = []
+        self.navigators = []
         
         self.labels = {}
         self.controls = {}
@@ -66,7 +68,16 @@ class StoryElement(tk.Frame, UIObservable):
         self.configure_content(conf)
         self.configure_note(conf)
         self.configure_actions(conf) 
-        
+
+
+    def add_navigator(self, navigator):
+        log.log_var(self, currentframe(), ("navigator", navigator))
+        self.navigators.append(navigator)
+
+    def remove_mavigator(self, navigator):
+        log.log_var(self, currentframe(), ("navigator", navigator))
+        self.navigators.pop(self.navigators.index(navigator))
+    
     def raise_error(self, error):
         log.log_var(self, currentframe(), ("error", error))
         mb.showerror("Fehler", error)
@@ -95,22 +106,34 @@ class StoryElement(tk.Frame, UIObservable):
     def on_character(self):
        log.log(self, currentframe())
        for observer in self.observers:
-           observer.on_character()        
+           observer.on_character() 
+           
+       for navigator in self.navigators:
+           navigator.on_character()       
         
     def on_close(self):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_close()
+            
+        for navigator in self.navigators:
+            navigator.on_close()
         
     def on_delete(self):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_delete()
+            
+        for navigator in self.navigators:
+            navigator.on_delete()
 
     def on_new(self):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_new()
+            
+        for navigator in self.navigators:
+            navigator.on_new()
 
     def on_next(self):
         log.log(self, currentframe())
@@ -121,11 +144,17 @@ class StoryElement(tk.Frame, UIObservable):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_open()
+            
+        for navigator in self.navigators:
+            navigator.on_open()
 
     def on_plothole(self):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_plothole()
+            
+        for navigator in self.navigators:
+            navigator.on_plothole()
 
     def on_previous(self):
         log.log(self, currentframe())
@@ -146,11 +175,17 @@ class StoryElement(tk.Frame, UIObservable):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_sub()
+            
+        for navigator in self.navigators:
+            navigator.on_sub()
 
     def on_top(self):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_top()
+            
+        for navigator in self.navigators:
+            navigator.on_top()
         
     def on_update(self):
         log.log(self, currentframe())

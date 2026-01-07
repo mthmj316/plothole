@@ -1,4 +1,4 @@
-LOGGING_ALL=False
+LOGGING_ALL=True
 LOGGING_SOURCE = [
     # 'BookModel#*',
     'StoryElement#*',

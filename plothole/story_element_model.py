@@ -24,11 +24,6 @@ class StoryElementModel(UIObserver):
         self.ui.register(self)
         self.this_story_element = None
         self.fq_file_name = ''
-        
-    def clear(self):
-        log.log(self, currentframe())        
-        self.this_story_element = None
-        self.fq_file_name = ''
     
     @abstractmethod
     def get_plothole_type(self):
@@ -57,7 +52,20 @@ class StoryElementModel(UIObserver):
     @abstractmethod
     def load():
         pass
-    
+        
+    @abstractmethod
+    def load_previous():
+        pass
+
+    @abstractmethod
+    def load_next():
+        pass
+        
+    def clear(self):
+        log.log(self, currentframe())        
+        self.this_story_element = None
+        self.fq_file_name = ''
+        
     def get_file_name(self):
         log.log(super, currentframe())
         file_name = self.get_id(False)
@@ -69,7 +77,7 @@ class StoryElementModel(UIObserver):
         self.clear()
     
     def on_character(self):
-        pass
+        log.log(self, currentframe(), 'not relevant')
     
     def on_delete(self):
         log.log(super, currentframe())
@@ -81,19 +89,21 @@ class StoryElementModel(UIObserver):
         self.clear()
 
     def on_new(self):
-        log.log(self, currentframe())
+        log.log(self, currentframe(), 'not relevant')
 
     def on_next(self):
         log.log(self, currentframe())
+        self.load_next()
 
     def on_open(self):
-        log.log(self, currentframe())
+        log.log(self, currentframe(), 'not relevant')
 
     def on_plothole(self):
-        log.log(self, currentframe())
+        log.log(self, currentframe(), 'not relevant')
 
     def on_previous(self):
         log.log(self, currentframe())
+        self.load_previous()
 
     def on_revert(self):
         log.log(self, currentframe())
@@ -133,10 +143,11 @@ class StoryElementModel(UIObserver):
         self.after_save()
 
     def on_sub(self):
-        log.log(self, currentframe())
+        log.log(self, currentframe(), 'not relevant')
 
     def on_top(self):
         log.log(self, currentframe())
+        self.clear()
         
     def on_update(self):
         log.log(self, currentframe())        
@@ -149,7 +160,14 @@ class StoryModel(StoryElementModel):
     def __init__(self, ui, base_dir):
         super().__init__(ui, base_dir)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+
+    def load_previous(self):
+        log.log(self, currentframe(), 'not relevant')
         
+
+    def load_next(self):
+        log.log(self, currentframe(), 'not relevant')
+    
     def clear(self):
         log.log(self, currentframe())
         self.ui.set_alias('')
