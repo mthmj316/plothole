@@ -139,7 +139,10 @@ class StoryElementModel(UIObserver):
         log.log(self, currentframe())
         
     def on_update(self):
-        log.log(self, currentframe())
+        log.log(self, currentframe())        
+        self.prepare_save()
+        data = json.dumps(self.this_story_element)
+        fa.write(self.fq_file_name, data)
 
 class StoryModel(StoryElementModel):
     
@@ -189,7 +192,7 @@ class StoryModel(StoryElementModel):
         return name
     
     def prepare_save(self):
-        log.log(self, currentframe())
+        log.log_var(self, currentframe())
         
         alias = self.ui.get_alias()
         title = self.ui.get_title()
