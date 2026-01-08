@@ -13,8 +13,12 @@ import tkinter as tk
 from inspect import currentframe
 import logger as log
 
-from story_element_ui import StoryElement, create_story_conf
-from story_element_model import StoryModel
+import story_element_ui as seui
+import story_element_model as sem
+
+import story_element_overview_ui as seoui
+
+from plothole_types import PlotHoleType
 
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
@@ -42,13 +46,15 @@ if __name__ == '__main__':
     w.title("Story Element")
     w.geometry("1250x750+300+100")
     w.grid_columnconfigure(0, weight=1)
-    w.grid_rowconfigure(0, weight=1)
-
-    conf = create_story_conf()    
+    w.grid_rowconfigure(0, weight=1)     
     
-    story_ui = StoryElement(w, conf)
+    story_ui = seui.StoryElement(w, seui.create_story_conf())
     story_ui.grid(row=0, column=0, sticky="NSEW")
-    story_model = StoryModel(story_ui, path_repros)
+    story_overview_ui = seoui.StoryElementOverview(w, seoui.create_story_conf(), PlotHoleType.STORY)
+    story_overview_ui.grid(row=0, column=0, sticky="NSEW")  
+    
+    story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)
+    story_model.on_open(None)
     
     w.mainloop()
         

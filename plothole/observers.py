@@ -55,7 +55,7 @@ class UIObserver(ABC):
         pass
         
     @abstractmethod
-    def on_open(self):
+    def on_open(self, _id, ph_type):
         pass
         
     @abstractmethod

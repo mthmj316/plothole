@@ -38,7 +38,7 @@ class Navigator(ABC):
         pass
 
     @abstractmethod
-    def on_open(self):
+    def on_open(self, ph_type):
         pass
     
     @abstractmethod

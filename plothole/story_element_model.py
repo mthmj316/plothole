@@ -17,11 +17,13 @@ import file_access as fa
 
 class StoryElementModel(UIObserver):
     
-    def __init__(self, ui, base_dir):
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir):
+        log.log_var(self, currentframe(), ("ui", ui), ("overview_ui", overview_ui), ("base_dir", base_dir))
         self.base_dir = base_dir
         self.ui = ui
+        self.overview_ui = overview_ui
         self.ui.register(self)
+        self.overview_ui.register(self)
         self.this_story_element = None
         self.fq_file_name = ''
     
@@ -95,8 +97,9 @@ class StoryElementModel(UIObserver):
         log.log(self, currentframe())
         self.load_next()
 
-    def on_open(self):
-        log.log(self, currentframe(), 'not relevant')
+    @abstractmethod
+    def on_open(self, _id, ph_type=None):
+        pass
 
     def on_plothole(self):
         log.log(self, currentframe(), 'not relevant')
@@ -157,9 +160,23 @@ class StoryElementModel(UIObserver):
 
 class StoryModel(StoryElementModel):
     
-    def __init__(self, ui, base_dir):
-        super().__init__(ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir):
+        super().__init__(ui, overview_ui, base_dir)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+
+    def on_open(self, _id, ph_type=None):
+        log.log_var(self, currentframe(),('_id',_id),('ph_type',ph_type))
+        
+        # if ph_type=None -> load all stories into overview_ui
+        # if ph_type=Story -> load story with the given _id (alias) into ui
+        # if ph_type neither None nor Story -> do nothing
+        if ph_type is None:
+            for story in sorted(hlp.get_all_stories(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE.value]):
+                self.overview_ui.add_overview_item(story.get(sec.ALIAS), story.get(sec.TITLE))
+        elif ph_type == PlotHoleType.STORY:
+            pass
+        else:
+            pass #nothing to do
 
     def load_previous(self):
         log.log(self, currentframe(), 'not relevant')

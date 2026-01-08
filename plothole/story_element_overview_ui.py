@@ -16,29 +16,51 @@ import enum
 from navigator import NavigationPoint
 from story_element_ui import __SEControls__
 from story_element_ui import __SEConfiguration__
+from plothole_types import PlotHoleType
 
 class StoryElementOverview(tk.Frame, UIObservable, NavigationPoint):
     
-    def __init__(self, root, conf, *args, **kwargs):
+    def __init__(self, root, conf, ph_type, *args, **kwargs):
         super().__init__(root, *args, **kwargs)       
-        log.log_var(self, currentframe(),("root", root), ("conf", conf), ("args", args), ("kwargs", kwargs))
-        
+        log.log_var(self, currentframe(),("root", root), ("conf", conf), ("ph_type", ph_type), ("args", args), ("kwargs", kwargs))
         self.root = root
+        self.ph_type = ph_type
+        self.grid_columnconfigure(0, weight=1)       
         self.observers = []
         self.navigators = []
         self.labels = {}        
         self.controls = {}
+        self.se_lables = {}
         
         self.configure_header(conf)
         self.configure_actions(conf)
         
-        self.conf = conf
-        
-    def add_overview_item(self, item):
-        log.log_var(self, currentframe(), ("item", item))
+    def add_overview_item(self, _id, display):
+        log.log_var(self, currentframe(), ("_id", _id), ("display", display))
+        se_lb = tk.Label(self, text=display, borderwidth=2, relief="groove")
+        se_lb.bind('<Double-Button-1>', func=lambda x: self.on_item_select(_id))
+        se_lb.grid(row=len(self.se_lables) + 2, 
+                column=0, 
+                columnspan=1,
+                sticky=tk.NSEW,
+                padx=10,
+                pady=5)
+        se_lb['font'] = tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD)
+        self.se_lables[_id] = se_lb
+
+    def on_item_select(self, _id):
+        log.log_var(self, currentframe(), ("_id", _id))
+        for observer in self.observers:
+            observer.on_open(_id, self.ph_type)
+            
+        for navigator in self.navigators:
+            navigator.on_open(self.ph_type)
 
     def remove_all_overview_items(self):
         log.log(self, currentframe())
+        for se_lb_key in self.se_lables.keys():
+            self.se_lables.get(se_lb_key).destroy()            
+        self.se_lables.clear()
     
     def configure_actions(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
@@ -152,7 +174,7 @@ def create_story_conf():
     conf.set_grid_row_ctn(5)
     
     conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Overview')
+    conf.set_label(__SEControls__.HEADER,'Geschichten Übersicht')
     conf.set_label_position(__SEControls__.HEADER, (0,0))
     conf.set_label_sticky(__SEControls__.HEADER, tk.W)
     conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
@@ -205,8 +227,13 @@ if __name__ == '__main__':
     
     conf = create_story_conf()
     
-    frame = StoryElementOverview(w, conf)
+    frame = StoryElementOverview(w, conf, PlotHoleType.STORY)
     frame.grid(row=0, column=0, sticky="NSEW")
+    
+    frame.add_overview_item("test_id", 'Test Eintrag')
+    frame.add_overview_item("cooleStory", 'Alaska')
+    
+    frame.remove_all_overview_items()
 
     
     w.mainloop()
