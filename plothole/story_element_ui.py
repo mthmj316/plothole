@@ -692,6 +692,142 @@ class __SEConfiguration__():
         log.log_var(self, currentframe(), ("weight", weight))        
         return weight
 
+def create_part_conf():
+    
+    conf = __SEConfiguration__()
+    conf.set_column_weigth(3, 1)
+    conf.set_column_weigth(5, 1)
+    conf.set_row_weigth(3, 1)
+    conf.set_grid_column_ctn(6)
+    conf.set_grid_row_ctn(5)
+    
+    conf.set_label_colspan(__SEControls__.HEADER, 7)
+    conf.set_label(__SEControls__.HEADER,'Neuer Teil')
+    conf.set_label_position(__SEControls__.HEADER, (0,0))
+    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+    
+    conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
+    conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
+    conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
+    conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
+    
+    secontrol = __SEControls__.ALIAS
+    
+    conf.set_label(secontrol,'Alias')
+    conf.set_label_position(secontrol, (2,1))
+    conf.set_control_position(secontrol, (3,1))
+    conf.set_control_sticky(secontrol, tk.EW)
+
+    secontrol = __SEControls__.TITLE
+
+    conf.set_label(secontrol,'Titel')
+    conf.set_label_position(secontrol, (4,1))
+    conf.set_control_position(secontrol, (5,1))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.TONE
+
+    conf.set_label(secontrol,'Tonfall')
+    conf.set_label_position(secontrol, (2,2))
+    conf.set_control_position(secontrol, (3,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.GENRE
+
+    conf.set_label(secontrol,'Genre')
+    conf.set_label_position(secontrol, (0,2))
+    conf.set_control_position(secontrol, (1,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    conf.set_option_menu_values(secontrol, GENRES)
+    
+    secontrol = __SEControls__.MESSAGE
+
+    conf.set_label(secontrol,'Botschaft')
+    conf.set_label_position(secontrol, (4,2))
+    conf.set_control_position(secontrol, (5,2))
+    conf.set_control_sticky(secontrol, tk.EW)
+    
+    secontrol = __SEControls__.CONTENT
+
+    conf.set_label(secontrol,'Inhalt')
+    conf.set_label_position(secontrol, (0,3))
+    conf.set_label_sticky(secontrol, tk.N)
+    conf.set_control_position(secontrol, (1,3))
+    conf.set_control_sticky(secontrol, tk.NSEW)
+    conf.set_control_colspan(secontrol, 5)
+    conf.set_control_pady(secontrol, (5,5))
+    
+    btn_width = 15
+    
+    secontrol = __SEControls__.BTN_CHARACTER 
+    conf.set_control_position(secontrol, (6,0))
+    conf.set_label(secontrol,'Charakter')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_CLOSE    
+    conf.set_control_position(secontrol, (3,0))
+    conf.set_label(secontrol,'Schließen')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_DELETE   
+    conf.set_control_position(secontrol, (2,0))
+    conf.set_label(secontrol,'Löschen')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_PLOTHOLE   
+    conf.set_control_position(secontrol, (5,0))
+    conf.set_label(secontrol,'Plothole')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_REVERT   
+    conf.set_control_position(secontrol, (1,0))
+    conf.set_label(secontrol,'Zurücksetzen')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_SAVE
+    conf.set_control_position(secontrol, (0,0))
+    conf.set_label(secontrol,'Speichern')
+    conf.set_control_padx(secontrol, (0,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_SUB
+    conf.set_control_position(secontrol, (4,0))
+    conf.set_label(secontrol,'Kapitel')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
+    secontrol = __SEControls__.BTN_NEXT
+    conf.set_control_position(secontrol, (9,0))
+    conf.set_label(secontrol,'>')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, 5)
+    
+    secontrol = __SEControls__.BTN_TOP
+    conf.set_control_position(secontrol, (8,0))
+    conf.set_label(secontrol,'^')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, 5)
+    
+    secontrol = __SEControls__.BTN_PREVIOUS
+    conf.set_control_position(secontrol, (7,0))
+    conf.set_label(secontrol,'<')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, 5)
+    
+    conf.hide_control(__SEControls__.BTN_NEW)
+    conf.hide_control(__SEControls__.BTN_OPEN)
+    conf.hide_control(__SEControls__.BTN_UPDATE)
+    conf.hide_control(__SEControls__.NOTE)
+    
+    return conf
+
 def create_book_conf():
     
     conf = __SEConfiguration__()
@@ -956,9 +1092,10 @@ if __name__ == '__main__':
     w.grid_rowconfigure(0, weight=1)
     
     # conf = create_story_conf()    
-    conf = create_book_conf()
+    # conf = create_book_conf()
+    conf = create_part_conf()
     
-    frame = StoryElement(w, conf, PlotHoleType.BOOK)
+    frame = StoryElement(w, conf, PlotHoleType.PART)
     frame.grid(row=0, column=0, sticky="NSEW")
 
     

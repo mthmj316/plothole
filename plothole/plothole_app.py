@@ -59,6 +59,11 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1) 
 
+    part_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.PART)
+    part_ui.grid(row=0, column=0, sticky="NSEW")
+    part_overview_ui = seoui.StoryElementOverview(w, seoui.create_book_conf(), PlotHoleType.PART)
+    part_overview_ui.grid(row=0, column=0, sticky="NSEW")   
+
     book_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.BOOK)
     book_ui.grid(row=0, column=0, sticky="NSEW")
     book_overview_ui = seoui.StoryElementOverview(w, seoui.create_book_conf(), PlotHoleType.BOOK)
@@ -72,22 +77,26 @@ if __name__ == '__main__':
     ui_frames_dict = {}
     ui_frames_dict[PlotHoleType.STORY.value] = story_ui
     ui_frames_dict[PlotHoleType.BOOK.value] = book_ui
+    ui_frames_dict[PlotHoleType.PART.value] = part_ui
     
     ui_overview_frames_dict = {}
     ui_overview_frames_dict[PlotHoleType.STORY.value] = story_overview_ui
     ui_overview_frames_dict[PlotHoleType.BOOK.value] = book_overview_ui
+    ui_overview_frames_dict[PlotHoleType.PART.value] = part_overview_ui
     
     navi = navi.NavigatorInstance(story_overview_ui, ui_frames_dict, ui_overview_frames_dict)
     story_ui.add_navigator(navi)
     story_overview_ui.add_navigator(navi)
     book_ui.add_navigator(navi)
     book_overview_ui.add_navigator(navi)
+    part_ui.add_navigator(navi)
+    part_overview_ui.add_navigator(navi)
     
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
-    story_overview_ui.register(book_model)
+    part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
     
-    story_model.on_open(None)
+    story_model.on_raised()
     
     menu_bar = tk.Menu(w)  
     file_menu = file_menu(menu_bar, w)
@@ -95,23 +104,4 @@ if __name__ == '__main__':
     w.config(menu=menu_bar)
     w.mainloop()
         
-    # w = win.PlotholeMainWindow()
-    
-    # story_overview_ui = w.get_story_overview_ui()
-    # story_ui = w.get_story_ui()
-    # book_overview_ui = w.get_book_overview_ui()
-    # book_ui = w.get_book_ui()
-    
-    # story_overview_model = story_models.StoryOverviewModel(story_overview_ui, path_repros)
-    # story_model = story_models.StoryModel(story_ui, path_repros)
-    # book_overview_model = book_models.BookOverviewModel(book_overview_ui, path_repros)
-    # book_ui_model = book_models.BookModel(book_ui, path_repros)
-    
-    # story_overview_ui.register(book_overview_model)
-    # story_overview_ui.register(book_ui_model)
-    # story_overview_ui.register(story_model)
-    # book_overview_ui.register(book_ui_model)
-    
-    # w.run()
-    
     log.log(None, currentframe(), "... plothole terminated!")

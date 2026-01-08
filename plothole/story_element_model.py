@@ -15,6 +15,7 @@ import helpers as hlp
 import json
 import file_access as fa
 import pathlib
+from plothole_core import SELECTED_SE
 
 class StoryElementModel(UIObserver):
     
@@ -168,37 +169,171 @@ class StoryElementModel(UIObserver):
         data = json.dumps(self.this_story_element)
         fa.write(self.fq_file_name, data)
 
+class PartModel(StoryElementModel):
+    
+    def __init__(self, ui, overview_ui, base_dir):
+        super().__init__(ui, overview_ui, base_dir)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    
+    def on_open(self, _id):
+        log.log_var(self, currentframe(),('_id',_id)) 
+        self.this_story_element = hlp.get_part_by_alias(self.get_folder(), _id)
+        self.fq_file_name = hlp.get_part_path_by_alias(self.get_folder(), _id)
+        SELECTED_SE.select(PlotHoleType.PART, self.fq_file_name)  
+        self.load()   
+
+    def load_overview(self):
+        log.log(self, currentframe())
+        self.overview_ui.remove_all_overview_items()
+        for part in sorted(hlp.get_all_parts(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+            self.overview_ui.add_overview_item(part.get(sec.ALIAS), part.get(sec.TITLE))
+
+    def load_previous(self):
+        log.log(self, currentframe())        
+        if self.this_story_element is not None:   
+            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
+                self.load_next_seq(True)
+    
+    def load_next_seq(self, reverse):
+        log.log_var(self, currentframe(), ('reverse',reverse))
+        parts = sorted(hlp.get_all_parts(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        select_next = False
+        for part in parts:
+            if select_next:
+                self.overview_ui.on_item_select(part.get(sec.ALIAS))
+                break
+            if part.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
+                select_next = True
+
+    def load_next(self):
+        log.log(self, currentframe())
+        if self.this_story_element is not None:
+            self.load_next_seq(False)
+
+    def clear(self):
+        log.log(self, currentframe())
+        self.ui.set_sequential_no('')
+        self.ui.set_alias('')
+        self.ui.set_title('')
+        self.ui.set_genre('')
+        self.ui.set_tone('')
+        self.ui.set_message('')
+        self.ui.set_content('')
+        self.ui.enable_alias()
+        super().clear()
+        
+    def get_plothole_type(self):
+        log.log(self, currentframe())
+        phtype = PlotHoleType.PART
+        log.log_var(self, currentframe(), ("phtype", phtype))
+        return phtype
+    
+    def get_folder(self):
+        log.log(self, currentframe())
+        # folder == parent folder of the part -> book folder
+        folder = pathlib.Path(SELECTED_SE.get_select(PlotHoleType.BOOK)).parent 
+        log.log_var(self, currentframe(), ("folder", folder))
+        return folder
+
+    def get_id(self, from_ui):
+        log.log_var(self, currentframe(),('from_ui',from_ui))
+        _id = ''
+        
+        if from_ui:
+            _id = self.ui.get_alias()
+        else:
+            if self.this_story_element is not None:
+                _id = self.this_story_element.get(sec.ALIAS)
+        log.log_var(self, currentframe(), ("_id", _id))
+        return _id
+    
+    def get_id_name(self):
+        log.log(self, currentframe())
+        name = 'Alias'
+        log.log_var(self, currentframe(), ("name", name))
+        return name
+    
+    def prepare_save(self):
+        log.log_var(self, currentframe())
+        
+        squential_no = self.ui.get_sequential_no()
+        alias = self.ui.get_alias()
+        title = self.ui.get_title()
+        tone = self.ui.get_tone()
+        genre = self.ui.get_genre()
+        message = self.ui.get_message()
+        content = self.ui.get_content()
+        
+        part = {}
+        part[sec.SEQUENTIAL_NO.value] = squential_no.strip()
+        part[sec.ALIAS.value] = alias.strip()
+        part[sec.TITLE.value] = title.strip()
+        part[sec.TONE.value] = tone.strip()
+        part[sec.GENRE.value] = genre.strip()
+        part[sec.MESSAGE.value] = message.strip()
+        part[sec.CONTENT.value] = content.strip()
+        
+        log.log_var(self, currentframe(), ("part", part))
+        
+        self.this_story_element = part
+        
+    def after_save(self):
+        log.log(self, currentframe())
+        self.ui.disable_alias()
+        
+        self.get_part_header()
+    
+    def load(self):
+        log.log(self, currentframe())
+        part = self.this_story_element
+        
+        self.ui.set_sequential_no(part.get(sec.SEQUENTIAL_NO))
+        self.ui.set_alias(part.get(sec.ALIAS))
+        self.ui.set_title(part.get(sec.TITLE))
+        self.ui.set_tone(part.get(sec.TONE))
+        self.ui.set_genre(part.get(sec.GENRE))
+        self.ui.set_message(part.get(sec.MESSAGE))
+        self.ui.set_content(part.get(sec.CONTENT))
+        
+        self.ui.disable_alias()
+        
+        self.get_part_header()
+  
+    def get_part_header(self):
+        log.log(self, currentframe())        
+        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)        
+        self.ui.set_header(f"{book.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Teil: {self.this_story_element.get(sec.TITLE)}")
+         
+    def on_new(self):
+        log.log(self, currentframe())
+        self.clear()
+        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)       
+        self.ui.set_header(f"Neuer Teil für '{book.get(sec.TITLE)}'")           
+
+    def on_raised(self): 
+        log.log_var(self, currentframe())
+        self.load_overview()
+        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)  
+        self.overview_ui.set_header(f"Teile von '{book.get(sec.TITLE)}'")
+
 class BookModel(StoryElementModel):
     
     def __init__(self, ui, overview_ui, base_dir):
         super().__init__(ui, overview_ui, base_dir)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
-        self.story_fq_path = ''
     
-    def on_open(self, _id, ph_type=None):
-        log.log_var(self, currentframe(),('_id',_id),('ph_type',ph_type)) 
-        
-        if ph_type == PlotHoleType.STORY:
-            # a story is selected -> get the story path
-            self.story_fq_path = hlp.get_story_path_by_alias(self.base_dir, _id)
-            log.log_var(self, currentframe(),('story_path',self.story_fq_path))
-            # and load all book
-            self.load_overview()
-            #set the header
-            story = hlp.get_story(self.story_fq_path, as_dict=True)  
-            self.overview_ui.set_header(f"Bücher von {story.get(sec.TITLE)}")
-        elif ph_type == PlotHoleType.BOOK:
-            self.this_story_element = hlp.get_book_by_alias(self.get_folder(), _id)
-            self.fq_file_name = hlp.get_book_path_by_alias(self.get_folder(), _id)
-            self.load()
-        else:
-            pass #nothing to do   
+    def on_open(self, _id):
+        log.log_var(self, currentframe(),('_id',_id))         
+        self.this_story_element = hlp.get_book_by_alias(self.get_folder(), _id)
+        self.fq_file_name = hlp.get_book_path_by_alias(self.get_folder(), _id)
+        SELECTED_SE.select(PlotHoleType.BOOK, self.fq_file_name)  
+        self.load()  
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for story in sorted(hlp.get_all_books(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(story.get(sec.ALIAS), story.get(sec.TITLE))
+        for book in sorted(hlp.get_all_books(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+            self.overview_ui.add_overview_item(book.get(sec.ALIAS), book.get(sec.TITLE))
 
     def load_previous(self):
         log.log(self, currentframe())        
@@ -242,7 +377,7 @@ class BookModel(StoryElementModel):
     
     def get_folder(self):
         log.log(self, currentframe())
-        folder = pathlib.Path(self.story_fq_path).parent 
+        folder = pathlib.Path(SELECTED_SE.get_select(PlotHoleType.STORY)).parent 
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
 
@@ -309,18 +444,23 @@ class BookModel(StoryElementModel):
         self.ui.disable_alias()
         
         self.get_book_header()
-
-        
+  
     def get_book_header(self):
         log.log(self, currentframe())        
-        story = hlp.get_story(self.story_fq_path, as_dict=True)        
+        story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)        
         self.ui.set_header(f"{story.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Buch: {self.this_story_element.get(sec.TITLE)}")
          
     def on_new(self):
         log.log(self, currentframe())
         self.clear()
-        story = hlp.get_story(self.story_fq_path, as_dict=True)        
-        self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")           
+        story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)        
+        self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")
+    
+    def on_raised(self): 
+        log.log_var(self, currentframe())
+        self.load_overview()
+        story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
+        self.overview_ui.set_header(f"Bücher von '{story.get(sec.TITLE)}'")
 
 class StoryModel(StoryElementModel):
     
@@ -328,20 +468,12 @@ class StoryModel(StoryElementModel):
         super().__init__(ui, overview_ui, base_dir)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
 
-    def on_open(self, _id, ph_type=None):
-        log.log_var(self, currentframe(),('_id',_id),('ph_type',ph_type))
-        
-        # if ph_type=None -> load all stories into overview_ui
-        # if ph_type=Story -> load story with the given _id (alias) into ui
-        # if ph_type neither None nor Story -> do nothing
-        if ph_type is None:
-            self.load_overview()
-        elif ph_type == PlotHoleType.STORY:
-            self.this_story_element = hlp.get_story_by_alias(self.get_folder(), _id)
-            self.fq_file_name = hlp.get_story_path_by_alias(self.get_folder(), _id)
-            self.load()
-        else:
-            pass #nothing to do
+    def on_open(self, _id):
+        log.log_var(self, currentframe(),('_id',_id))
+        self.this_story_element = hlp.get_story_by_alias(self.get_folder(), _id)
+        self.fq_file_name = hlp.get_story_path_by_alias(self.get_folder(), _id)
+        SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)
+        self.load()       
 
     def load_overview(self):
         log.log(self, currentframe())
@@ -366,6 +498,7 @@ class StoryModel(StoryElementModel):
         self.ui.set_content('')
         self.ui.enable_alias()
         super().clear()
+        SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)
     
     def get_plothole_type(self):
         log.log(self, currentframe())
@@ -439,3 +572,7 @@ class StoryModel(StoryElementModel):
         
         self.ui.set_header(f"Geschichte: {self.this_story_element.get(sec.TITLE)}")
         
+    def on_raised(self): 
+        log.log_var(self, currentframe())
+        self.load_overview()
+        SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)

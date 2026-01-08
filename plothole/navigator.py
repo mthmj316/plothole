@@ -102,12 +102,21 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame            
             self.current_ph_type = PlotHoleType.STORY
+            
+        elif self.current_ph_type == PlotHoleType.PART and event_source_ph_type == PlotHoleType.PART:
+            # you are currently on the part ui frame
+            # and the close button has been pressed
+            # hence go back to the part overview
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame            
+            self.current_ph_type = PlotHoleType.BOOK
          
     def on_delete(self):
         pass
 
     def on_new(self, event_source_ph_type):
-        log.log(self, currentframe())
+        log.log_var(self, currentframe(), ('event_source_ph_type',event_source_ph_type))
         
         log.log_var(self, currentframe(), ("current_frame", self.current_frame))
         log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
@@ -121,6 +130,12 @@ class NavigatorInstance(ABC):
         elif event_source_ph_type is PlotHoleType.BOOK:
             # you are on the book overview and want to change to the book ui
             next_frame = self.ui_frames_dict.get(PlotHoleType.BOOK)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
+        elif event_source_ph_type is PlotHoleType.PART:
+            # you are on the part overview and want to create a new part
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
@@ -160,13 +175,27 @@ class NavigatorInstance(ABC):
         
     def on_sub(self):
         log.log(self, currentframe())
+        
+        log.log_var(self, currentframe(), ("current_frame", self.current_frame))
+        log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
+        
         if self.current_ph_type is PlotHoleType.STORY:
             # You are on the story ui and want to change to book overview ui
             next_frame = self.ui_overview_frames_dict.get(PlotHoleType.BOOK)
+            log.log_var(self, currentframe(), ("next_frame", next_frame))
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             # It shouldn't really be necessary, but better safe than sorry.
             self.current_ph_type = PlotHoleType.STORY
+            
+        if self.current_ph_type is PlotHoleType.BOOK:
+            # You are on the book ui and want to change to part overview ui
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PART)
+            log.log_var(self, currentframe(), ("next_frame", next_frame))
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            # It shouldn't really be necessary, but better safe than sorry.
+            self.current_ph_type = PlotHoleType.BOOK
         
     def on_top(self):
         log.log(self, currentframe())

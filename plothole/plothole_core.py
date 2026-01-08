@@ -13,6 +13,25 @@ from inspect import currentframe
 from plothole_types import FILE_EXTENSIONS_DUMP as fed
 from plothole_types import PlotHoleType
 
+class SelectedStoryElements():
+    
+    def __init__(self):
+        log.log(None, currentframe())
+        self.selected_element = {}
+        
+    def select(self, ph_type, fq_path):
+        log.log_var(self, currentframe(), ('ph_type',ph_type), ('fq_path',fq_path)) 
+        self.selected_element[ph_type.value] = fq_path
+        
+    def get_select(self, ph_type):
+        log.log_var(self, currentframe(), ('ph_type',ph_type))
+        fq_path = self.selected_element.get(ph_type)
+        log.log_var(self, currentframe(), ('fq_path',fq_path))
+        return fq_path
+        
+SELECTED_SE = SelectedStoryElements()
+        
+
 def delete(base_dir, alias, plothole_type):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias), ('plothole_type',plothole_type))    
     if plothole_type == PlotHoleType.STORY:
