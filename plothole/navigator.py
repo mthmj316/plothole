@@ -112,7 +112,19 @@ class NavigatorInstance(ABC):
         pass
         
     def on_sub(self):
-        pass
+        log.log(self, currentframe())
+        if self.current_ph_type is PlotHoleType.STORY:
+            # You are on the story ui and want to change to book overview ui
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.BOOK)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            # It shouldn't really be necessary, but better safe than sorry.
+            self.current_ph_type = PlotHoleType.STORY
         
     def on_top(self):
-        pass
+        log.log(self, currentframe())
+        # Always change to the story overview 
+        next_frame = self.ui_overview_frames_dict.get(PlotHoleType.STORY)
+        next_frame.tkraise(aboveThis=self.current_frame)
+        self.current_frame = next_frame            
+        self.current_ph_type = None
