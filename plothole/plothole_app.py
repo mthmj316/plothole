@@ -4,8 +4,6 @@ Created on Wed Dec 10 15:09:28 2025
 
 @author: mthoma
 """
-import book_models
-import story_models
 import sys
 import tkinter as tk
 

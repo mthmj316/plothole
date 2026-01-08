@@ -35,7 +35,7 @@ class Navigator(ABC):
         pass
 
     @abstractmethod
-    def on_new(self):
+    def on_new(self, event_source_ph_type):
         pass
 
     @abstractmethod
@@ -74,6 +74,9 @@ class NavigatorInstance(ABC):
     def on_close(self, event_source_ph_type):
         log.log_var(self, currentframe(), ("event_source_ph_type", event_source_ph_type))
         
+        log.log_var(self, currentframe(), ("current_frame", self.current_frame))
+        log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
+        
         if  self.current_ph_type == PlotHoleType.STORY and event_source_ph_type == PlotHoleType.STORY:
             # you are currently on the story ui frame
             # and you want to change back to the story overview frame
@@ -90,21 +93,43 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame            
             self.current_ph_type = PlotHoleType.STORY
+            
+        elif self.current_ph_type == PlotHoleType.BOOK and event_source_ph_type == PlotHoleType.BOOK:
+            # you are currently on the book ui frame
+            # and the close button has been pressed
+            # hence go back to story ui
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.BOOK)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame            
+            self.current_ph_type = PlotHoleType.STORY
          
     def on_delete(self):
         pass
 
-    def on_new(self):
+    def on_new(self, event_source_ph_type):
         log.log(self, currentframe())
+        
+        log.log_var(self, currentframe(), ("current_frame", self.current_frame))
+        log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
+        
         if self.current_ph_type is None:
             # You are on story overview ui and a story must be created
             next_frame = self.ui_frames_dict.get(PlotHoleType.STORY)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.STORY
+        elif event_source_ph_type is PlotHoleType.BOOK:
+            # you are on the book overview and want to change to the book ui
+            next_frame = self.ui_frames_dict.get(PlotHoleType.BOOK)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
 
     def on_open(self, event_source_ph_type):
         log.log_var(self, currentframe(), ("event_source_ph_type", event_source_ph_type))
+        
+        log.log_var(self, currentframe(), ("current_frame", self.current_frame))
+        log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
         
         if self.current_ph_type is None and event_source_ph_type == PlotHoleType.STORY:
             # You are on story overview ui and a story has been selected
@@ -120,7 +145,12 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.STORY
         
-        
+        elif self.current_ph_type == PlotHoleType.STORY and event_source_ph_type == PlotHoleType.BOOK:
+            # You are on story ui (story is selected) and the books button has been pressed
+            next_frame = self.ui_frames_dict.get(PlotHoleType.BOOK)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.BOOK       
     
     def on_plothole(self):
         pass

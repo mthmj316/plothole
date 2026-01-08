@@ -188,8 +188,8 @@ class BookModel(StoryElementModel):
             story = hlp.get_story(self.story_fq_path, as_dict=True)  
             self.overview_ui.set_header(f"Bücher von {story.get(sec.TITLE)}")
         elif ph_type == PlotHoleType.BOOK:
-            self.this_story_element = hlp.get_story_by_alias(self.get_folder(), _id)
-            self.fq_file_name = hlp.get_story_path_by_alias(self.get_folder(), _id)
+            self.this_story_element = hlp.get_book_by_alias(self.get_folder(), _id)
+            self.fq_file_name = hlp.get_book_path_by_alias(self.get_folder(), _id)
             self.load()
         else:
             pass #nothing to do   
@@ -203,12 +203,12 @@ class BookModel(StoryElementModel):
     def load_previous(self):
         log.log(self, currentframe())        
         if self.this_story_element is not None:   
-            if self.this_story_element.get(sec.SEQUENTIAL_NO) > 1:
+            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
                 self.load_next_seq(True)
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
-        books = sorted(hlp.get_all_boos(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        books = sorted(hlp.get_all_books(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
         select_next = False
         for book in books:
             if select_next:
@@ -292,8 +292,7 @@ class BookModel(StoryElementModel):
         log.log(self, currentframe())
         self.ui.disable_alias()
         
-        story = hlp.get_story(self.story_path, as_dict=True)        
-        self.ui.set_header(f"Buch: {self.this_story_element.get(sec.TITLE)} von {story.get(sec.TITLE)}")
+        self.get_book_header()
     
     def load(self):
         log.log(self, currentframe())
@@ -309,10 +308,19 @@ class BookModel(StoryElementModel):
         
         self.ui.disable_alias()
         
-        story = hlp.get_story(self.story_path, as_dict=True)        
-        self.ui.set_header(f"Buch: {self.this_story_element.get(sec.TITLE)} von {story.get(sec.TITLE)}")
+        self.get_book_header()
+
+        
+    def get_book_header(self):
+        log.log(self, currentframe())        
+        story = hlp.get_story(self.story_fq_path, as_dict=True)        
+        self.ui.set_header(f"{story.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Buch: {self.this_story_element.get(sec.TITLE)}")
          
-            
+    def on_new(self):
+        log.log(self, currentframe())
+        self.clear()
+        story = hlp.get_story(self.story_fq_path, as_dict=True)        
+        self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")           
 
 class StoryModel(StoryElementModel):
     

@@ -14,8 +14,9 @@ from inspect import currentframe
 import logger as log
 import enum
 from navigator import NavigationPoint
+from plothole_types import PlotHoleType
 
-GENRES = ['', 'Abenteuer','Action','Alltag','Alternative','Comedy', 'Erotic', 
+GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
           'Manga','Märchen', 'Mystery', 'Politik', 'Romantik','Science Fiction','Superhelden',
           'Underground ','Western']
@@ -133,7 +134,7 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
             observer.on_new()
             
         for navigator in self.navigators:
-            navigator.on_new()
+            navigator.on_new(self.ph_type)
 
     def on_next(self):
         log.log(self, currentframe())
@@ -957,7 +958,7 @@ if __name__ == '__main__':
     # conf = create_story_conf()    
     conf = create_book_conf()
     
-    frame = StoryElement(w, conf)
+    frame = StoryElement(w, conf, PlotHoleType.BOOK)
     frame.grid(row=0, column=0, sticky="NSEW")
 
     

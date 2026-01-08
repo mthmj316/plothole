@@ -95,7 +95,7 @@ class StoryElementOverview(tk.Frame, UIObservable, NavigationPoint):
             observer.on_new()
             
         for navigator in self.navigators:
-            navigator.on_new()
+            navigator.on_new(self.ph_type)
 
     def on_plothole(self):
         log.log(self, currentframe())
