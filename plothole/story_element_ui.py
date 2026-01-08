@@ -46,13 +46,13 @@ class __SEControls__(enum.StrEnum):
     TONE = 'tone'
 
 class StoryElement(tk.Frame, UIObservable, NavigationPoint):
-    def __init__(self, root, conf, *args, **kwargs):
+    def __init__(self, root, conf, ph_type, *args, **kwargs):
         super().__init__(root, *args, **kwargs)       
-        log.log_var(self, currentframe(),("root", root), ("conf", conf), ("args", args), ("kwargs", kwargs))
+        log.log_var(self, currentframe(),("root", root), ("conf", conf), ("ph_type", ph_type), ("args", args), ("kwargs", kwargs))
         self.root = root
         self.observers = []
         self.navigators = []
-        
+        self.ph_type = ph_type
         self.labels = {}
         self.controls = {}
         self.controls_vars = {}
@@ -117,7 +117,7 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
             observer.on_close()
             
         for navigator in self.navigators:
-            navigator.on_close()
+            navigator.on_close(self.ph_type)
         
     def on_delete(self):
         log.log(self, currentframe())
@@ -146,7 +146,7 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
             observer.on_open()
             
         for navigator in self.navigators:
-            navigator.on_open()
+            navigator.on_open(self.ph_type)
 
     def on_plothole(self):
         log.log(self, currentframe())
@@ -954,8 +954,8 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    conf = create_story_conf()    
-    # conf = create_book_conf()
+    # conf = create_story_conf()    
+    conf = create_book_conf()
     
     frame = StoryElement(w, conf)
     frame.grid(row=0, column=0, sticky="NSEW")

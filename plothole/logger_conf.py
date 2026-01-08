@@ -1,8 +1,9 @@
-LOGGING_ALL=True
+LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'BookModel#*',
-    'StoryElement#*',
-    'StoryElementModel#*',
+    'BookModel#*',
+    'NavigatorInstance#*',
+    # 'StoryElementOverview#set_header',
     'StoryModel#*'
     # '*#get_control_sticky'
     ]

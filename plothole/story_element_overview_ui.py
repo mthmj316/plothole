@@ -87,7 +87,7 @@ class StoryElementOverview(tk.Frame, UIObservable, NavigationPoint):
             observer.on_close()
             
         for navigator in self.navigators:
-            navigator.on_close()
+            navigator.on_close(self.ph_type)
 
     def on_new(self):
         log.log(self, currentframe())
@@ -133,6 +133,10 @@ class StoryElementOverview(tk.Frame, UIObservable, NavigationPoint):
     def configure_header(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
         self.configure_label(conf, __SEControls__.HEADER)
+
+    def set_header(self, header):
+        log.log_var(self, currentframe(), ("header", header))
+        self.labels.get(__SEControls__.HEADER).config(text=header)
         
     def configure_label(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -188,13 +192,13 @@ def create_book_conf():
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, btn_width)
 
-    secontrol = __SEControls__.BTN_CLOSE
+    secontrol = __SEControls__.BTN_NEW
     conf.set_control_position(secontrol, (0,0))
     conf.set_label(secontrol,'Neu')
     conf.set_control_padx(secontrol, (20,1))
     conf.set_button_width(secontrol, btn_width)
     
-    secontrol = __SEControls__.BTN_NEW
+    secontrol = __SEControls__.BTN_CLOSE
     conf.set_control_position(secontrol, (1,0))
     conf.set_label(secontrol,'Schließen')
     conf.set_control_padx(secontrol, (1,1))

@@ -61,12 +61,12 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1) 
 
-    book_ui = seui.StoryElement(w, seui.create_book_conf())
+    book_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.BOOK)
     book_ui.grid(row=0, column=0, sticky="NSEW")
     book_overview_ui = seoui.StoryElementOverview(w, seoui.create_book_conf(), PlotHoleType.BOOK)
     book_overview_ui.grid(row=0, column=0, sticky="NSEW")    
     
-    story_ui = seui.StoryElement(w, seui.create_story_conf())
+    story_ui = seui.StoryElement(w, seui.create_story_conf(), PlotHoleType.STORY)
     story_ui.grid(row=0, column=0, sticky="NSEW")
     story_overview_ui = seoui.StoryElementOverview(w, seoui.create_story_conf(), PlotHoleType.STORY)
     story_overview_ui.grid(row=0, column=0, sticky="NSEW")
@@ -85,8 +85,9 @@ if __name__ == '__main__':
     book_ui.add_navigator(navi)
     book_overview_ui.add_navigator(navi)
     
-    story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)
-    
+    story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
+    book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
+    story_overview_ui.register(book_model)
     
     story_model.on_open(None)
     
