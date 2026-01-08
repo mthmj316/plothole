@@ -62,6 +62,10 @@ class StoryElementModel(UIObserver):
     @abstractmethod
     def load_next():
         pass
+    
+    @abstractmethod
+    def load_overview():
+        pass
         
     def clear(self):
         log.log(self, currentframe())        
@@ -77,6 +81,10 @@ class StoryElementModel(UIObserver):
     def on_close(self):
         log.log(self, currentframe())
         self.clear()
+        # close means always that currently the story element ui is visible
+        # it is changed to the corresponding overview frame
+        # hence reload all story elements
+        self.load_overview()
     
     def on_character(self):
         log.log(self, currentframe(), 'not relevant')
@@ -91,7 +99,8 @@ class StoryElementModel(UIObserver):
         self.clear()
 
     def on_new(self):
-        log.log(self, currentframe(), 'not relevant')
+        log.log(self, currentframe())
+        self.clear()
 
     def on_next(self):
         log.log(self, currentframe())
@@ -171,12 +180,19 @@ class StoryModel(StoryElementModel):
         # if ph_type=Story -> load story with the given _id (alias) into ui
         # if ph_type neither None nor Story -> do nothing
         if ph_type is None:
-            for story in sorted(hlp.get_all_stories(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE.value]):
-                self.overview_ui.add_overview_item(story.get(sec.ALIAS), story.get(sec.TITLE))
+            self.load_overview()
         elif ph_type == PlotHoleType.STORY:
-            pass
+            self.this_story_element = hlp.get_story_by_alias(self.get_folder(), _id)
+            self.fq_file_name = hlp.get_story_path_by_alias(self.get_folder(), _id)
+            self.load()
         else:
             pass #nothing to do
+
+    def load_overview(self):
+        log.log(self, currentframe())
+        self.overview_ui.remove_all_overview_items()
+        for story in sorted(hlp.get_all_stories(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE.value]):
+            self.overview_ui.add_overview_item(story.get(sec.ALIAS), story.get(sec.TITLE))
 
     def load_previous(self):
         log.log(self, currentframe(), 'not relevant')
@@ -250,7 +266,8 @@ class StoryModel(StoryElementModel):
         
     def after_save(self):
         log.log(self, currentframe())
-        self.ui.disable_alias()
+        self.ui.disable_alias()        
+        self.ui.set_header(f"Geschichte: {self.this_story_element.get(sec.TITLE)}")
         
     def load(self):
         log.log(self, currentframe())
@@ -262,4 +279,8 @@ class StoryModel(StoryElementModel):
         self.ui.set_genre(story.get(sec.GENRE))
         self.ui.set_message(story.get(sec.MESSAGE))
         self.ui.set_content(story.get(sec.CONTENT))
+        
+        self.ui.disable_alias()
+        
+        self.ui.set_header(f"Geschichte: {self.this_story_element.get(sec.TITLE)}")
         

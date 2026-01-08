@@ -18,10 +18,14 @@ import story_element_model as sem
 
 import story_element_overview_ui as seoui
 
+import navigator as navi
+
 from plothole_types import PlotHoleType
 
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
+
+VERSION = 0.3
 
 if __name__ == '__main__':
     
@@ -43,15 +47,27 @@ if __name__ == '__main__':
     log.log_var(None, currentframe(), ('path_repros',path_repros))
     
     w = tk.Tk()
-    w.title("Story Element")
+    w.title(f"Plothole v{VERSION}")
     w.geometry("1250x750+300+100")
     w.grid_columnconfigure(0, weight=1)
-    w.grid_rowconfigure(0, weight=1)     
+    w.grid_rowconfigure(0, weight=1) 
+
+    
     
     story_ui = seui.StoryElement(w, seui.create_story_conf())
     story_ui.grid(row=0, column=0, sticky="NSEW")
     story_overview_ui = seoui.StoryElementOverview(w, seoui.create_story_conf(), PlotHoleType.STORY)
-    story_overview_ui.grid(row=0, column=0, sticky="NSEW")  
+    story_overview_ui.grid(row=0, column=0, sticky="NSEW")
+    
+    ui_frames_dict = {}
+    ui_frames_dict[PlotHoleType.STORY.value] = story_ui
+    
+    ui_overview_frames_dict = {}
+    ui_overview_frames_dict[PlotHoleType.STORY.value] = story_overview_ui
+    
+    navi = navi.NavigatorInstance(story_overview_ui, ui_frames_dict, ui_overview_frames_dict)
+    story_ui.add_navigator(navi)
+    story_overview_ui.add_navigator(navi)
     
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)
     story_model.on_open(None)

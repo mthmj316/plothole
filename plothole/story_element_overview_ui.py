@@ -183,34 +183,31 @@ def create_story_conf():
     btn_width = 15
     
     secontrol = __SEControls__.BTN_CHARACTER 
-    conf.set_control_position(secontrol, (3,0))
+    conf.set_control_position(secontrol, (2,0))
     conf.set_label(secontrol,'Charakter')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_CLOSE 
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Schließen')
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_NEW
     conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Neues Buch')
+    conf.set_label(secontrol,'Neu')
     conf.set_control_padx(secontrol, (20,1))
     conf.set_button_width(secontrol, btn_width)
     
     secontrol = __SEControls__.BTN_PLOTHOLE
-    conf.set_control_position(secontrol, (2,0))
+    conf.set_control_position(secontrol, (1,0))
     conf.set_label(secontrol,'Plothole')
     conf.set_control_padx(secontrol, (1,1))
     conf.set_button_width(secontrol, btn_width)
     
-    secontrol = __SEControls__.BTN_TOP
-    conf.set_control_position(secontrol, (4,0))
-    conf.set_label(secontrol,'^')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
+    # secontrol = __SEControls__.BTN_TOP
+    # conf.set_control_position(secontrol, (3,0))
+    # conf.set_label(secontrol,'^')
+    # conf.set_control_padx(secontrol, (1,1))
+    # conf.set_button_width(secontrol, 5)
+    
+    conf.hide_control(__SEControls__.BTN_CLOSE)
+    conf.hide_control(__SEControls__.BTN_TOP)
     
     return conf
         
