@@ -59,9 +59,9 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1) 
 
-    part_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.PART)
+    part_ui = seui.StoryElement(w, seui.create_part_conf(), PlotHoleType.PART)
     part_ui.grid(row=0, column=0, sticky="NSEW")
-    part_overview_ui = seoui.StoryElementOverview(w, seoui.create_book_conf(), PlotHoleType.PART)
+    part_overview_ui = seoui.StoryElementOverview(w, seoui.create_part_conf(), PlotHoleType.PART)
     part_overview_ui.grid(row=0, column=0, sticky="NSEW")   
 
     book_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.BOOK)

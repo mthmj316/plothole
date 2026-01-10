@@ -825,6 +825,7 @@ def create_part_conf():
     conf.hide_control(__SEControls__.BTN_OPEN)
     conf.hide_control(__SEControls__.BTN_UPDATE)
     conf.hide_control(__SEControls__.NOTE)
+    conf.hide_control(__SEControls__.BTN_SUB)
     
     return conf
 

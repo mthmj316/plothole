@@ -302,7 +302,7 @@ class PartModel(StoryElementModel):
     def get_part_header(self):
         log.log(self, currentframe())        
         book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)        
-        self.ui.set_header(f"{book.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Teil: {self.this_story_element.get(sec.TITLE)}")
+        self.ui.set_header(f"Buch: {book.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Teil: {self.this_story_element.get(sec.TITLE)}")
          
     def on_new(self):
         log.log(self, currentframe())

@@ -102,16 +102,15 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame            
             self.current_ph_type = PlotHoleType.STORY
-            
+
         elif self.current_ph_type == PlotHoleType.PART and event_source_ph_type == PlotHoleType.PART:
-            # you are currently on the part ui frame
-            # and the close button has been pressed
-            # hence go back to the part overview
-            next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
+            # You are on part ui and the close button has been pressed.
+            # No part is selected -> book selected
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PART)
             next_frame.tkraise(aboveThis=self.current_frame)
-            self.current_frame = next_frame            
-            self.current_ph_type = PlotHoleType.BOOK
-         
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.BOOK  
+            
     def on_delete(self):
         pass
 
@@ -166,6 +165,14 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.BOOK       
+            
+        elif self.current_ph_type == PlotHoleType.BOOK and event_source_ph_type == PlotHoleType.PART:
+            # You are on part overview ui (book is selected) and a part has been double clicked.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.PART  
+
     
     def on_plothole(self):
         pass
