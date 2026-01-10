@@ -33,97 +33,59 @@ class UIObservable(ABC):
         """
 
 class UIObserver(ABC):
-
-    @abstractmethod    
-    def onSave(self):
-        """
-        Is called in case of a save event
-
-        Returns
-        -------
-        None.
-
-        """
-
-    @abstractmethod    
-    def onUpdate(self):
-        """
-        Is called in case of a update event
-
-        Returns
-        -------
-        None.
-
-        """
-   
+    
     @abstractmethod
-    def onDelete(self):
-        """
-        Is called in case of a delete event
-
-        Returns
-        -------
-        None.
-
-        """
+    def on_character(self):
+        pass
         
     @abstractmethod
-    def onLoad(self, file_path):
-        """
-        Is called in case of a delete event
-        Returns
-        -------
-        None.
-        """
-
-    @abstractmethod
-    def onRevert(self):
-        """
-        Is called in case of a delete event
-        Returns
-        -------
-        None.
-        """
+    def on_close(self):
+        pass
+         
+    @abstractmethod       
+    def on_delete(self):
+        pass
         
     @abstractmethod
-    def onClose(self):
-        """
-        Is called in case of a delete event
-        Returns
-        -------
-        None.
-        """
+    def on_new(self):
+        pass
         
     @abstractmethod
-    def onSelect(self, selected, _type):
-        """
-        Is called in case a specifc selection has been made
-
-        Parameters
-        ----------
-        selected : string
-            Id of the seletced element.
-        _type: PlotHoleType
-            the type of the seletced element
-            
-        Returns
-        -------
-        None.
-
-        """
+    def on_next(self):
+        pass
         
     @abstractmethod
-    def onDisplay(self, origin):
-        """
-        Is called from a ui if it gets dispalyed.
-
-        Parameters
-        ----------
-        origin : tk.Frame
-            The frame which gets displayed
-
-        Returns
-        -------
-        None.
-
-        """
+    def on_open(self, _id):
+        pass
+        
+    @abstractmethod
+    def on_plothole(self):
+        pass
+        
+    @abstractmethod
+    def on_previous(self):
+        pass
+        
+    @abstractmethod
+    def on_revert(self):
+        pass
+        
+    @abstractmethod
+    def on_save(self):
+        pass
+        
+    @abstractmethod
+    def on_sub(self):
+        pass
+        
+    @abstractmethod
+    def on_top(self):
+        pass
+         
+    @abstractmethod       
+    def on_update(self):
+        pass
+    
+    @abstractmethod
+    def on_raised(self):
+        pass
