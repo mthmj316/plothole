@@ -1099,8 +1099,8 @@ def create_story_conf():
 
 def create_plothole_conf():
     conf = __SEConfiguration__()
+    conf.set_column_weigth(1, 1)
     conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
     conf.set_row_weigth(4, 1)
     conf.set_grid_column_ctn(6)
     conf.set_grid_row_ctn(6)
@@ -1135,7 +1135,7 @@ def create_plothole_conf():
     conf.set_label_position(secontrol, (0,2))
     conf.set_control_position(secontrol, (1,2))
     conf.set_control_sticky(secontrol, tk.EW)
-    conf.set_control_colspan(secontrol, 2)
+    # conf.set_control_colspan(secontrol, 2)
 
     secontrol = __SEControls__.TITLE
 
@@ -1143,7 +1143,7 @@ def create_plothole_conf():
     conf.set_label_position(secontrol, (2,2))
     conf.set_control_position(secontrol, (3,2))
     conf.set_control_sticky(secontrol, tk.EW)
-    conf.set_control_colspan(secontrol, 2)
+    # conf.set_control_colspan(secontrol, 2)
     
     secontrol = __SEControls__.MESSAGE
 
