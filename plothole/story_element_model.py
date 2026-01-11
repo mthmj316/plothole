@@ -54,19 +54,19 @@ class StoryElementModel(UIObserver):
         pass
     
     @abstractmethod
-    def load():
+    def load(self):
         pass
         
     @abstractmethod
-    def load_previous():
+    def load_previous(self):
         pass
 
     @abstractmethod
-    def load_next():
+    def load_next(self):
         pass
     
     @abstractmethod
-    def load_overview():
+    def load_overview(self):
         pass
         
     def clear(self):

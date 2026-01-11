@@ -5,6 +5,7 @@ LOGGING_SOURCE = [
     # 'NavigatorInstance#*',
     # 'SelectedStoryElements#*',
     # 'StoryModel#*'
+    'StoryElement#configure_option_menu'
     ]
 
 

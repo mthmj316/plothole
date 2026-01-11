@@ -353,16 +353,32 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
                 padx=conf.get_control_padx(secontrol), 
                 pady=conf.get_control_pady(secontrol))
 
+    def set_options(self, options, idx_selected, secontrol):
+        log.log_var(self, currentframe(), ("options", options), 
+                    ("idx_selected", idx_selected), ("secontrol", secontrol))
+        option_menu = self.controls.get(secontrol)
+        menu = option_menu['menu']
+        menu.delete(0, tk.END)
+        for option in options:
+            menu.add_command(
+                label=option,
+                command=lambda value=option: value.set(value))
+            
+        menu_value = self.controls_vars.get(secontrol)
+        menu_value.set(options[idx_selected])
+
     def configure_option_menu(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
             values = conf.get_option_menu_values(secontrol)
-            menu_value = StringVar(self)
+            menu_value = StringVar(self, value='')
             self.controls_vars[secontrol.value] = menu_value
-            menu_value.set(values[0])
-            menu = tk.OptionMenu(self, menu_value, *values)            
+            if len(values) > 0:
+                menu_value.set(values[0])
+            menu = tk.OptionMenu(self, menu_value, *values)    
+            menu.config(anchor=conf.get_control_anchor(secontrol))
             pos = conf.get_control_position(secontrol)
-            menu.grid(row=pos[1], column=pos[0], 
+            menu.grid(row=pos[1], column=pos[0],
                       columnspan=conf.get_control_colspan(secontrol), 
                       sticky=conf.get_control_sticky(secontrol), 
                       padx=conf.get_control_padx(secontrol), 
@@ -530,7 +546,7 @@ class __SEConfiguration__():
 
     def get_control_anchor(self, secontrol):
         log.log_var(self, currentframe(), ("secontrol", secontrol))
-        anchor = tk.NSEW if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
+        anchor = tk.W if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
         log.log_var(self, currentframe(), ("anchor", anchor))
         return anchor
 
@@ -1109,9 +1125,8 @@ def create_plothole_conf():
     conf.set_label(secontrol,'Auswahl')
     conf.set_label_position(secontrol, (2,1))
     conf.set_control_position(secontrol, (3,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    conf.set_option_menu_values(secontrol, [])
+    conf.set_control_sticky(secontrol, tk.EW)    
+    conf.set_option_menu_values(secontrol, [''])
     conf.set_control_colspan(secontrol, 3)
     
     secontrol = __SEControls__.ALIAS
@@ -1204,8 +1219,10 @@ if __name__ == '__main__':
     # conf = create_part_conf()
     conf = create_plothole_conf()
     
+    
     frame = StoryElement(w, conf, PlotHoleType.PLOTHOLE)
     frame.grid(row=0, column=0, sticky="NSEW")
+    frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
 
     
     w.mainloop()
