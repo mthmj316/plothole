@@ -329,8 +329,13 @@ def create_plothole_conf():
     conf.set_control_padx(secontrol, (20,1))
     conf.set_button_width(secontrol, btn_width)
     
+    secontrol = __SEControls__.BTN_CLOSE
+    conf.set_control_position(secontrol, (1,0))
+    conf.set_label(secontrol,'Schließen')
+    conf.set_control_padx(secontrol, (1,1))
+    conf.set_button_width(secontrol, btn_width)
+    
     conf.hide_control(__SEControls__.BTN_CHARACTER)
-    conf.hide_control(__SEControls__.BTN_CLOSE)
     conf.hide_control(__SEControls__.BTN_PLOTHOLE)
     conf.hide_control(__SEControls__.BTN_TOP)
     

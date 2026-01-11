@@ -1222,7 +1222,7 @@ if __name__ == '__main__':
     
     frame = StoryElement(w, conf, PlotHoleType.PLOTHOLE)
     frame.grid(row=0, column=0, sticky="NSEW")
-    frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
+    # frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
 
     
     w.mainloop()

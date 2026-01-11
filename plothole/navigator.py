@@ -67,6 +67,8 @@ class NavigatorInstance(ABC):
         
         self.current_frame, self.ui_frames_dict, self.ui_overview_frames_dict = start_frame, ui_frames_dict, ui_overview_frames_dict
         self.current_ph_type = None
+        self.before_plothole = None
+        self.before_character = None
     
     def on_character(self):
         pass
@@ -110,6 +112,12 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.BOOK  
+            
+        elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
+            # You are on plothole overview ui and close has been clicked.
+            next_frame = self.before_plothole
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
             
     def on_delete(self):
         pass
@@ -171,11 +179,24 @@ class NavigatorInstance(ABC):
             next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
-            self.current_ph_type = PlotHoleType.PART  
+            self.current_ph_type = PlotHoleType.PART
+
 
     
     def on_plothole(self):
-        pass
+        log.log(self, currentframe())
+        
+        log.log_var(self, currentframe(), ("current_frame", self.current_frame))
+        log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
+        
+        self.before_plothole = self.current_frame        
+        log.log_var(self, currentframe(), ("before_plothole", self.before_plothole))
+
+        # self.current_ph_type = PlotHoleType.PLOTHOLE
+        next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PLOTHOLE)
+        next_frame.tkraise(aboveThis=self.current_frame)
+        self.current_frame = next_frame
+            
         
     def on_previous(self):
         pass

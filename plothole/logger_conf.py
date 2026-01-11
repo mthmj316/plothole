@@ -2,10 +2,10 @@ LOGGING_ALL=False
 LOGGING_SOURCE = [
     # 'PartModel#*',
     # 'BookModel#*',
-    # 'NavigatorInstance#*',
+    'NavigatorInstance#*'
     # 'SelectedStoryElements#*',
     # 'StoryModel#*'
-    'StoryElement#configure_option_menu'
+    # 'StoryElement#configure_option_menu'
     ]
 
 
