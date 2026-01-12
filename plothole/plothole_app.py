@@ -104,6 +104,7 @@ if __name__ == '__main__':
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
     part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
+    plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros)
     
     story_model.on_raised()
     

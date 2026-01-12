@@ -169,6 +169,157 @@ class StoryElementModel(UIObserver):
         data = json.dumps(self.this_story_element)
         fa.write(self.fq_file_name, data)
 
+class PlotholeModel(StoryElementModel):
+    
+    def __init__(self, ui, overview_ui, base_dir):
+        super().__init__(ui, overview_ui, base_dir)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+        stories = hlp.get_all_stories(base_dir, as_dict=True)
+        story_titles = []
+        for story in sorted(stories, key=lambda x: x[sec.TITLE]):
+            story_titles.append(story.get(sec.TITLE))
+    
+    def on_open(self, _id):
+        log.log_var(self, currentframe(),('_id',_id)) 
+        self.this_story_element = hlp.get_plothole_by_alias(self.get_folder(), _id)
+        self.fq_file_name = hlp.get_part_plothole_by_alias(self.get_folder(), _id)
+        SELECTED_SE.select(PlotHoleType.PLOTHOLE, self.fq_file_name)  
+        self.load()   
+
+    def load_overview(self):
+        log.log(self, currentframe())
+        self.overview_ui.remove_all_overview_items()
+        for plothole in sorted(hlp.get_all_plotholes(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE]):
+            self.overview_ui.add_overview_item(plothole.get(sec.ALIAS), plothole.get(sec.TITLE))
+
+    def load_previous(self):
+        log.log(self, currentframe())        
+        if self.this_story_element is not None:   
+            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
+                self.load_next_seq(True)
+    
+    def load_next_seq(self, reverse):
+        log.log_var(self, currentframe(), ('reverse',reverse))
+        parts = sorted(hlp.get_all_parts(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        select_next = False
+        for part in parts:
+            if select_next:
+                self.overview_ui.on_item_select(part.get(sec.ALIAS))
+                break
+            if part.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
+                select_next = True
+
+    def load_next(self):
+        log.log(self, currentframe())
+        if self.this_story_element is not None:
+            self.load_next_seq(False)
+
+    def clear(self):
+        log.log(self, currentframe())
+        self.ui.set_sequential_no('')
+        self.ui.set_alias('')
+        self.ui.set_title('')
+        self.ui.set_genre('')
+        self.ui.set_tone('')
+        self.ui.set_message('')
+        self.ui.set_content('')
+        self.ui.enable_alias()
+        super().clear()
+        
+    def get_plothole_type(self):
+        log.log(self, currentframe())
+        phtype = PlotHoleType.PART
+        log.log_var(self, currentframe(), ("phtype", phtype))
+        return phtype
+    
+    def get_folder(self):
+        log.log(self, currentframe())
+        # folder == parent folder of the part -> book folder
+        folder = f"{self.base_dir}/plotholes"
+        log.log_var(self, currentframe(), ("folder", folder))
+        return folder
+
+    def get_id(self, from_ui):
+        log.log_var(self, currentframe(),('from_ui',from_ui))
+        _id = ''
+        
+        if from_ui:
+            _id = self.ui.get_alias()
+        else:
+            if self.this_story_element is not None:
+                _id = self.this_story_element.get(sec.ALIAS)
+        log.log_var(self, currentframe(), ("_id", _id))
+        return _id
+    
+    def get_id_name(self):
+        log.log(self, currentframe())
+        name = 'Alias'
+        log.log_var(self, currentframe(), ("name", name))
+        return name
+    
+    def prepare_save(self):
+        log.log_var(self, currentframe())
+        
+        squential_no = self.ui.get_sequential_no()
+        alias = self.ui.get_alias()
+        title = self.ui.get_title()
+        tone = self.ui.get_tone()
+        genre = self.ui.get_genre()
+        message = self.ui.get_message()
+        content = self.ui.get_content()
+        
+        part = {}
+        part[sec.SEQUENTIAL_NO.value] = squential_no.strip()
+        part[sec.ALIAS.value] = alias.strip()
+        part[sec.TITLE.value] = title.strip()
+        part[sec.TONE.value] = tone.strip()
+        part[sec.GENRE.value] = genre.strip()
+        part[sec.MESSAGE.value] = message.strip()
+        part[sec.CONTENT.value] = content.strip()
+        
+        log.log_var(self, currentframe(), ("part", part))
+        
+        self.this_story_element = part
+        
+    def after_save(self):
+        log.log(self, currentframe())
+        self.ui.disable_alias()
+        
+        self.get_part_header()
+    
+    def load(self):
+        log.log(self, currentframe())
+        part = self.this_story_element
+        
+        self.ui.set_sequential_no(part.get(sec.SEQUENTIAL_NO))
+        self.ui.set_alias(part.get(sec.ALIAS))
+        self.ui.set_title(part.get(sec.TITLE))
+        self.ui.set_tone(part.get(sec.TONE))
+        self.ui.set_genre(part.get(sec.GENRE))
+        self.ui.set_message(part.get(sec.MESSAGE))
+        self.ui.set_content(part.get(sec.CONTENT))
+        
+        self.ui.disable_alias()
+        
+        self.get_part_header()
+  
+    def get_part_header(self):
+        log.log(self, currentframe())        
+        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)        
+        self.ui.set_header(f"Buch: {book.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Teil: {self.this_story_element.get(sec.TITLE)}")
+         
+    def on_new(self):
+        log.log(self, currentframe())
+        self.clear()
+        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)       
+        self.ui.set_header(f"Neues Plothole für '{story.get(sec.TITLE)}'")           
+
+    def on_raised(self): 
+        log.log_var(self, currentframe())
+        self.load_overview()
+        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
+        self.overview_ui.set_header(f"Teile von '{story.get(sec.TITLE)}'")
+
 class PartModel(StoryElementModel):
     
     def __init__(self, ui, overview_ui, base_dir):

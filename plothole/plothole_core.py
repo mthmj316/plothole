@@ -28,7 +28,17 @@ class SelectedStoryElements():
         fq_path = self.selected_element.get(ph_type)
         log.log_var(self, currentframe(), ('fq_path',fq_path))
         return fq_path
-        
+    
+    def get_selection_level(self, above=PlotHoleType.PLOTHOLE):
+        log.log(self, currentframe())
+        level = PlotHoleType.length()
+        for ph_type in self.selected_element.keys():
+            if self.selected_element.get(ph_type) != '' and ph_type.__gt__(above) and ph_type.ordinal() < level:
+                level = ph_type.ordinal()
+        ph_type = PlotHoleType.plotholtype_by_ordinal(level)        
+        log.log_var(self, currentframe(), ('ph_type',ph_type))
+        return ph_type
+                
 SELECTED_SE = SelectedStoryElements()
         
 

@@ -205,6 +205,12 @@ def get_part_path_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
+def get_plothole_path_by_alias(base_dir, alias): 
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
+    extension='plothole'
+    ret_val = get_path_for_alias(base_dir, alias, extension)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
 
 def get_story_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
@@ -223,6 +229,13 @@ def get_book_by_alias(base_dir, alias):
 def get_part_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
     extension='part'   
+    ret_val = get_by_alias(base_dir, alias, extension)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
+def get_plothole_by_alias(base_dir, alias):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
+    extension='plothole'   
     ret_val = get_by_alias(base_dir, alias, extension)
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
@@ -271,23 +284,7 @@ def get_book(fq_path, as_dict=False):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
-def get_part(fq_path, as_dict=False):
-    """
-    Returns the part for the fully qulified apth
-
-    Parameters
-    ----------
-    fq_path : string
-        Fully qualified path of the story
-    as_dict : bool, optional
-        If True the story is retured as dictionary, otherwise as string. 
-        The default is False.
-
-    Returns
-    -------
-    None.
-
-    """
+def get_plothole(fq_path, as_dict=False):
     log.log_var(None, currentframe(), ('fq_path',fq_path), ('as_dict',as_dict))
     ret_val = get(fq_path, as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
@@ -353,6 +350,11 @@ def get_all_part_pathes(base_dir):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
+def get_all_plothole_pathes(base_dir):
+    log.log_var(None, currentframe(), ('base_dir',base_dir))
+    ret_val =  get_all_pathes(base_dir, 'plothole')
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+
 def get_all_stories(base_dir, as_dict=False):
     """
     Returns all existing stories.
@@ -388,5 +390,11 @@ def get_all_books(base_dir, as_dict=False):
 def get_all_parts(base_dir, as_dict=False):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
     ret_val = get_all(base_dir, 'part', as_dict)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
+def get_all_plotholes(base_dir, as_dict=False):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
+    ret_val = get_all(base_dir, 'plothole', as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val

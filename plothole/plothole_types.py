@@ -28,3 +28,51 @@ class PlotHoleType(enum.StrEnum):
     PANEL = 'panel'
     PLOTHOLE = 'plothole'
     CHARATCTER = 'character'
+    
+    @classmethod
+    def length(cls):
+        return len(PlotHoleType)
+    
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
+    
+    @classmethod
+    def __ordinals(cls):
+        return {
+            name: PlotHoleType.length() - idx
+            for idx, name in enumerate(PlotHoleType.list())
+        }
+ 
+    @classmethod
+    def plotholtype_by_ordinal(cls, ordinal):
+        for name, idx in cls.__ordinals().items():
+            # print(f"{name} -> {idx}")
+            if ordinal == idx:
+                return PlotHoleType[name.upper()]
+        return None
+
+    def ordinal(self):
+        return PlotHoleType.__ordinals().get(self)
+    
+    def __lt__(self, other):
+        self_ordinal = self.ordinal()
+        other_ordinal = other.ordinal()
+        return self_ordinal < other_ordinal
+    
+    def __gt__(self, other):
+        self_ordinal = self.ordinal()
+        other_ordinal = other.ordinal()
+        return self_ordinal > other_ordinal
+ 
+if __name__ == '__main__':
+
+    print(PlotHoleType.PART.__lt__(PlotHoleType.BOOK))
+    print(PlotHoleType.PART.__lt__(PlotHoleType.PLOTHOLE))
+    
+    print(PlotHoleType.plotholtype_by_ordinal(5))
+    print(PlotHoleType.plotholtype_by_ordinal(9))
+    print(PlotHoleType.plotholtype_by_ordinal(2))
+    
+  
+    

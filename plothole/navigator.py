@@ -146,6 +146,12 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
+        elif event_source_ph_type is PlotHoleType.PLOTHOLE:
+            # you are on the plothole overview and want to create a new plothole
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PLOTHOLE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
 
     def on_open(self, event_source_ph_type):
         log.log_var(self, currentframe(), ("event_source_ph_type", event_source_ph_type))
