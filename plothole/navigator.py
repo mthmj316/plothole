@@ -67,7 +67,8 @@ class NavigatorInstance(ABC):
         
         self.current_frame, self.ui_frames_dict, self.ui_overview_frames_dict = start_frame, ui_frames_dict, ui_overview_frames_dict
         self.current_ph_type = None
-        self.before_plothole = None
+        self.frame_before_plothole = None
+        self.ph_type_before_plothole = None
         self.before_character = None
     
     def on_character(self):
@@ -115,9 +116,18 @@ class NavigatorInstance(ABC):
             
         elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
             # You are on plothole overview ui and close has been clicked.
-            next_frame = self.before_plothole
+            next_frame = self.frame_before_plothole
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
+            self.current_ph_type = self.ph_type_before_plothole
+            self.ph_type_before_plothole = None
+            
+        elif self.current_ph_type == PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
+            # You are on plothole ui and close has been clicked.
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PLOTHOLE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = self.ph_type_before_plothole
             
     def on_delete(self):
         pass
@@ -186,6 +196,16 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.PART
+            
+        elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
+            # You are on plothole overview ui and a plothole shall be edited
+            self.frame_before_plothole = self.current_frame
+            self.ph_type_before_plothole = self.current_ph_type
+            
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PLOTHOLE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
 
 
     
@@ -195,8 +215,10 @@ class NavigatorInstance(ABC):
         log.log_var(self, currentframe(), ("current_frame", self.current_frame))
         log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
         
-        self.before_plothole = self.current_frame        
-        log.log_var(self, currentframe(), ("before_plothole", self.before_plothole))
+        self.frame_before_plothole = self.current_frame
+        self.ph_type_before_plothole = self.current_ph_type
+        log.log_var(self, currentframe(), ("frame_before_plothole", self.frame_before_plothole))
+        log.log_var(self, currentframe(), ("ph_type_before_plothole", self.ph_type_before_plothole))
 
         # self.current_ph_type = PlotHoleType.PLOTHOLE
         next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PLOTHOLE)

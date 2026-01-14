@@ -28,6 +28,14 @@ class SelectedStoryElements():
         fq_path = self.selected_element.get(ph_type)
         log.log_var(self, currentframe(), ('fq_path',fq_path))
         return fq_path
+
+    def get_selected_base(self, ph_type):
+        log.log_var(self, currentframe(), ('ph_type',ph_type))
+        fq_path_base = ''
+        if self.selected_element.get(ph_type) is not None and self.selected_element.get(ph_type) != '':
+            fq_path_base = pathlib.Path(self.selected_element.get(ph_type)).parent
+        log.log_var(self, currentframe(), ('fq_path_base',fq_path_base))
+        return fq_path_base
     
     def get_selection_level(self, above=PlotHoleType.PLOTHOLE):
         log.log(self, currentframe())

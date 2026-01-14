@@ -64,7 +64,32 @@ class PlotHoleType(enum.StrEnum):
         self_ordinal = self.ordinal()
         other_ordinal = other.ordinal()
         return self_ordinal > other_ordinal
- 
+
+PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP = {
+    'story': 'Geschichte',
+    'book': 'Buch',
+    'part': 'Teil',
+    'chapter': 'Kapitel',
+    'scene': 'Szene',
+    'page': 'Seite',
+    'panel': 'Panel',
+    'plothole': 'Plothole',
+    'character': 'Charakter'
+    }
+    
+
+UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP = {
+    'Geschichte': 'story',
+    'Buch': 'book',
+    'Teil': 'part',
+    'Kapitel': 'chapter',
+    'Szene': 'scene',
+    'Seite': 'page',
+    'Panel': 'panel',
+    'Plothole': 'plothole',
+    'Charakter': 'character'
+    }
+    
 if __name__ == '__main__':
 
     print(PlotHoleType.PART.__lt__(PlotHoleType.BOOK))

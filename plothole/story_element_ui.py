@@ -16,7 +16,7 @@ import enum
 from navigator import NavigationPoint
 from plothole_types import PlotHoleType
 
-GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy', 'Erotic', 
+GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy','Comic', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
           'Manga','Märchen', 'Mystery', 'Politik', 'Romantik','Science Fiction','Superhelden',
           'Underground ','Western']
@@ -192,6 +192,12 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_update()
+
+    def on_option_select(self, event, secontrol):
+        log.log_var(self, currentframe(), ("event", event), ("secontrol", secontrol))
+        self.controls_vars.get(secontrol).set(event)
+        for observer in self.observers:
+            observer.on_option_select(event, secontrol)
     
     def configure_button(self, conf, secontrol, action, parent):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -362,10 +368,13 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
         for option in options:
             menu.add_command(
                 label=option,
-                command=lambda value=option: value.set(value))
+                command=lambda x=option: self.on_option_select(x, secontrol))
             
         menu_value = self.controls_vars.get(secontrol)
-        menu_value.set(options[idx_selected])
+        if len(options) > 0:
+            menu_value.set(options[idx_selected])
+        else:
+            menu_value.set('')
 
     def configure_option_menu(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -375,7 +384,7 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
             self.controls_vars[secontrol.value] = menu_value
             if len(values) > 0:
                 menu_value.set(values[0])
-            menu = tk.OptionMenu(self, menu_value, *values)    
+            menu = tk.OptionMenu(self, menu_value, *values, command=lambda x: self.on_option_select(x, secontrol))    
             menu.config(anchor=conf.get_control_anchor(secontrol))
             pos = conf.get_control_position(secontrol)
             menu.grid(row=pos[1], column=pos[0],
@@ -384,7 +393,7 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
                       padx=conf.get_control_padx(secontrol), 
                       pady=conf.get_control_pady(secontrol))
             self.controls[secontrol.value] = menu   
-
+        
     def configure_entry(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
@@ -1189,17 +1198,17 @@ def create_plothole_conf():
     conf.set_control_padx(secontrol, (0,1))
     conf.set_button_width(secontrol, btn_width)
     
-    conf.hide_control(__SEControls__.TONE)
     conf.hide_control(__SEControls__.BTN_CHARACTER)
     conf.hide_control(__SEControls__.BTN_NEW)
+    conf.hide_control(__SEControls__.BTN_NEXT)
     conf.hide_control(__SEControls__.BTN_OPEN)
-    conf.hide_control(__SEControls__.BTN_UPDATE)
-    conf.hide_control(__SEControls__.NOTE)
-    conf.hide_control(__SEControls__.BTN_SUB)
     conf.hide_control(__SEControls__.BTN_PLOTHOLE)
     conf.hide_control(__SEControls__.BTN_PREVIOUS)
+    conf.hide_control(__SEControls__.BTN_SUB)
     conf.hide_control(__SEControls__.BTN_TOP)
-    conf.hide_control(__SEControls__.BTN_NEXT)
+    conf.hide_control(__SEControls__.BTN_UPDATE)
+    conf.hide_control(__SEControls__.NOTE)
+    conf.hide_control(__SEControls__.TONE)
     
     return conf
       
@@ -1222,7 +1231,7 @@ if __name__ == '__main__':
     
     frame = StoryElement(w, conf, PlotHoleType.PLOTHOLE)
     frame.grid(row=0, column=0, sticky="NSEW")
-    # frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
+    frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
 
     
     w.mainloop()
