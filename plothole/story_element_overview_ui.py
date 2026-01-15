@@ -7,18 +7,14 @@ Created on Wed Jan  7 19:06:24 2026
 import tkinter as tk
 from observers import UIObservable
 from tkinter import font as tkFont
-from tkinter import scrolledtext as stxt
-from tkinter import StringVar
-from tkinter import messagebox as mb
 from inspect import currentframe
 import logger as log
-import enum
 from navigator import NavigationPoint
 from story_element_ui import __SEControls__
 from story_element_ui import __SEConfiguration__
 from plothole_types import PlotHoleType
 
-class StoryElementOverview(tk.Frame, UIObservable, NavigationPoint):
+class StoryElementOverviewFrame(tk.Frame, UIObservable, NavigationPoint):
     
     def __init__(self, root, conf, ph_type, *args, **kwargs):
         super().__init__(root, *args, **kwargs)       
@@ -172,174 +168,190 @@ class StoryElementOverview(tk.Frame, UIObservable, NavigationPoint):
         log.log_var(self, currentframe(), ("aboveThis", aboveThis))
         for observer in self.observers:
             observer.on_raised()
-        super().tkraise()
+        super().tkraise(aboveThis)
 
-def create_part_conf():
-    
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Teile Übersicht')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_CHARACTER 
-    conf.set_control_position(secontrol, (3,0))
-    conf.set_label(secontrol,'Charakter')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
+class PartOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_part_conf(), PlotHoleType.PART, *args, **kwargs)
 
-    secontrol = __SEControls__.BTN_NEW
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Neu')
-    conf.set_control_padx(secontrol, (20,1))
-    conf.set_button_width(secontrol, btn_width)
+    def create_part_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Teile Übersicht')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
     
-    secontrol = __SEControls__.BTN_CLOSE
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Schließen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_PLOTHOLE
-    conf.set_control_position(secontrol, (2,0))
-    conf.set_label(secontrol,'Plothole')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_TOP
-    conf.set_control_position(secontrol, (4,0))
-    conf.set_label(secontrol,'^')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    return conf
+        secontrol = __SEControls__.BTN_NEW
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Neu')
+        conf.set_control_padx(secontrol, (20,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        return conf
 
-def create_book_conf():
-    
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Bücher Übersicht')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_CHARACTER 
-    conf.set_control_position(secontrol, (3,0))
-    conf.set_label(secontrol,'Charakter')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
+class BookOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_book_conf(), PlotHoleType.BOOK, *args, **kwargs)
 
-    secontrol = __SEControls__.BTN_NEW
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Neu')
-    conf.set_control_padx(secontrol, (20,1))
-    conf.set_button_width(secontrol, btn_width)
+    def create_book_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Bücher Übersicht')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
     
-    secontrol = __SEControls__.BTN_CLOSE
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Schließen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_PLOTHOLE
-    conf.set_control_position(secontrol, (2,0))
-    conf.set_label(secontrol,'Plothole')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_TOP
-    conf.set_control_position(secontrol, (4,0))
-    conf.set_label(secontrol,'^')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    return conf
+        secontrol = __SEControls__.BTN_NEW
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Neu')
+        conf.set_control_padx(secontrol, (20,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        return conf
 
-def create_story_conf():
-    
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Geschichten Übersicht')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_NEW
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Neu')
-    conf.set_control_padx(secontrol, (20,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    conf.hide_control(__SEControls__.BTN_CHARACTER)
-    conf.hide_control(__SEControls__.BTN_CLOSE)
-    conf.hide_control(__SEControls__.BTN_PLOTHOLE)
-    conf.hide_control(__SEControls__.BTN_TOP)
-    
-    return conf
+class StoryOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_story_conf(), PlotHoleType.STORY, *args, **kwargs)
+        
+    def create_story_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Geschichten Übersicht')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_NEW
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Neu')
+        conf.set_control_padx(secontrol, (20,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        conf.hide_control(__SEControls__.BTN_CHARACTER)
+        conf.hide_control(__SEControls__.BTN_CLOSE)
+        conf.hide_control(__SEControls__.BTN_PLOTHOLE)
+        conf.hide_control(__SEControls__.BTN_TOP)
+        
+        return conf
 
-def create_plothole_conf():
-    
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Plotholes')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_NEW
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Neu')
-    conf.set_control_padx(secontrol, (20,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_CLOSE
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Schließen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    conf.hide_control(__SEControls__.BTN_CHARACTER)
-    conf.hide_control(__SEControls__.BTN_PLOTHOLE)
-    conf.hide_control(__SEControls__.BTN_TOP)
-    
-    return conf
+class PlotholeOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_plothole_conf(), PlotHoleType.PLOTHOLE, *args, **kwargs)
+        
+    def create_plothole_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Plotholes')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_NEW
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Neu')
+        conf.set_control_padx(secontrol, (20,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        conf.hide_control(__SEControls__.BTN_CHARACTER)
+        conf.hide_control(__SEControls__.BTN_PLOTHOLE)
+        conf.hide_control(__SEControls__.BTN_TOP)
+        
+        return conf
         
 if __name__ == '__main__':
     
@@ -352,9 +364,8 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    conf = create_part_conf()
-    
-    frame = StoryElementOverview(w, conf, PlotHoleType.PART)
+    # frame = PartOverviewFrame(w)
+    frame = PlotholeOverviewFrame(w)
     frame.grid(row=0, column=0, sticky="NSEW")
     
     frame.add_overview_item("test_id", 'Test Eintrag')

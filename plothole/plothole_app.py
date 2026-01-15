@@ -59,24 +59,24 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1) 
     
-    plothole_ui = seui.StoryElement(w, seui.create_plothole_conf(), PlotHoleType.PLOTHOLE)
+    plothole_ui = seui.PlotholeFrame(w)
     plothole_ui.grid(row=0, column=0, sticky="NSEW")
-    plothole_overview_ui = seoui.StoryElementOverview(w, seoui.create_plothole_conf(), PlotHoleType.PLOTHOLE)
+    plothole_overview_ui = seoui.PlotholeOverviewFrame(w)
     plothole_overview_ui.grid(row=0, column=0, sticky="NSEW")   
 
-    part_ui = seui.StoryElement(w, seui.create_part_conf(), PlotHoleType.PART)
+    part_ui = seui.PartFrame(w)
     part_ui.grid(row=0, column=0, sticky="NSEW")
-    part_overview_ui = seoui.StoryElementOverview(w, seoui.create_part_conf(), PlotHoleType.PART)
+    part_overview_ui = seoui.PartOverviewFrame(w)
     part_overview_ui.grid(row=0, column=0, sticky="NSEW")   
 
-    book_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.BOOK)
+    book_ui = seui.BookFrame(w)
     book_ui.grid(row=0, column=0, sticky="NSEW")
-    book_overview_ui = seoui.StoryElementOverview(w, seoui.create_book_conf(), PlotHoleType.BOOK)
+    book_overview_ui = seoui.BookOverviewFrame(w)
     book_overview_ui.grid(row=0, column=0, sticky="NSEW")    
     
-    story_ui = seui.StoryElement(w, seui.create_story_conf(), PlotHoleType.STORY)
+    story_ui = seui.StoryFrame(w)
     story_ui.grid(row=0, column=0, sticky="NSEW")
-    story_overview_ui = seoui.StoryElementOverview(w, seoui.create_story_conf(), PlotHoleType.STORY)
+    story_overview_ui = seoui.StoryOverviewFrame(w)
     story_overview_ui.grid(row=0, column=0, sticky="NSEW")
     
     ui_frames_dict = {}

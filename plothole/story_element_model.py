@@ -155,6 +155,8 @@ class StoryElementModel(UIObserver):
         fa.write(self.fq_file_name, data)
          
         self.after_save()
+        
+        SELECTED_SE.select(self.get_plothole_type(), self.fq_file_name)
 
     def on_sub(self):
         log.log(self, currentframe(), 'not relevant')
@@ -195,10 +197,16 @@ class PlotholeModel(StoryElementModel):
             se_items = hlp.get_all(selected_story_path, ph_type.value, as_dict=True)
 
             for item in sorted(se_items, key=lambda x: x[sec.TITLE]):
-                titles.append(f"{item.get(sec.TITLE)} [{item.get(sec.ALIAS)}]")
+                titles.append(self.create_classification_optmenu_entry(item))
             selected_item = 0
         self.ui.set_options(titles, selected_item, sec.GENRE)
     
+    def create_classification_optmenu_entry(self, item):
+        log.log_var(self, currentframe(),('item',item))
+        entry = f"{item.get(sec.TITLE)} [{item.get(sec.ALIAS)}]"
+        log.log_var(self, currentframe(),('entry',entry))
+        return entry
+        
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
         self.this_story_element = hlp.get_plothole_by_alias(self.get_folder(), _id)
@@ -335,15 +343,35 @@ class PlotholeModel(StoryElementModel):
         self.load_classifications(PlotHoleType.STORY.value)
         plothole = self.this_story_element
         
-        self.ui.set_sequential_no(PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(plothole.get(sec.SEQUENTIAL_NO)))
+        # selected 'Betrifft' 
+        classification_type = plothole.get(sec.SEQUENTIAL_NO)
+        log.log_var(self, currentframe(), ('classification_type',classification_type))        
+        self.ui.set_sequential_no(PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(classification_type))
+        
         self.ui.set_alias(plothole.get(sec.ALIAS))
         self.ui.set_title(plothole.get(sec.TITLE))
-        classification = hlp.get_by_alias(
-            SELECTED_SE.get_selected_base(PlotHoleType.STORY), 
-            plothole.get(sec.GENRE), 
-            plothole.get(sec.SEQUENTIAL_NO)).get(sec.TITLE)
+        
         if PlotHoleType(plothole.get(sec.SEQUENTIAL_NO)) != PlotHoleType.STORY:
+            classification_object = hlp.get_by_alias(
+                SELECTED_SE.get_selected_base(PlotHoleType.STORY), 
+                plothole.get(sec.GENRE), 
+                plothole.get(sec.SEQUENTIAL_NO))
+            
+            classification = self.create_classification_optmenu_entry(classification_object)
+            
+            # get for the selected 'Betrifft' the corresponding choises
+            story_path = SELECTED_SE.get_selected_base(PlotHoleType.STORY)
+            log.log_var(self, currentframe(), ('story_path',story_path))
+            classification_choises = hlp.get_all(story_path, classification_type, as_dict=True)
+            
+            titles = []
+            for choise in sorted(classification_choises, key=lambda x: x[sec.TITLE]):
+                titles.append(self.create_classification_optmenu_entry(choise))
+            selected_item = 0
+            self.ui.set_options(titles, selected_item, sec.GENRE)
             self.ui.set_genre(classification)
+        
+        
         self.ui.set_message(plothole.get(sec.MESSAGE))
         self.ui.set_content(plothole.get(sec.CONTENT))
         

@@ -106,6 +106,13 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame            
             self.current_ph_type = PlotHoleType.STORY
 
+        elif self.current_ph_type == PlotHoleType.BOOK and event_source_ph_type == PlotHoleType.PART:
+            # You are on part overview and the close button has been pressed.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.BOOK)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.BOOK  
+            
         elif self.current_ph_type == PlotHoleType.PART and event_source_ph_type == PlotHoleType.PART:
             # You are on part ui and the close button has been pressed.
             # No part is selected -> book selected
@@ -199,13 +206,16 @@ class NavigatorInstance(ABC):
             
         elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
             # You are on plothole overview ui and a plothole shall be edited
-            self.frame_before_plothole = self.current_frame
-            self.ph_type_before_plothole = self.current_ph_type
+            # self.frame_before_plothole = self.current_frame
+            # self.ph_type_before_plothole = self.current_ph_type
             
             next_frame = self.ui_frames_dict.get(PlotHoleType.PLOTHOLE)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
+            
+            # log.log_var(self, currentframe(), ("current_frame", self.current_frame))
+            # log.log_var(self, currentframe(), ("frame_before_plothole", self.frame_before_plothole))
 
 
     
