@@ -16,7 +16,7 @@ import enum
 from navigator import NavigationPoint
 from plothole_types import PlotHoleType
 
-GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy', 'Erotic', 
+GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy','Comic', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
           'Manga','Märchen', 'Mystery', 'Politik', 'Romantik','Science Fiction','Superhelden',
           'Underground ','Western']
@@ -45,8 +45,10 @@ class __SEControls__(enum.StrEnum):
     SEQUENTIAL_NO = 'sequential_no'
     TITLE = 'title'
     TONE = 'tone'
+    
+    
 
-class StoryElement(tk.Frame, UIObservable, NavigationPoint):
+class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
     def __init__(self, root, conf, ph_type, *args, **kwargs):
         super().__init__(root, *args, **kwargs)       
         log.log_var(self, currentframe(),("root", root), ("conf", conf), ("ph_type", ph_type), ("args", args), ("kwargs", kwargs))
@@ -68,9 +70,8 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
         self.configure_message(conf)
         self.configure_content(conf)
         self.configure_note(conf)
-        self.configure_actions(conf) 
-
-
+        self.configure_actions(conf)
+        
     def add_navigator(self, navigator):
         log.log_var(self, currentframe(), ("navigator", navigator))
         self.navigators.append(navigator)
@@ -192,6 +193,12 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
         log.log(self, currentframe())
         for observer in self.observers:
             observer.on_update()
+
+    def on_option_select(self, event, secontrol):
+        log.log_var(self, currentframe(), ("event", event), ("secontrol", secontrol))
+        self.controls_vars.get(secontrol).set(event)
+        for observer in self.observers:
+            observer.on_option_select(event, secontrol)
     
     def configure_button(self, conf, secontrol, action, parent):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
@@ -353,22 +360,41 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
                 padx=conf.get_control_padx(secontrol), 
                 pady=conf.get_control_pady(secontrol))
 
+    def set_options(self, options, idx_selected, secontrol):
+        log.log_var(self, currentframe(), ("options", options), 
+                    ("idx_selected", idx_selected), ("secontrol", secontrol))
+        option_menu = self.controls.get(secontrol)
+        menu = option_menu['menu']
+        menu.delete(0, tk.END)
+        for option in options:
+            menu.add_command(
+                label=option,
+                command=lambda x=option: self.on_option_select(x, secontrol))
+            
+        menu_value = self.controls_vars.get(secontrol)
+        if len(options) > 0:
+            menu_value.set(options[idx_selected])
+        else:
+            menu_value.set('')
+
     def configure_option_menu(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
             values = conf.get_option_menu_values(secontrol)
-            menu_value = StringVar(self)
+            menu_value = StringVar(self, value='')
             self.controls_vars[secontrol.value] = menu_value
-            menu_value.set(values[0])
-            menu = tk.OptionMenu(self, menu_value, *values)            
+            if len(values) > 0:
+                menu_value.set(values[0])
+            menu = tk.OptionMenu(self, menu_value, *values, command=lambda x: self.on_option_select(x, secontrol))    
+            menu.config(anchor=conf.get_control_anchor(secontrol))
             pos = conf.get_control_position(secontrol)
-            menu.grid(row=pos[1], column=pos[0], 
+            menu.grid(row=pos[1], column=pos[0],
                       columnspan=conf.get_control_colspan(secontrol), 
                       sticky=conf.get_control_sticky(secontrol), 
                       padx=conf.get_control_padx(secontrol), 
                       pady=conf.get_control_pady(secontrol))
             self.controls[secontrol.value] = menu   
-
+        
     def configure_entry(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
@@ -404,9 +430,6 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
         for i in range(conf.get_grid_row_ctn()):
             self.grid_rowconfigure(i, weight=conf.get_row_weight(i))
         
-    def raise_frame(self, abovethis):
-        log.log_var(self, currentframe(), ("abovethis", abovethis)) 
-
     def register(self, uiobserver):
         log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.append(uiobserver)
@@ -414,6 +437,12 @@ class StoryElement(tk.Frame, UIObservable, NavigationPoint):
     def unregister(self, uiobserver):
         log.log_var(self, currentframe(), ("uiobserver", uiobserver))
         self.observers.pop(self.observers.index(uiobserver))
+            
+    def tkraise(self, aboveThis):
+        log.log_var(self, currentframe(), ("aboveThis", aboveThis))
+        # for observer in self.observers:
+            # observer.on_raised()
+        super().tkraise(aboveThis)
 
 class __SEConfiguration__():
     def __init__(self):
@@ -530,7 +559,7 @@ class __SEConfiguration__():
 
     def get_control_anchor(self, secontrol):
         log.log_var(self, currentframe(), ("secontrol", secontrol))
-        anchor = tk.NSEW if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
+        anchor = tk.W if secontrol not in self.control_anchor.keys() else self.control_anchor.get(secontrol)
         log.log_var(self, currentframe(), ("anchor", anchor))
         return anchor
 
@@ -692,395 +721,518 @@ class __SEConfiguration__():
         log.log_var(self, currentframe(), ("weight", weight))        
         return weight
 
-def create_part_conf():
+class StoryFrame(StoryElementFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_story_conf(), PlotHoleType.STORY, *args, **kwargs)
     
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Neuer Teil')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
-    conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
-    conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
-    conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
-    
-    secontrol = __SEControls__.ALIAS
-    
-    conf.set_label(secontrol,'Alias')
-    conf.set_label_position(secontrol, (2,1))
-    conf.set_control_position(secontrol, (3,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-
-    secontrol = __SEControls__.TITLE
-
-    conf.set_label(secontrol,'Titel')
-    conf.set_label_position(secontrol, (4,1))
-    conf.set_control_position(secontrol, (5,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.TONE
-
-    conf.set_label(secontrol,'Tonfall')
-    conf.set_label_position(secontrol, (2,2))
-    conf.set_control_position(secontrol, (3,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.GENRE
-
-    conf.set_label(secontrol,'Genre')
-    conf.set_label_position(secontrol, (0,2))
-    conf.set_control_position(secontrol, (1,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    conf.set_option_menu_values(secontrol, GENRES)
-    
-    secontrol = __SEControls__.MESSAGE
-
-    conf.set_label(secontrol,'Botschaft')
-    conf.set_label_position(secontrol, (4,2))
-    conf.set_control_position(secontrol, (5,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.CONTENT
-
-    conf.set_label(secontrol,'Inhalt')
-    conf.set_label_position(secontrol, (0,3))
-    conf.set_label_sticky(secontrol, tk.N)
-    conf.set_control_position(secontrol, (1,3))
-    conf.set_control_sticky(secontrol, tk.NSEW)
-    conf.set_control_colspan(secontrol, 5)
-    conf.set_control_pady(secontrol, (5,5))
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_CHARACTER 
-    conf.set_control_position(secontrol, (6,0))
-    conf.set_label(secontrol,'Charakter')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_CLOSE    
-    conf.set_control_position(secontrol, (3,0))
-    conf.set_label(secontrol,'Schließen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_DELETE   
-    conf.set_control_position(secontrol, (2,0))
-    conf.set_label(secontrol,'Löschen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_PLOTHOLE   
-    conf.set_control_position(secontrol, (5,0))
-    conf.set_label(secontrol,'Plothole')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_REVERT   
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Zurücksetzen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_SAVE
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Speichern')
-    conf.set_control_padx(secontrol, (0,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_SUB
-    conf.set_control_position(secontrol, (4,0))
-    conf.set_label(secontrol,'Kapitel')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_NEXT
-    conf.set_control_position(secontrol, (9,0))
-    conf.set_label(secontrol,'>')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    secontrol = __SEControls__.BTN_TOP
-    conf.set_control_position(secontrol, (8,0))
-    conf.set_label(secontrol,'^')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    secontrol = __SEControls__.BTN_PREVIOUS
-    conf.set_control_position(secontrol, (7,0))
-    conf.set_label(secontrol,'<')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    conf.hide_control(__SEControls__.BTN_NEW)
-    conf.hide_control(__SEControls__.BTN_OPEN)
-    conf.hide_control(__SEControls__.BTN_UPDATE)
-    conf.hide_control(__SEControls__.NOTE)
-    conf.hide_control(__SEControls__.BTN_SUB)
-    
-    return conf
-
-def create_book_conf():
-    
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Neues Buch')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
-    conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
-    conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
-    conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
-    
-    secontrol = __SEControls__.ALIAS
-    
-    conf.set_label(secontrol,'Alias')
-    conf.set_label_position(secontrol, (2,1))
-    conf.set_control_position(secontrol, (3,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-
-    secontrol = __SEControls__.TITLE
-
-    conf.set_label(secontrol,'Titel')
-    conf.set_label_position(secontrol, (4,1))
-    conf.set_control_position(secontrol, (5,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.TONE
-
-    conf.set_label(secontrol,'Tonfall')
-    conf.set_label_position(secontrol, (2,2))
-    conf.set_control_position(secontrol, (3,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.GENRE
-
-    conf.set_label(secontrol,'Genre')
-    conf.set_label_position(secontrol, (0,2))
-    conf.set_control_position(secontrol, (1,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    conf.set_option_menu_values(secontrol, GENRES)
-    
-    secontrol = __SEControls__.MESSAGE
-
-    conf.set_label(secontrol,'Botschaft')
-    conf.set_label_position(secontrol, (4,2))
-    conf.set_control_position(secontrol, (5,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.CONTENT
-
-    conf.set_label(secontrol,'Inhalt')
-    conf.set_label_position(secontrol, (0,3))
-    conf.set_label_sticky(secontrol, tk.N)
-    conf.set_control_position(secontrol, (1,3))
-    conf.set_control_sticky(secontrol, tk.NSEW)
-    conf.set_control_colspan(secontrol, 5)
-    conf.set_control_pady(secontrol, (5,5))
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_CHARACTER 
-    conf.set_control_position(secontrol, (6,0))
-    conf.set_label(secontrol,'Charakter')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_CLOSE    
-    conf.set_control_position(secontrol, (3,0))
-    conf.set_label(secontrol,'Schließen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_DELETE   
-    conf.set_control_position(secontrol, (2,0))
-    conf.set_label(secontrol,'Löschen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_PLOTHOLE   
-    conf.set_control_position(secontrol, (5,0))
-    conf.set_label(secontrol,'Plothole')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_REVERT   
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Zurücksetzen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_SAVE
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Speichern')
-    conf.set_control_padx(secontrol, (0,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_SUB
-    conf.set_control_position(secontrol, (4,0))
-    conf.set_label(secontrol,'Teile')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_NEXT
-    conf.set_control_position(secontrol, (9,0))
-    conf.set_label(secontrol,'>')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    secontrol = __SEControls__.BTN_TOP
-    conf.set_control_position(secontrol, (8,0))
-    conf.set_label(secontrol,'^')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    secontrol = __SEControls__.BTN_PREVIOUS
-    conf.set_control_position(secontrol, (7,0))
-    conf.set_label(secontrol,'<')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, 5)
-    
-    conf.hide_control(__SEControls__.BTN_NEW)
-    conf.hide_control(__SEControls__.BTN_OPEN)
-    conf.hide_control(__SEControls__.BTN_UPDATE)
-    conf.hide_control(__SEControls__.NOTE)
-    
-    return conf
-
-def create_story_conf():
-    conf = __SEConfiguration__()
-    conf.set_column_weigth(3, 1)
-    conf.set_column_weigth(5, 1)
-    conf.set_row_weigth(3, 1)
-    conf.set_grid_column_ctn(6)
-    conf.set_grid_row_ctn(5)
-    
-    conf.set_label_colspan(__SEControls__.HEADER, 7)
-    conf.set_label(__SEControls__.HEADER,'Neue Geschicht')
-    conf.set_label_position(__SEControls__.HEADER, (0,0))
-    conf.set_label_sticky(__SEControls__.HEADER, tk.W)
-    conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
-    conf.set_label_anchor(__SEControls__.HEADER, tk.W)
-    
-    secontrol = __SEControls__.ALIAS
-    
-    conf.set_label(secontrol,'Alias')
-    conf.set_label_position(secontrol, (2,1))
-    conf.set_control_position(secontrol, (3,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-
-    secontrol = __SEControls__.TITLE
-
-    conf.set_label(secontrol,'Titel')
-    conf.set_label_position(secontrol, (4,1))
-    conf.set_control_position(secontrol, (5,1))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.TONE
-
-    conf.set_label(secontrol,'Tonfall')
-    conf.set_label_position(secontrol, (2,2))
-    conf.set_control_position(secontrol, (3,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.GENRE
-
-    conf.set_label(secontrol,'Genre')
-    conf.set_label_position(secontrol, (0,2))
-    conf.set_control_position(secontrol, (1,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    conf.set_option_menu_values(secontrol, GENRES)
-    
-    secontrol = __SEControls__.MESSAGE
-
-    conf.set_label(secontrol,'Botschaft')
-    conf.set_label_position(secontrol, (4,2))
-    conf.set_control_position(secontrol, (5,2))
-    conf.set_control_sticky(secontrol, tk.EW)
-    
-    secontrol = __SEControls__.CONTENT
-
-    conf.set_label(secontrol,'Inhalt')
-    conf.set_label_position(secontrol, (0,3))
-    conf.set_label_sticky(secontrol, tk.N)
-    conf.set_control_position(secontrol, (1,3))
-    conf.set_control_sticky(secontrol, tk.NSEW)
-    conf.set_control_colspan(secontrol, 5)
-    conf.set_control_pady(secontrol, (5,5))
-    
-    btn_width = 15
-    
-    secontrol = __SEControls__.BTN_CHARACTER 
-    conf.set_control_position(secontrol, (6,0))
-    conf.set_label(secontrol,'Charakter')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_CLOSE    
-    conf.set_control_position(secontrol, (3,0))
-    conf.set_label(secontrol,'Schließen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_DELETE   
-    conf.set_control_position(secontrol, (2,0))
-    conf.set_label(secontrol,'Löschen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_PLOTHOLE   
-    conf.set_control_position(secontrol, (5,0))
-    conf.set_label(secontrol,'Plothole')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_REVERT   
-    conf.set_control_position(secontrol, (1,0))
-    conf.set_label(secontrol,'Zurücksetzen')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_SAVE
-    conf.set_control_position(secontrol, (0,0))
-    conf.set_label(secontrol,'Speichern')
-    conf.set_control_padx(secontrol, (0,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    secontrol = __SEControls__.BTN_SUB
-    conf.set_control_position(secontrol, (4,0))
-    conf.set_label(secontrol,'Bücher')
-    conf.set_control_padx(secontrol, (1,1))
-    conf.set_button_width(secontrol, btn_width)
-    
-    conf.hide_control(__SEControls__.BTN_NEW)
-    conf.hide_control(__SEControls__.BTN_NEXT)
-    conf.hide_control(__SEControls__.BTN_OPEN)
-    conf.hide_control(__SEControls__.BTN_PREVIOUS)
-    conf.hide_control(__SEControls__.BTN_TOP)
-    conf.hide_control(__SEControls__.BTN_UPDATE)
-    conf.hide_control(__SEControls__.NOTE)
-    conf.hide_control(__SEControls__.SEQUENTIAL_NO)
-    
-    return conf
+    def create_story_conf(self):
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
         
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Neue Geschicht')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        secontrol = __SEControls__.ALIAS
+        
+        conf.set_label(secontrol,'Alias')
+        conf.set_label_position(secontrol, (2,1))
+        conf.set_control_position(secontrol, (3,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+
+        secontrol = __SEControls__.TITLE
+
+        conf.set_label(secontrol,'Titel')
+        conf.set_label_position(secontrol, (4,1))
+        conf.set_control_position(secontrol, (5,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.TONE
+
+        conf.set_label(secontrol,'Tonfall')
+        conf.set_label_position(secontrol, (2,2))
+        conf.set_control_position(secontrol, (3,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.GENRE
+
+        conf.set_label(secontrol,'Genre')
+        conf.set_label_position(secontrol, (0,2))
+        conf.set_control_position(secontrol, (1,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        conf.set_option_menu_values(secontrol, GENRES)
+        
+        secontrol = __SEControls__.MESSAGE
+
+        conf.set_label(secontrol,'Botschaft')
+        conf.set_label_position(secontrol, (4,2))
+        conf.set_control_position(secontrol, (5,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.CONTENT
+
+        conf.set_label(secontrol,'Inhalt')
+        conf.set_label_position(secontrol, (0,3))
+        conf.set_label_sticky(secontrol, tk.N)
+        conf.set_control_position(secontrol, (1,3))
+        conf.set_control_sticky(secontrol, tk.NSEW)
+        conf.set_control_colspan(secontrol, 5)
+        conf.set_control_pady(secontrol, (5,5))
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (6,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE    
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_DELETE   
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Löschen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE   
+        conf.set_control_position(secontrol, (5,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_REVERT   
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Zurücksetzen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SAVE
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Speichern')
+        conf.set_control_padx(secontrol, (0,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SUB
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'Bücher')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        conf.hide_control(__SEControls__.BTN_NEW)
+        conf.hide_control(__SEControls__.BTN_NEXT)
+        conf.hide_control(__SEControls__.BTN_OPEN)
+        conf.hide_control(__SEControls__.BTN_PREVIOUS)
+        conf.hide_control(__SEControls__.BTN_TOP)
+        conf.hide_control(__SEControls__.BTN_UPDATE)
+        conf.hide_control(__SEControls__.NOTE)
+        conf.hide_control(__SEControls__.SEQUENTIAL_NO)
+        
+        return conf
+
+class BookFrame(StoryElementFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_book_conf(), PlotHoleType.BOOK, *args, **kwargs)
+
+    def create_book_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Neues Buch')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
+        conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
+        conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
+        conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
+        
+        secontrol = __SEControls__.ALIAS
+        
+        conf.set_label(secontrol,'Alias')
+        conf.set_label_position(secontrol, (2,1))
+        conf.set_control_position(secontrol, (3,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+
+        secontrol = __SEControls__.TITLE
+
+        conf.set_label(secontrol,'Titel')
+        conf.set_label_position(secontrol, (4,1))
+        conf.set_control_position(secontrol, (5,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.TONE
+
+        conf.set_label(secontrol,'Tonfall')
+        conf.set_label_position(secontrol, (2,2))
+        conf.set_control_position(secontrol, (3,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.GENRE
+
+        conf.set_label(secontrol,'Genre')
+        conf.set_label_position(secontrol, (0,2))
+        conf.set_control_position(secontrol, (1,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        conf.set_option_menu_values(secontrol, GENRES)
+        
+        secontrol = __SEControls__.MESSAGE
+
+        conf.set_label(secontrol,'Botschaft')
+        conf.set_label_position(secontrol, (4,2))
+        conf.set_control_position(secontrol, (5,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.CONTENT
+
+        conf.set_label(secontrol,'Inhalt')
+        conf.set_label_position(secontrol, (0,3))
+        conf.set_label_sticky(secontrol, tk.N)
+        conf.set_control_position(secontrol, (1,3))
+        conf.set_control_sticky(secontrol, tk.NSEW)
+        conf.set_control_colspan(secontrol, 5)
+        conf.set_control_pady(secontrol, (5,5))
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (6,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE    
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_DELETE   
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Löschen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE   
+        conf.set_control_position(secontrol, (5,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_REVERT   
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Zurücksetzen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SAVE
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Speichern')
+        conf.set_control_padx(secontrol, (0,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SUB
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'Teile')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_NEXT
+        conf.set_control_position(secontrol, (9,0))
+        conf.set_label(secontrol,'>')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (8,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_PREVIOUS
+        conf.set_control_position(secontrol, (7,0))
+        conf.set_label(secontrol,'<')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        conf.hide_control(__SEControls__.BTN_NEW)
+        conf.hide_control(__SEControls__.BTN_OPEN)
+        conf.hide_control(__SEControls__.BTN_UPDATE)
+        conf.hide_control(__SEControls__.NOTE)
+        
+        return conf
+
+class PartFrame(StoryElementFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_part_conf(), PlotHoleType.PART, *args, **kwargs)
+        
+    def create_part_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Neuer Teil')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
+        conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
+        conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
+        conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
+        
+        secontrol = __SEControls__.ALIAS
+        
+        conf.set_label(secontrol,'Alias')
+        conf.set_label_position(secontrol, (2,1))
+        conf.set_control_position(secontrol, (3,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+
+        secontrol = __SEControls__.TITLE
+
+        conf.set_label(secontrol,'Titel')
+        conf.set_label_position(secontrol, (4,1))
+        conf.set_control_position(secontrol, (5,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.TONE
+
+        conf.set_label(secontrol,'Tonfall')
+        conf.set_label_position(secontrol, (2,2))
+        conf.set_control_position(secontrol, (3,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.GENRE
+
+        conf.set_label(secontrol,'Genre')
+        conf.set_label_position(secontrol, (0,2))
+        conf.set_control_position(secontrol, (1,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        conf.set_option_menu_values(secontrol, GENRES)
+        
+        secontrol = __SEControls__.MESSAGE
+
+        conf.set_label(secontrol,'Botschaft')
+        conf.set_label_position(secontrol, (4,2))
+        conf.set_control_position(secontrol, (5,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.CONTENT
+
+        conf.set_label(secontrol,'Inhalt')
+        conf.set_label_position(secontrol, (0,3))
+        conf.set_label_sticky(secontrol, tk.N)
+        conf.set_control_position(secontrol, (1,3))
+        conf.set_control_sticky(secontrol, tk.NSEW)
+        conf.set_control_colspan(secontrol, 5)
+        conf.set_control_pady(secontrol, (5,5))
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (6,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE    
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_DELETE   
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Löschen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE   
+        conf.set_control_position(secontrol, (5,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_REVERT   
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Zurücksetzen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SAVE
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Speichern')
+        conf.set_control_padx(secontrol, (0,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SUB
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'Kapitel')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_NEXT
+        conf.set_control_position(secontrol, (9,0))
+        conf.set_label(secontrol,'>')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (8,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_PREVIOUS
+        conf.set_control_position(secontrol, (7,0))
+        conf.set_label(secontrol,'<')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        conf.hide_control(__SEControls__.BTN_NEW)
+        conf.hide_control(__SEControls__.BTN_OPEN)
+        conf.hide_control(__SEControls__.BTN_UPDATE)
+        conf.hide_control(__SEControls__.NOTE)
+        conf.hide_control(__SEControls__.BTN_SUB)
+        
+        return conf
+    
+        
+class PlotholeFrame(StoryElementFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_plothole_conf(), PlotHoleType.PLOTHOLE, *args, **kwargs)
+        
+    def create_plothole_conf(self):
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(1, 1)
+        conf.set_column_weigth(3, 1)
+        conf.set_row_weigth(4, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(6)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Neues Plothole')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        secontrol = __SEControls__.SEQUENTIAL_NO
+        
+        conf.set_label(secontrol,'Betrifft')
+        conf.set_option_menu_values(secontrol, ['Geschichte', 'Buch', 'Teil', 'Kapitel'])
+        conf.set_label_position(secontrol, (0,1))
+        conf.set_control_position(secontrol, (1,1))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.GENRE
+
+        conf.set_label(secontrol,'Auswahl')
+        conf.set_label_position(secontrol, (2,1))
+        conf.set_control_position(secontrol, (3,1))
+        conf.set_control_sticky(secontrol, tk.EW)    
+        conf.set_option_menu_values(secontrol, [''])
+        conf.set_control_colspan(secontrol, 3)
+        
+        secontrol = __SEControls__.ALIAS
+        
+        conf.set_label(secontrol,'Alias')
+        conf.set_label_position(secontrol, (0,2))
+        conf.set_control_position(secontrol, (1,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        # conf.set_control_colspan(secontrol, 2)
+
+        secontrol = __SEControls__.TITLE
+
+        conf.set_label(secontrol,'Titel')
+        conf.set_label_position(secontrol, (2,2))
+        conf.set_control_position(secontrol, (3,2))
+        conf.set_control_sticky(secontrol, tk.EW)
+        # conf.set_control_colspan(secontrol, 2)
+        
+        secontrol = __SEControls__.MESSAGE
+
+        conf.set_label(secontrol,'Plothole')
+        conf.set_label_position(secontrol, (0,3))
+        conf.set_control_position(secontrol, (1,3))
+        conf.set_control_sticky(secontrol, tk.EW)
+        conf.set_control_colspan(secontrol, 5)
+        
+        secontrol = __SEControls__.CONTENT
+
+        conf.set_label(secontrol,'Diskussion')
+        conf.set_label_position(secontrol, (0,4))
+        conf.set_label_sticky(secontrol, tk.N)
+        conf.set_control_position(secontrol, (1,4))
+        conf.set_control_sticky(secontrol, tk.NSEW)
+        conf.set_control_colspan(secontrol, 5)
+        conf.set_control_pady(secontrol, (5,5))
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CLOSE    
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_DELETE   
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Löschen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_REVERT   
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Zurücksetzen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SAVE
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Speichern')
+        conf.set_control_padx(secontrol, (0,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        conf.hide_control(__SEControls__.BTN_CHARACTER)
+        conf.hide_control(__SEControls__.BTN_NEW)
+        conf.hide_control(__SEControls__.BTN_NEXT)
+        conf.hide_control(__SEControls__.BTN_OPEN)
+        conf.hide_control(__SEControls__.BTN_PLOTHOLE)
+        conf.hide_control(__SEControls__.BTN_PREVIOUS)
+        conf.hide_control(__SEControls__.BTN_SUB)
+        conf.hide_control(__SEControls__.BTN_TOP)
+        conf.hide_control(__SEControls__.BTN_UPDATE)
+        conf.hide_control(__SEControls__.NOTE)
+        conf.hide_control(__SEControls__.TONE)
+        
+        return conf
+     
 if __name__ == '__main__':
     
     log.ENABLE_LOGGING = True
@@ -1092,12 +1244,12 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1)
     
-    # conf = create_story_conf()    
-    # conf = create_book_conf()
-    conf = create_part_conf()
-    
-    frame = StoryElement(w, conf, PlotHoleType.PART)
+    # frame = StoryFrame(w)
+    # frame = BookFrame(w)
+    # frame = PartFrame(w)
+    frame = PlotholeFrame(w)
     frame.grid(row=0, column=0, sticky="NSEW")
+    # frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
 
     
     w.mainloop()

@@ -58,31 +58,38 @@ if __name__ == '__main__':
     w.geometry("1250x750+300+100")
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1) 
+    
+    plothole_ui = seui.PlotholeFrame(w)
+    plothole_ui.grid(row=0, column=0, sticky="NSEW")
+    plothole_overview_ui = seoui.PlotholeOverviewFrame(w)
+    plothole_overview_ui.grid(row=0, column=0, sticky="NSEW")   
 
-    part_ui = seui.StoryElement(w, seui.create_part_conf(), PlotHoleType.PART)
+    part_ui = seui.PartFrame(w)
     part_ui.grid(row=0, column=0, sticky="NSEW")
-    part_overview_ui = seoui.StoryElementOverview(w, seoui.create_part_conf(), PlotHoleType.PART)
+    part_overview_ui = seoui.PartOverviewFrame(w)
     part_overview_ui.grid(row=0, column=0, sticky="NSEW")   
 
-    book_ui = seui.StoryElement(w, seui.create_book_conf(), PlotHoleType.BOOK)
+    book_ui = seui.BookFrame(w)
     book_ui.grid(row=0, column=0, sticky="NSEW")
-    book_overview_ui = seoui.StoryElementOverview(w, seoui.create_book_conf(), PlotHoleType.BOOK)
+    book_overview_ui = seoui.BookOverviewFrame(w)
     book_overview_ui.grid(row=0, column=0, sticky="NSEW")    
     
-    story_ui = seui.StoryElement(w, seui.create_story_conf(), PlotHoleType.STORY)
+    story_ui = seui.StoryFrame(w)
     story_ui.grid(row=0, column=0, sticky="NSEW")
-    story_overview_ui = seoui.StoryElementOverview(w, seoui.create_story_conf(), PlotHoleType.STORY)
+    story_overview_ui = seoui.StoryOverviewFrame(w)
     story_overview_ui.grid(row=0, column=0, sticky="NSEW")
     
     ui_frames_dict = {}
     ui_frames_dict[PlotHoleType.STORY.value] = story_ui
     ui_frames_dict[PlotHoleType.BOOK.value] = book_ui
     ui_frames_dict[PlotHoleType.PART.value] = part_ui
+    ui_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_ui
     
     ui_overview_frames_dict = {}
     ui_overview_frames_dict[PlotHoleType.STORY.value] = story_overview_ui
     ui_overview_frames_dict[PlotHoleType.BOOK.value] = book_overview_ui
     ui_overview_frames_dict[PlotHoleType.PART.value] = part_overview_ui
+    ui_overview_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_overview_ui
     
     navi = navi.NavigatorInstance(story_overview_ui, ui_frames_dict, ui_overview_frames_dict)
     story_ui.add_navigator(navi)
@@ -91,10 +98,13 @@ if __name__ == '__main__':
     book_overview_ui.add_navigator(navi)
     part_ui.add_navigator(navi)
     part_overview_ui.add_navigator(navi)
+    plothole_ui.add_navigator(navi)
+    plothole_overview_ui.add_navigator(navi)
     
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
     part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
+    plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros)
     
     story_model.on_raised()
     

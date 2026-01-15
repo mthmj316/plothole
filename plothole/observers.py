@@ -35,6 +35,10 @@ class UIObservable(ABC):
 class UIObserver(ABC):
     
     @abstractmethod
+    def on_option_select(self, selected, secontrol):
+        pass
+    
+    @abstractmethod
     def on_character(self):
         pass
         

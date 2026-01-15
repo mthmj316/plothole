@@ -8,7 +8,7 @@ from abc import abstractmethod
 from inspect import currentframe
 import logger as log
 from observers import UIObserver
-from plothole_types import PlotHoleType
+from plothole_types import PlotHoleType, UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP, PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP
 import plothole_core as pc
 from story_element_ui import __SEControls__ as sec
 import helpers as hlp
@@ -54,19 +54,19 @@ class StoryElementModel(UIObserver):
         pass
     
     @abstractmethod
-    def load():
+    def load(self):
         pass
         
     @abstractmethod
-    def load_previous():
+    def load_previous(self):
         pass
 
     @abstractmethod
-    def load_next():
+    def load_next(self):
         pass
     
     @abstractmethod
-    def load_overview():
+    def load_overview(self):
         pass
         
     def clear(self):
@@ -155,6 +155,8 @@ class StoryElementModel(UIObserver):
         fa.write(self.fq_file_name, data)
          
         self.after_save()
+        
+        SELECTED_SE.select(self.get_plothole_type(), self.fq_file_name)
 
     def on_sub(self):
         log.log(self, currentframe(), 'not relevant')
@@ -168,6 +170,226 @@ class StoryElementModel(UIObserver):
         self.prepare_save()
         data = json.dumps(self.this_story_element)
         fa.write(self.fq_file_name, data)
+        
+    def on_option_select(self, selected, secontrol):
+        pass
+
+class PlotholeModel(StoryElementModel):
+    
+    def __init__(self, ui, overview_ui, base_dir):
+        super().__init__(ui, overview_ui, base_dir)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+        
+    def on_option_select(self, selected, secontrol):
+        log.log_var(self, currentframe(), ("selected", selected), ("secontrol", secontrol))        
+        if secontrol == sec.SEQUENTIAL_NO:
+            self.load_classifications(UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP.get(selected))
+    
+    def load_classifications(self, ph_type_str):
+        log.log_var(self, currentframe(), ('ph_type_str',ph_type_str))
+        
+        ph_type = PlotHoleType(ph_type_str)
+        
+        titles = []
+        selected_item = None
+        if ph_type != PlotHoleType.STORY:
+            selected_story_path = SELECTED_SE.get_selected_base(PlotHoleType.STORY)        
+            se_items = hlp.get_all(selected_story_path, ph_type.value, as_dict=True)
+
+            for item in sorted(se_items, key=lambda x: x[sec.TITLE]):
+                titles.append(self.create_classification_optmenu_entry(item))
+            selected_item = 0
+        self.ui.set_options(titles, selected_item, sec.GENRE)
+    
+    def create_classification_optmenu_entry(self, item):
+        log.log_var(self, currentframe(),('item',item))
+        entry = f"{item.get(sec.TITLE)} [{item.get(sec.ALIAS)}]"
+        log.log_var(self, currentframe(),('entry',entry))
+        return entry
+        
+    def on_open(self, _id):
+        log.log_var(self, currentframe(),('_id',_id)) 
+        self.this_story_element = hlp.get_plothole_by_alias(self.get_folder(), _id)
+        self.fq_file_name = hlp.get_plothole_path_by_alias(self.get_folder(), _id)
+        SELECTED_SE.select(PlotHoleType.PLOTHOLE, self.fq_file_name)  
+        self.load()   
+
+    def load_overview(self):
+        log.log(self, currentframe())
+        self.overview_ui.remove_all_overview_items()
+        for plothole in sorted(hlp.get_all_plotholes(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE]):
+            self.overview_ui.add_overview_item(plothole.get(sec.ALIAS), plothole.get(sec.TITLE))
+
+    def load_previous(self):
+        log.log(self, currentframe())        
+        if self.this_story_element is not None:   
+            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
+                self.load_next_seq(True)
+    
+    def load_next_seq(self, reverse):
+        log.log_var(self, currentframe(), ('reverse',reverse))
+        parts = sorted(hlp.get_all_parts(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        select_next = False
+        for part in parts:
+            if select_next:
+                self.overview_ui.on_item_select(part.get(sec.ALIAS))
+                break
+            if part.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
+                select_next = True
+
+    def load_next(self):
+        log.log(self, currentframe())
+        if self.this_story_element is not None:
+            self.load_next_seq(False)
+
+    def clear(self):
+        log.log(self, currentframe())
+        self.ui.set_sequential_no('Geschichte')
+        self.ui.set_alias('')
+        self.ui.set_title('')
+        self.load_classifications(PlotHoleType.STORY.value)
+        self.ui.set_message('')
+        self.ui.set_content('')
+        self.ui.enable_alias()
+        super().clear()
+        
+    def get_plothole_type(self):
+        log.log(self, currentframe())
+        phtype = PlotHoleType.PLOTHOLE
+        log.log_var(self, currentframe(), ("phtype", phtype))
+        return phtype
+    
+    def get_folder(self):
+        log.log(self, currentframe())
+        # folder == parent folder of the part -> book folder
+        folder = f"{SELECTED_SE.get_selected_base(PlotHoleType.STORY)}/plotholes"
+        log.log_var(self, currentframe(), ("folder", folder))
+        return folder
+
+    def get_id(self, from_ui):
+        log.log_var(self, currentframe(),('from_ui',from_ui))
+        _id = ''
+        
+        if from_ui:
+            _id = self.ui.get_alias()
+        else:
+            if self.this_story_element is not None:
+                _id = self.this_story_element.get(sec.ALIAS)
+        log.log_var(self, currentframe(), ("_id", _id))
+        return _id
+    
+    def get_id_name(self):
+        log.log(self, currentframe())
+        name = 'Alias'
+        log.log_var(self, currentframe(), ("name", name))
+        return name
+    
+    def prepare_save(self):
+        log.log_var(self, currentframe())
+        
+        classification_level = self.ui.get_sequential_no()
+        alias = self.ui.get_alias()
+        title = self.ui.get_title()
+        classification = self.get_classification_alias()
+        message = self.ui.get_message()
+        content = self.ui.get_content()
+        
+        plothole = {}
+        plothole[sec.SEQUENTIAL_NO.value] = UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP.get(classification_level.strip())
+        plothole[sec.ALIAS.value] = alias.strip()
+        plothole[sec.TITLE.value] = title.strip()
+        plothole[sec.GENRE.value] = classification.strip()
+        plothole[sec.MESSAGE.value] = message.strip()
+        plothole[sec.CONTENT.value] = content.strip()
+        
+        log.log_var(self, currentframe(), ("plothole", plothole))
+        
+        self.this_story_element = plothole
+    
+    def get_classification_alias(self):
+        log.log_var(self, currentframe())
+        classification_level = self.ui.get_sequential_no()
+        classification_alias = None
+        
+        if classification_level == 'Geschichte':
+            selected_story = SELECTED_SE.get_select(PlotHoleType.STORY)
+            classification_alias = hlp.get_story(selected_story, as_dict=True).get(sec.ALIAS)
+        else:
+            classification_alias = self.extract_alias()
+        
+        log.log_var(self, currentframe(),('classification_alias',classification_alias))
+        return classification_alias
+    
+    def extract_alias(self):
+        log.log(self, currentframe())
+        
+        selected_classification = self.ui.get_genre()
+        sub_strs = selected_classification.split('[')
+        
+        alias = [p.split(']')[0] for p in sub_strs if ']' in p][0]
+        log.log_var(self, currentframe(),('alias',alias))
+        return alias
+        
+        
+    def after_save(self):
+        log.log(self, currentframe())
+        self.ui.disable_alias()
+        
+        # self.get_part_header()
+    
+    def load(self):
+        log.log(self, currentframe())
+        
+        self.load_classifications(PlotHoleType.STORY.value)
+        plothole = self.this_story_element
+        
+        # selected 'Betrifft' 
+        classification_type = plothole.get(sec.SEQUENTIAL_NO)
+        log.log_var(self, currentframe(), ('classification_type',classification_type))        
+        self.ui.set_sequential_no(PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(classification_type))
+        
+        self.ui.set_alias(plothole.get(sec.ALIAS))
+        self.ui.set_title(plothole.get(sec.TITLE))
+        
+        if PlotHoleType(plothole.get(sec.SEQUENTIAL_NO)) != PlotHoleType.STORY:
+            classification_object = hlp.get_by_alias(
+                SELECTED_SE.get_selected_base(PlotHoleType.STORY), 
+                plothole.get(sec.GENRE), 
+                plothole.get(sec.SEQUENTIAL_NO))
+            
+            classification = self.create_classification_optmenu_entry(classification_object)
+            
+            # get for the selected 'Betrifft' the corresponding choises
+            story_path = SELECTED_SE.get_selected_base(PlotHoleType.STORY)
+            log.log_var(self, currentframe(), ('story_path',story_path))
+            classification_choises = hlp.get_all(story_path, classification_type, as_dict=True)
+            
+            titles = []
+            for choise in sorted(classification_choises, key=lambda x: x[sec.TITLE]):
+                titles.append(self.create_classification_optmenu_entry(choise))
+            selected_item = 0
+            self.ui.set_options(titles, selected_item, sec.GENRE)
+            self.ui.set_genre(classification)
+        
+        
+        self.ui.set_message(plothole.get(sec.MESSAGE))
+        self.ui.set_content(plothole.get(sec.CONTENT))
+        
+        self.ui.disable_alias()
+        
+        # self.get_part_header()
+         
+    def on_new(self):
+        log.log(self, currentframe())
+        self.clear()
+        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)       
+        self.ui.set_header(f"Neues Plothole für '{story.get(sec.TITLE)}'")           
+
+    def on_raised(self): 
+        log.log(self, currentframe())
+        self.load_overview()
+        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
+        self.overview_ui.set_header(f"Plotholes von '{story.get(sec.TITLE)}'")
 
 class PartModel(StoryElementModel):
     

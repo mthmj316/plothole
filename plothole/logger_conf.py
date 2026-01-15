@@ -1,11 +1,13 @@
 LOGGING_ALL=False
 LOGGING_SOURCE = [
-    'PartModel#*',
-    'BookModel#*',
+    # 'PartModel#*',
+    # 'BookModel#*',
     'NavigatorInstance#*',
+    'PlotholeModel#*'
     # 'SelectedStoryElements#*',
     # 'StoryModel#*'
-    '*#tkraise'
+    # 'StoryElement#*',
+    # '*#get_all'
     ]
 
 
