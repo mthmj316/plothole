@@ -16,7 +16,7 @@ import enum
 from navigator import NavigationPoint
 from plothole_types import PlotHoleType
 
-GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy','Comic', 'Erotic', 
+GENRES = ['', 'Abenteuer','Action','Alltag','Alternative', 'Biografie','Comedy','Comic', 'Dystopie', 'Erotic', 
           'Excotic', 'Fantasy','Graphic Novel','Historie','Horror','Krimi',
           'Manga','Märchen', 'Mystery', 'Politik', 'Romantik','Science Fiction','Superhelden',
           'Underground ','Western']
