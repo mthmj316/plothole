@@ -120,6 +120,20 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.BOOK  
+
+        elif self.current_ph_type == PlotHoleType.PART and event_source_ph_type == PlotHoleType.CHAPTER:
+            # You are on chapter overview ui and the close button has been pressed.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.PART
+
+        elif self.current_ph_type == PlotHoleType.CHAPTER and event_source_ph_type == PlotHoleType.CHAPTER:
+            # You are on chapter ui and the close button has been pressed.
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.CHAPTER)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.PART
             
         elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
             # You are on plothole overview ui and close has been clicked.
@@ -151,18 +165,28 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.STORY
+            
         elif event_source_ph_type is PlotHoleType.BOOK:
             # you are on the book overview and want to change to the book ui
             next_frame = self.ui_frames_dict.get(PlotHoleType.BOOK)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
+            
         elif event_source_ph_type is PlotHoleType.PART:
             # you are on the part overview and want to create a new part
             next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
+        
+        elif event_source_ph_type is PlotHoleType.CHAPTER:
+            # you are on the chapter overview and the new button has been pressed.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.CHAPTER)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
+            
         elif event_source_ph_type is PlotHoleType.PLOTHOLE:
             # you are on the plothole overview and want to create a new plothole
             next_frame = self.ui_frames_dict.get(PlotHoleType.PLOTHOLE)
@@ -203,6 +227,13 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.PART
+            
+        elif self.current_ph_type == PlotHoleType.PART and event_source_ph_type == PlotHoleType.CHAPTER:
+            # You are on chapter overview ui and a chapter has been double clicked.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.CHAPTER)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.CHAPTER
             
         elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
             # You are on plothole overview ui and a plothole shall be edited
@@ -262,6 +293,15 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame
             # It shouldn't really be necessary, but better safe than sorry.
             self.current_ph_type = PlotHoleType.BOOK
+            
+        if self.current_ph_type is PlotHoleType.PART:
+            # You are on the part ui and want to change to chapter overview ui
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.CHAPTER)
+            log.log_var(self, currentframe(), ("next_frame", next_frame))
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            # It shouldn't really be necessary, but better safe than sorry.
+            self.current_ph_type = PlotHoleType.PART
         
     def on_top(self):
         log.log(self, currentframe())

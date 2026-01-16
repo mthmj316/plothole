@@ -1118,7 +1118,6 @@ class PartFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.hide_control(__SEControls__.BTN_OPEN)
         conf.hide_control(__SEControls__.BTN_UPDATE)
         conf.hide_control(__SEControls__.NOTE)
-        conf.hide_control(__SEControls__.BTN_SUB)
         
         return conf
 
@@ -1128,10 +1127,10 @@ class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
     
     def create_conf(self):
         conf = __SEConfiguration__()
-        conf.set_column_weigth(1, 1)
         conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
         conf.set_row_weigth(2, 1)
-        conf.set_grid_column_ctn(4)
+        conf.set_grid_column_ctn(6)
         conf.set_grid_row_ctn(4)
         
         conf.set_label_colspan(__SEControls__.HEADER, 7)
@@ -1140,19 +1139,24 @@ class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.set_label_sticky(__SEControls__.HEADER, tk.W)
         conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
         conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+                
+        conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
+        conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,1))
+        conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,1))
+        conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
         
         secontrol = __SEControls__.ALIAS
         
         conf.set_label(secontrol,'Alias')
-        conf.set_label_position(secontrol, (0,1))
-        conf.set_control_position(secontrol, (1,1))
+        conf.set_label_position(secontrol, (2,1))
+        conf.set_control_position(secontrol, (3,1))
         conf.set_control_sticky(secontrol, tk.EW)
 
         secontrol = __SEControls__.TITLE
 
         conf.set_label(secontrol,'Titel')
-        conf.set_label_position(secontrol, (2,1))
-        conf.set_control_position(secontrol, (3,1))
+        conf.set_label_position(secontrol, (4,1))
+        conf.set_control_position(secontrol, (5,1))
         conf.set_control_sticky(secontrol, tk.EW)
 
         secontrol = __SEControls__.CONTENT
@@ -1209,16 +1213,31 @@ class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.set_control_padx(secontrol, (1,1))
         conf.set_button_width(secontrol, btn_width)
         
+        secontrol = __SEControls__.BTN_NEXT
+        conf.set_control_position(secontrol, (9,0))
+        conf.set_label(secontrol,'>')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (8,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_PREVIOUS
+        conf.set_control_position(secontrol, (7,0))
+        conf.set_label(secontrol,'<')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
         conf.hide_control(__SEControls__.BTN_NEW)
-        conf.hide_control(__SEControls__.BTN_NEXT)
         conf.hide_control(__SEControls__.BTN_OPEN)
-        conf.hide_control(__SEControls__.BTN_PREVIOUS)
-        conf.hide_control(__SEControls__.BTN_TOP)
+        conf.hide_control(__SEControls__.BTN_SUB)
         conf.hide_control(__SEControls__.BTN_UPDATE)
         conf.hide_control(__SEControls__.GENRE)
         conf.hide_control(__SEControls__.MESSAGE)
         conf.hide_control(__SEControls__.NOTE)
-        conf.hide_control(__SEControls__.SEQUENTIAL_NO)
         conf.hide_control(__SEControls__.TONE)
         
         return conf    
