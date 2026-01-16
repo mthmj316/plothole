@@ -3,10 +3,10 @@ LOGGING_SOURCE = [
     # 'PartModel#*',
     # 'BookModel#*',
     'NavigatorInstance#*',
-    'PlotholeModel#*'
+    # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
-    # 'StoryModel#*'
-    # 'StoryElement#*',
+    'StoryModel#*',
+    'StoryElement#*',
     # '*#get_all'
     ]
 

@@ -5,6 +5,7 @@ Created on Wed Dec 31 10:45:35 2025
 @author: mthoma
 """
 import tkinter as tk
+from tkinter import ttk
 from observers import UIObservable
 from tkinter import font as tkFont
 from tkinter import scrolledtext as stxt
@@ -48,7 +49,7 @@ class __SEControls__(enum.StrEnum):
     
     
 
-class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
+class StoryElementFrame(ttk.Frame, UIObservable, NavigationPoint):
     def __init__(self, root, conf, ph_type, *args, **kwargs):
         super().__init__(root, *args, **kwargs)       
         log.log_var(self, currentframe(),("root", root), ("conf", conf), ("ph_type", ph_type), ("args", args), ("kwargs", kwargs))
@@ -86,7 +87,7 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
     
     def configure_actions(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
-        btn_frame = tk.Frame(self)
+        btn_frame = ttk.Frame(self)
         btn_frame.grid(row=conf.get_grid_row_ctn() - 1, column=1, 
                        columnspan=conf.get_grid_column_ctn() - 1,
                        sticky="NSEW", padx=(5,5), pady=(5,5))
@@ -196,14 +197,15 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
 
     def on_option_select(self, event, secontrol):
         log.log_var(self, currentframe(), ("event", event), ("secontrol", secontrol))
-        self.controls_vars.get(secontrol).set(event)
+        selected_value = event.widget.get()        
+        self.controls_vars.get(secontrol).set(selected_value)
         for observer in self.observers:
-            observer.on_option_select(event, secontrol)
+            observer.on_option_select(selected_value, secontrol)
     
     def configure_button(self, conf, secontrol, action, parent):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
-            btn = tk.Button(
+            btn = ttk.Button(
                 parent, 
                 text=conf.get_label(secontrol), 
                 command=action)
@@ -376,7 +378,7 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
             menu_value.set(options[idx_selected])
         else:
             menu_value.set('')
-
+            
     def configure_option_menu(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
@@ -385,22 +387,42 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
             self.controls_vars[secontrol.value] = menu_value
             if len(values) > 0:
                 menu_value.set(values[0])
-            menu = tk.OptionMenu(self, menu_value, *values, command=lambda x: self.on_option_select(x, secontrol))    
-            menu.config(anchor=conf.get_control_anchor(secontrol))
+            menu = ttk.Combobox(self, textvariable=menu_value, values=values) 
+            
+            menu.bind("<<ComboboxSelected>>", lambda x: self.on_option_select(x, secontrol))
+            # menu.config(anchor=conf.get_control_anchor(secontrol))
             pos = conf.get_control_position(secontrol)
             menu.grid(row=pos[1], column=pos[0],
                       columnspan=conf.get_control_colspan(secontrol), 
                       sticky=conf.get_control_sticky(secontrol), 
                       padx=conf.get_control_padx(secontrol), 
                       pady=conf.get_control_pady(secontrol))
-            self.controls[secontrol.value] = menu   
+            self.controls[secontrol.value] = menu 
+
+    # def configure_option_menu(self, conf, secontrol):
+    #     log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
+    #     if not conf.is_hidden(secontrol):
+    #         values = conf.get_option_menu_values(secontrol)
+    #         menu_value = StringVar(self, value='')
+    #         self.controls_vars[secontrol.value] = menu_value
+    #         if len(values) > 0:
+    #             menu_value.set(values[0])
+    #         menu = ttk.OptionMenu(self, menu_value, *values, command=lambda x: self.on_option_select(x, secontrol))    
+    #         menu.config(anchor=conf.get_control_anchor(secontrol))
+    #         pos = conf.get_control_position(secontrol)
+    #         menu.grid(row=pos[1], column=pos[0],
+    #                   columnspan=conf.get_control_colspan(secontrol), 
+    #                   sticky=conf.get_control_sticky(secontrol), 
+    #                   padx=conf.get_control_padx(secontrol), 
+    #                   pady=conf.get_control_pady(secontrol))
+    #         self.controls[secontrol.value] = menu   
         
     def configure_entry(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
             entry_value = StringVar(self)
             self.controls_vars[secontrol.value] = entry_value
-            entry = tk.Entry(self, textvariable=entry_value)
+            entry = ttk.Entry(self, textvariable=entry_value)
             pos = conf.get_control_position(secontrol)
             entry.grid(row=pos[1], column=pos[0], 
                        columnspan=conf.get_control_colspan(secontrol), 
@@ -412,7 +434,7 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
     def configure_label(self, conf, secontrol):
         log.log_var(self, currentframe(), ("conf", conf), ("secontrol", secontrol))
         if not conf.is_hidden(secontrol):
-            lb = tk.Label(self, text=conf.get_label(secontrol), 
+            lb = ttk.Label(self, text=conf.get_label(secontrol), 
                                anchor=conf.get_label_anchor(secontrol))
             pos = conf.get_label_position(secontrol)
             lb.grid(row=pos[1], column=pos[0], 

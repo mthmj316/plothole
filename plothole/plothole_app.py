@@ -6,6 +6,7 @@ Created on Wed Dec 10 15:09:28 2025
 """
 import sys
 import tkinter as tk
+from tkinter import ttk
 
 from inspect import currentframe
 import logger as log
@@ -23,6 +24,22 @@ TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
 
 VERSION = 0.4
+
+def style(root):
+    style = ttk.Style(root)
+    style.theme_use('vista')
+    DARK_BG = '#1e1e1e'
+    DARK_FG = '#ffffff'
+    DARK_ENTRY = '#2d2d30'
+    # DARK_BORDER = '#3e3e42'
+    
+    style.configure('.', background=DARK_BG, foreground=DARK_FG)
+    style.configure('TLabel', background=DARK_BG, foreground=DARK_FG)
+    style.configure('TButton', background=DARK_BG, foreground=DARK_FG, padding=6)
+    style.map('TButton', background= [('active','#3e3e42')])
+    style.configure('TEntry', background=DARK_ENTRY, foreground=DARK_FG)
+    
+    root.configure(bg=DARK_BG)
 
 def _exit(win):
     log.log_var(None, currentframe(), ('win',win))
@@ -57,7 +74,9 @@ if __name__ == '__main__':
     w.title(f"Plothole v{VERSION}")
     w.geometry("1250x750+300+100")
     w.grid_columnconfigure(0, weight=1)
-    w.grid_rowconfigure(0, weight=1) 
+    w.grid_rowconfigure(0, weight=1)
+    
+    style(w)
     
     plothole_ui = seui.PlotholeFrame(w)
     plothole_ui.grid(row=0, column=0, sticky="NSEW")
