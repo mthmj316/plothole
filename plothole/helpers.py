@@ -205,6 +205,13 @@ def get_part_path_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
+def get_chapter_path_by_alias(base_dir, alias): 
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
+    extension='chapter'
+    ret_val = get_path_for_alias(base_dir, alias, extension)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
 def get_plothole_path_by_alias(base_dir, alias): 
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
     extension='plothole'
@@ -229,6 +236,13 @@ def get_book_by_alias(base_dir, alias):
 def get_part_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
     extension='part'   
+    ret_val = get_by_alias(base_dir, alias, extension)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
+def get_chapter_by_alias(base_dir, alias):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
+    extension='chapter'   
     ret_val = get_by_alias(base_dir, alias, extension)
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
@@ -331,22 +345,14 @@ def get_all_book_pathes(base_dir):
     return ret_val
 
 def get_all_part_pathes(base_dir):
-    """
-    Returns for all parts the fully qualified name.
-
-    Parameters
-    ----------
-    base_dir : string
-        The directory which is recursively searched.
-
-    Returns
-    -------
-    pathes : string
-        A list of of all pathes.
-
-    """
     log.log_var(None, currentframe(), ('base_dir',base_dir))
     ret_val =  get_all_pathes(base_dir, 'part')
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
+def get_all_chapter_pathes(base_dir):
+    log.log_var(None, currentframe(), ('base_dir',base_dir))
+    ret_val =  get_all_pathes(base_dir, 'chapter')
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
@@ -356,26 +362,6 @@ def get_all_plothole_pathes(base_dir):
     log.log_var(None, currentframe(), ('return',ret_val)) 
 
 def get_all_stories(base_dir, as_dict=False):
-    """
-    Returns all existing stories.
-    The search is recursive - subfolder will be searched, too.
-    In case as_dict==True the single stories will be returned as dictionaries
-    otherwise as string
-
-    Parameters
-    ----------
-    base_dir : String
-        The directory which is searched for the stories.
-    as_dict : bool, optional
-        If True the story is retured as dictionary, otherwise as string. 
-        The default is False.
-
-    Returns
-    -------
-    stories : list
-        ALl found stories. .
-
-    """
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
     ret_val = get_all(base_dir, 'story', as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
@@ -390,6 +376,12 @@ def get_all_books(base_dir, as_dict=False):
 def get_all_parts(base_dir, as_dict=False):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
     ret_val = get_all(base_dir, 'part', as_dict)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
+def get_all_chapters(base_dir, as_dict=False):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
+    ret_val = get_all(base_dir, 'chapter', as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 

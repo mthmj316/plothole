@@ -22,7 +22,7 @@ from plothole_types import PlotHoleType
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
 
-VERSION = 0.3
+VERSION = 0.4
 
 def _exit(win):
     log.log_var(None, currentframe(), ('win',win))
@@ -64,6 +64,11 @@ if __name__ == '__main__':
     plothole_overview_ui = seoui.PlotholeOverviewFrame(w)
     plothole_overview_ui.grid(row=0, column=0, sticky="NSEW")   
 
+    chapter_ui = seui.ChapterFrame(w)
+    chapter_ui.grid(row=0, column=0, sticky="NSEW")
+    chapter_overview_ui = seoui.ChapterOverviewFrame(w)
+    chapter_overview_ui.grid(row=0, column=0, sticky="NSEW") 
+
     part_ui = seui.PartFrame(w)
     part_ui.grid(row=0, column=0, sticky="NSEW")
     part_overview_ui = seoui.PartOverviewFrame(w)
@@ -83,12 +88,14 @@ if __name__ == '__main__':
     ui_frames_dict[PlotHoleType.STORY.value] = story_ui
     ui_frames_dict[PlotHoleType.BOOK.value] = book_ui
     ui_frames_dict[PlotHoleType.PART.value] = part_ui
+    ui_frames_dict[PlotHoleType.CHAPTER.value] = chapter_ui
     ui_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_ui
     
     ui_overview_frames_dict = {}
     ui_overview_frames_dict[PlotHoleType.STORY.value] = story_overview_ui
     ui_overview_frames_dict[PlotHoleType.BOOK.value] = book_overview_ui
     ui_overview_frames_dict[PlotHoleType.PART.value] = part_overview_ui
+    ui_overview_frames_dict[PlotHoleType.CHAPTER.value] = chapter_overview_ui
     ui_overview_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_overview_ui
     
     navi = navi.NavigatorInstance(story_overview_ui, ui_frames_dict, ui_overview_frames_dict)
@@ -97,13 +104,16 @@ if __name__ == '__main__':
     book_ui.add_navigator(navi)
     book_overview_ui.add_navigator(navi)
     part_ui.add_navigator(navi)
-    part_overview_ui.add_navigator(navi)
+    part_overview_ui.add_navigator(navi)    
+    chapter_ui.add_navigator(navi)
+    chapter_overview_ui.add_navigator(navi)
     plothole_ui.add_navigator(navi)
     plothole_overview_ui.add_navigator(navi)
     
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
     part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
+    chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros)
     plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros)
     
     story_model.on_raised()
