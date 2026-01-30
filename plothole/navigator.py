@@ -150,6 +150,13 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame
             self.current_ph_type = self.ph_type_before_plothole
             
+        elif self.current_ph_type == PlotHoleType.CHAPTER and event_source_ph_type == PlotHoleType.SCENE:
+            # You are on scene overview ui and close button has been clicked.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.CHAPTER)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            # self.current_ph_type = ... not needed to be set
+            
     def on_delete(self):
         pass
 
