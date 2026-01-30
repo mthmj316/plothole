@@ -254,8 +254,7 @@ class NavigatorInstance(ABC):
             
             # log.log_var(self, currentframe(), ("current_frame", self.current_frame))
             # log.log_var(self, currentframe(), ("frame_before_plothole", self.frame_before_plothole))
-
-
+            
     
     def on_plothole(self):
         log.log(self, currentframe())
@@ -309,6 +308,14 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame
             # It shouldn't really be necessary, but better safe than sorry.
             self.current_ph_type = PlotHoleType.PART
+
+        elif self.current_ph_type == PlotHoleType.CHAPTER:
+            # You are on chapter ui and the scene button has been pressed.
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.SCENE)
+            log.log_var(self, currentframe(), ("next_frame", next_frame))
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            # self.current_ph_type = ... not needed to be set
         
     def on_top(self):
         log.log(self, currentframe())

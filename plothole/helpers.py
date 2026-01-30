@@ -212,6 +212,13 @@ def get_chapter_path_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
+def get_scene_path_by_alias(base_dir, alias): 
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
+    extension='scene'
+    ret_val = get_path_for_alias(base_dir, alias, extension)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
 def get_plothole_path_by_alias(base_dir, alias): 
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
     extension='plothole'
@@ -247,6 +254,13 @@ def get_chapter_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
+def get_scene_by_alias(base_dir, alias):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
+    extension='scene'   
+    ret_val = get_by_alias(base_dir, alias, extension)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
 def get_plothole_by_alias(base_dir, alias):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias))
     extension='plothole'   
@@ -277,22 +291,24 @@ def get_story(fq_path, as_dict=False):
     return ret_val
 
 def get_book(fq_path, as_dict=False):
-    """
-    Returns the book for the fully qulified apth
+    log.log_var(None, currentframe(), ('fq_path',fq_path), ('as_dict',as_dict))
+    ret_val = get(fq_path, as_dict)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
 
-    Parameters
-    ----------
-    fq_path : string
-        Fully qualified path of the story
-    as_dict : bool, optional
-        If True the story is retured as dictionary, otherwise as string. 
-        The default is False.
+def get_part(fq_path, as_dict=False):
+    log.log_var(None, currentframe(), ('fq_path',fq_path), ('as_dict',as_dict))
+    ret_val = get(fq_path, as_dict)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
 
-    Returns
-    -------
-    None.
+def get_chapter(fq_path, as_dict=False):
+    log.log_var(None, currentframe(), ('fq_path',fq_path), ('as_dict',as_dict))
+    ret_val = get(fq_path, as_dict)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
 
-    """
+def get_scene(fq_path, as_dict=False):
     log.log_var(None, currentframe(), ('fq_path',fq_path), ('as_dict',as_dict))
     ret_val = get(fq_path, as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
@@ -356,6 +372,12 @@ def get_all_chapter_pathes(base_dir):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
+def get_all_scene_pathes(base_dir):
+    log.log_var(None, currentframe(), ('base_dir',base_dir))
+    ret_val =  get_all_pathes(base_dir, 'scene')
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
 def get_all_plothole_pathes(base_dir):
     log.log_var(None, currentframe(), ('base_dir',base_dir))
     ret_val =  get_all_pathes(base_dir, 'plothole')
@@ -382,6 +404,12 @@ def get_all_parts(base_dir, as_dict=False):
 def get_all_chapters(base_dir, as_dict=False):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
     ret_val = get_all(base_dir, 'chapter', as_dict)
+    log.log_var(None, currentframe(), ('return',ret_val)) 
+    return ret_val
+
+def get_all_scene(base_dir, as_dict=False):
+    log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
+    ret_val = get_all(base_dir, 'scene', as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 

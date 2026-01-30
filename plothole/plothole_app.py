@@ -59,6 +59,11 @@ if __name__ == '__main__':
     w.grid_columnconfigure(0, weight=1)
     w.grid_rowconfigure(0, weight=1) 
     
+    scene_ui = seui.SceneFrame(w)
+    scene_ui.grid(row=0, column=0, sticky="NSEW")
+    scene_overview_ui = seoui.SceneOverviewFrame(w)
+    scene_overview_ui.grid(row=0, column=0, sticky="NSEW") 
+    
     plothole_ui = seui.PlotholeFrame(w)
     plothole_ui.grid(row=0, column=0, sticky="NSEW")
     plothole_overview_ui = seoui.PlotholeOverviewFrame(w)
@@ -109,6 +114,8 @@ if __name__ == '__main__':
     chapter_overview_ui.add_navigator(navi)
     plothole_ui.add_navigator(navi)
     plothole_overview_ui.add_navigator(navi)
+    scene_ui.add_navigator(navi)
+    scene_overview_ui.add_navigator(navi)
     
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
