@@ -95,6 +95,7 @@ if __name__ == '__main__':
     ui_frames_dict[PlotHoleType.PART.value] = part_ui
     ui_frames_dict[PlotHoleType.CHAPTER.value] = chapter_ui
     ui_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_ui
+    ui_frames_dict[PlotHoleType.SCENE.value] = scene_ui
     
     ui_overview_frames_dict = {}
     ui_overview_frames_dict[PlotHoleType.STORY.value] = story_overview_ui
@@ -102,6 +103,7 @@ if __name__ == '__main__':
     ui_overview_frames_dict[PlotHoleType.PART.value] = part_overview_ui
     ui_overview_frames_dict[PlotHoleType.CHAPTER.value] = chapter_overview_ui
     ui_overview_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_overview_ui
+    ui_overview_frames_dict[PlotHoleType.SCENE.value] = scene_overview_ui
     
     navi = navi.NavigatorInstance(story_overview_ui, ui_frames_dict, ui_overview_frames_dict)
     story_ui.add_navigator(navi)
@@ -122,6 +124,7 @@ if __name__ == '__main__':
     part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
     chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros)
     plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros)
+    scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros)
     
     story_model.on_raised()
     

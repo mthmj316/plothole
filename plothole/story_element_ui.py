@@ -247,6 +247,19 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         self.configure_label(conf, __SEControls__.CONTENT)
         self.configure_scrolled_text(conf, __SEControls__.CONTENT)
 
+    def set_note(self, note):
+        log.log_var(self, currentframe(), ("note", note))
+        note_stxt = self.controls.get(__SEControls__.NOTE)
+        note_stxt.delete('1.0', tk.END)
+        note_stxt.insert(tk.INSERT, note)
+        
+    def get_note(self):
+        log.log(self, currentframe())
+        note_stxt = self.controls.get(__SEControls__.NOTE)
+        note =  note_stxt.get("1.0", tk.END)
+        log.log_var(self, currentframe(), ("note", note))
+        return note
+
     def set_content(self, content):
         log.log_var(self, currentframe(), ("content", content))
         content_stxt = self.controls.get(__SEControls__.CONTENT)
@@ -1674,8 +1687,8 @@ if __name__ == '__main__':
     # frame = BookFrame(w)
     # frame = PartFrame(w)
     # frame = PlotholeFrame(w)
-    frame = ChapterFrame(w)
-    # frame = SceneFrame(w)
+    # frame = ChapterFrame(w)
+    frame = SceneFrame(w)
     frame.grid(row=0, column=0, sticky="NSEW")
     # frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
 

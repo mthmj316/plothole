@@ -183,16 +183,16 @@ class SceneModel(StoryElementModel):
         
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_chapter_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_chapter_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.PLOTHOLE, self.fq_file_name)  
+        self.this_story_element = hlp.get_scene_by_alias(self.get_folder(), _id)
+        self.fq_file_name = hlp.get_scene_path_by_alias(self.get_folder(), _id)
+        SELECTED_SE.select(PlotHoleType.SCENE, self.fq_file_name)  
         self.load()   
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for chapter in sorted(hlp.get_all_chapters(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(chapter.get(sec.ALIAS), chapter.get(sec.TITLE))
+        for scene in sorted(hlp.get_all_scenes(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+            self.overview_ui.add_overview_item(scene.get(sec.ALIAS), scene.get(sec.TITLE))
 
     def load_previous(self):
         log.log(self, currentframe())        
@@ -202,13 +202,13 @@ class SceneModel(StoryElementModel):
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
-        chapters = sorted(hlp.get_all_chapter(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        scenes = sorted(hlp.get_all_scenes(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
         select_next = False
-        for chapter in chapters:
+        for scene in scenes:
             if select_next:
-                self.overview_ui.on_item_select(chapter.get(sec.ALIAS))
+                self.overview_ui.on_item_select(scene.get(sec.ALIAS))
                 break
-            if chapter.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
+            if scene.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
                 select_next = True
 
     def load_next(self):
@@ -221,19 +221,24 @@ class SceneModel(StoryElementModel):
         self.ui.set_sequential_no('1')
         self.ui.set_alias('')
         self.ui.set_title('')
+        self.ui.set_genre('1')
+        self.ui.set_message('')
+        self.ui.set_tone('')
+        self.ui.set_xtension(sec.XTENSION_0, '')
         self.ui.set_content('')
+        self.ui.set_note('')
         self.ui.enable_alias()
         super().clear()
         
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.CHAPTER
+        phtype = PlotHoleType.SCENE
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
     
     def get_folder(self):
         log.log(self, currentframe())
-        folder = SELECTED_SE.get_selected_base(PlotHoleType.PART)
+        folder = SELECTED_SE.get_selected_base(PlotHoleType.SCENE)
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
 
@@ -261,54 +266,68 @@ class SceneModel(StoryElementModel):
         sequential_no = self.ui.get_sequential_no()
         alias = self.ui.get_alias()
         title = self.ui.get_title()
+        genre = self.ui.get_genre() 
+        message = self.ui.get_message()
+        tone = self.ui.get_tone()
+        xtension_0 = self.ui.get_xtension(sec.XTENSION_0)
         content = self.ui.get_content()
+        note = self.ui.get_note()
         
-        chapter= {}
-        chapter[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
-        chapter[sec.ALIAS.value] = alias.strip()
-        chapter[sec.TITLE.value] = title.strip()
-        chapter[sec.CONTENT.value] = content.strip()
+        scene= {}
+        scene[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
+        scene[sec.ALIAS.value] = alias.strip()
+        scene[sec.TITLE.value] = title.strip()
+        scene[sec.GENRE.value] = genre.strip()
+        scene[sec.MESSAGE.value] = message.strip()
+        scene[sec.TONE.value] = tone.strip()
+        scene[sec.XTENSION_0.value] = xtension_0.strip()
+        scene[sec.CONTENT.value] = content.strip()
+        scene[sec.NOTE.value] = note.strip()
         
-        log.log_var(self, currentframe(), ("chapter", chapter))
+        log.log_var(self, currentframe(), ("scene", scene))
         
-        self.this_story_element = chapter
+        self.this_story_element = scene
     
     def after_save(self):
         log.log(self, currentframe())
         self.ui.disable_alias()
         
-        self.get_chapter_header()
+        self.get_scene_header()
     
     def load(self):
         log.log(self, currentframe())
         
-        chapter = self.this_story_element
-        self.ui.set_sequential_no(chapter.get(sec.SEQUENTIAL_NO))        
-        self.ui.set_alias(chapter.get(sec.ALIAS))
-        self.ui.set_title(chapter.get(sec.TITLE))
-        self.ui.set_content(chapter.get(sec.CONTENT))
+        scene = self.this_story_element
+        self.ui.set_sequential_no(scene.get(sec.SEQUENTIAL_NO))        
+        self.ui.set_alias(scene.get(sec.ALIAS))
+        self.ui.set_title(scene.get(sec.TITLE))
+        self.ui.set_genre(scene.get(sec.GENRE))
+        self.ui.set_message(scene.get(sec.MESSAGE))
+        self.ui.set_tone(scene.get(sec.Tone))
+        self.ui.set_xtension(sec.XTENSION_0, scene.get(sec.XTENSION_0))
+        self.ui.set_content(scene.get(sec.CONTENT))
+        self.ui.set_note(scene.get(sec.NOTE))
         
         self.ui.disable_alias()
         
-        self.get_chapter_header()
+        self.get_scene_header()
         
-    def get_chapter_header(self):
+    def get_scene_header(self):
         log.log(self, currentframe())        
-        part = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)        
-        self.ui.set_header(f"{part.get(sec.TITLE)} Kapitel: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
+        chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)        
+        self.ui.set_header(f"Kapitel: {chapter.get(sec.TITLE)} Scene: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
   
-         
     def on_new(self):
         log.log(self, currentframe())
         self.clear()
-        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)       
-        self.ui.set_header(f"Neues Kapitel für '{story.get(sec.TITLE)}'")           
+        chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)       
+        self.ui.set_header(f"Neues Szene für '{chapter.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log(self, currentframe())
         self.load_overview()
-        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
-        self.overview_ui.set_header(f"Kapitel von '{story.get(sec.TITLE)}'")
+        chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)  
+        self.overview_ui.set_header(f"Szenen von '{chapter.get(sec.TITLE)}'")
 
 class ChapterModel(StoryElementModel):
     
@@ -320,7 +339,7 @@ class ChapterModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id)) 
         self.this_story_element = hlp.get_chapter_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_chapter_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.PLOTHOLE, self.fq_file_name)  
+        SELECTED_SE.select(PlotHoleType.CHAPTER, self.fq_file_name)  
         self.load()   
 
     def load_overview(self):
@@ -337,7 +356,7 @@ class ChapterModel(StoryElementModel):
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
-        chapters = sorted(hlp.get_all_chapter(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        chapters = sorted(hlp.get_all_chapters(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
         select_next = False
         for chapter in chapters:
             if select_next:
@@ -429,21 +448,21 @@ class ChapterModel(StoryElementModel):
         
     def get_chapter_header(self):
         log.log(self, currentframe())        
-        part = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)        
+        part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)        
         self.ui.set_header(f"{part.get(sec.TITLE)} Kapitel: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
   
          
     def on_new(self):
         log.log(self, currentframe())
         self.clear()
-        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)       
-        self.ui.set_header(f"Neues Kapitel für '{story.get(sec.TITLE)}'")           
+        part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.Part), as_dict=True)       
+        self.ui.set_header(f"Neues Kapitel für '{part.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log(self, currentframe())
         self.load_overview()
-        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
-        self.overview_ui.set_header(f"Kapitel von '{story.get(sec.TITLE)}'")
+        part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)  
+        self.overview_ui.set_header(f"Kapitel von '{part.get(sec.TITLE)}'")
 
 class PlotholeModel(StoryElementModel):
     

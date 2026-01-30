@@ -407,7 +407,7 @@ def get_all_chapters(base_dir, as_dict=False):
     log.log_var(None, currentframe(), ('return',ret_val)) 
     return ret_val
 
-def get_all_scene(base_dir, as_dict=False):
+def get_all_scenes(base_dir, as_dict=False):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('as_dict',as_dict))
     ret_val = get_all(base_dir, 'scene', as_dict)
     log.log_var(None, currentframe(), ('return',ret_val)) 
