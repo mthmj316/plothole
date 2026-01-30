@@ -157,6 +157,13 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame
             # self.current_ph_type = ... not needed to be set
             
+        elif self.current_ph_type == PlotHoleType.SCENE and event_source_ph_type == PlotHoleType.SCENE:
+            # You are on scene ui and close button has been clicked.
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.SCENE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.CHAPTER
+            
     def on_delete(self):
         pass
 
@@ -201,6 +208,13 @@ class NavigatorInstance(ABC):
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
 
+        elif event_source_ph_type is PlotHoleType.CHAPTER:
+            # you are on the scene overview and the new button has been pressed.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.SCENE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
+
     def on_open(self, event_source_ph_type):
         log.log_var(self, currentframe(), ("event_source_ph_type", event_source_ph_type))
         
@@ -212,35 +226,35 @@ class NavigatorInstance(ABC):
             next_frame = self.ui_frames_dict.get(PlotHoleType.STORY)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
-            self.current_ph_type = PlotHoleType.STORY
+            self.current_ph_type = event_source_ph_type
             
         elif self.current_ph_type == PlotHoleType.STORY and event_source_ph_type == PlotHoleType.STORY:
             # You are on story ui (story is selected) and the books button has been pressed
             next_frame = self.ui_overview_frames_dict.get(PlotHoleType.BOOK)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
-            self.current_ph_type = PlotHoleType.STORY
+            self.current_ph_type = event_source_ph_type
         
         elif self.current_ph_type == PlotHoleType.STORY and event_source_ph_type == PlotHoleType.BOOK:
             # You are on story ui (story is selected) and the books button has been pressed
             next_frame = self.ui_frames_dict.get(PlotHoleType.BOOK)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
-            self.current_ph_type = PlotHoleType.BOOK       
+            self.current_ph_type = event_source_ph_type       
             
         elif self.current_ph_type == PlotHoleType.BOOK and event_source_ph_type == PlotHoleType.PART:
             # You are on part overview ui (book is selected) and a part has been double clicked.
             next_frame = self.ui_frames_dict.get(PlotHoleType.PART)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
-            self.current_ph_type = PlotHoleType.PART
+            self.current_ph_type = event_source_ph_type
             
         elif self.current_ph_type == PlotHoleType.PART and event_source_ph_type == PlotHoleType.CHAPTER:
             # You are on chapter overview ui and a chapter has been double clicked.
             next_frame = self.ui_frames_dict.get(PlotHoleType.CHAPTER)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
-            self.current_ph_type = PlotHoleType.CHAPTER
+            self.current_ph_type = event_source_ph_type
             
         elif self.current_ph_type != PlotHoleType.PLOTHOLE and event_source_ph_type == PlotHoleType.PLOTHOLE:
             # You are on plothole overview ui and a plothole shall be edited
@@ -254,7 +268,13 @@ class NavigatorInstance(ABC):
             
             # log.log_var(self, currentframe(), ("current_frame", self.current_frame))
             # log.log_var(self, currentframe(), ("frame_before_plothole", self.frame_before_plothole))
-            
+ 
+        elif self.current_ph_type == PlotHoleType.CHAPTER and event_source_ph_type == PlotHoleType.SCENE:
+            # You are on scene overview ui and a scene has been double clicked.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.SCENE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
     
     def on_plothole(self):
         log.log(self, currentframe())
