@@ -14,6 +14,14 @@ from story_element_ui import __SEControls__
 from story_element_ui import __SEConfiguration__
 from plothole_types import PlotHoleType
 
+
+
+# class ScrollableSEOverviewFrame(tk.Canvas, UIObservable, NavigationPoint):
+    
+#     def __init__(self, root, conf, ph_type, *args, **kwargs):
+#         super().__init__(root, *args, **kwargs)     
+    
+
 class StoryElementOverviewFrame(tk.Frame, UIObservable, NavigationPoint):
     
     def __init__(self, root, conf, ph_type, *args, **kwargs):
@@ -21,7 +29,8 @@ class StoryElementOverviewFrame(tk.Frame, UIObservable, NavigationPoint):
         log.log_var(self, currentframe(),("root", root), ("conf", conf), ("ph_type", ph_type), ("args", args), ("kwargs", kwargs))
         self.root = root
         self.ph_type = ph_type
-        self.grid_columnconfigure(0, weight=1)       
+        self.grid_columnconfigure(0, weight=1)    
+        self.grid_rowconfigure(2, weight=1)    
         self.observers = []
         self.navigators = []
         self.labels = {}        
@@ -30,15 +39,48 @@ class StoryElementOverviewFrame(tk.Frame, UIObservable, NavigationPoint):
         
         self.configure_header(conf)
         self.configure_actions(conf)
+        self.item_container = self.create_scrollable_overview_container()
+        
+    def create_scrollable_overview_container(self):
+        log.log(self, currentframe())
+        
+        container = tk.Frame(self)
+        container.grid(row=2, column=0, sticky=tk.NSEW)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        
+        canvas = tk.Canvas(container)
+        scrollbar = tk.Scrollbar(container, orient=tk.VERTICAL, command=canvas.yview)    
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.grid(row=0, column=0, sticky=tk.NSEW)    
+        scrollbar.grid(row=0, column=1, sticky=tk.NS)
+        
+        scrollbar_frame = tk.Frame(canvas)
+        scrollbar_frame.grid_rowconfigure(0, weight=1)
+        scrollbar_frame.grid_columnconfigure(0, weight=1)
+        
+        canvas_frame = canvas.create_window((0,0),window=scrollbar_frame, anchor=tk.NW)
+        
+        scrollbar_frame.bind('<Configure>', lambda e: self.on_configure(e, canvas))
+        canvas.bind('<Configure>', lambda e: self.resize_frame(e, canvas, canvas_frame))
+        
+        return scrollbar_frame
+
+    def on_configure(self, event, canvas):
+        canvas.configure(scrollregion=canvas.bbox(tk.ALL))
+    
+    def resize_frame(self, event, canvas, canvas_frame):
+        canvas.itemconfig(canvas_frame, width=event.width)        
         
     def add_overview_item(self, _id, display):
         log.log_var(self, currentframe(), ("_id", _id), ("display", display))
-        se_lb = tk.Label(self, text=display, borderwidth=2, relief="groove")
+        se_lb = tk.Label(self.item_container, text=display, borderwidth=2, relief="groove")
         se_lb.bind('<Double-Button-1>', func=lambda x: self.on_item_select(_id))
-        se_lb.grid(row=len(self.se_lables) + 2, 
+        se_lb.grid(row=len(self.se_lables), 
                 column=0, 
-                columnspan=1,
-                sticky=tk.NSEW,
+                # columnspan=1,
+                sticky=tk.EW,
                 padx=10,
                 pady=5)
         se_lb['font'] = tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD)
@@ -366,6 +408,60 @@ class ChapterOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPo
         conf.set_button_width(secontrol, 5)
         
         return conf
+    
+class SceneOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_conf(), PlotHoleType.SCENE, *args, **kwargs)
+
+    def create_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Szenen Übersicht')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+    
+        secontrol = __SEControls__.BTN_NEW
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Neu')
+        conf.set_control_padx(secontrol, (20,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        return conf
 
 class PlotholeOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
     def __init__(self, root, *args, **kwargs):
@@ -406,7 +502,7 @@ class PlotholeOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationP
         conf.hide_control(__SEControls__.BTN_TOP)
         
         return conf
-        
+    
 if __name__ == '__main__':
     
     log.ENABLE_LOGGING = True
@@ -422,10 +518,13 @@ if __name__ == '__main__':
     frame = ChapterOverviewFrame(w)
     frame.grid(row=0, column=0, sticky="NSEW")
     
-    frame.add_overview_item("test_id", 'Test Eintrag')
-    frame.add_overview_item("cooleStory", 'Alaska')
+    for i in range(20):
+        frame.add_overview_item(f"scene_id{i}", f'Szene {i}')
     
-    frame.remove_all_overview_items()
+    frame.add_overview_item("cool scene", 'Kalte Szene')
+    
+    # frame.remove_all_overview_items()
+
 
     
     w.mainloop()
