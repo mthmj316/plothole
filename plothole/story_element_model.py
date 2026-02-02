@@ -238,7 +238,7 @@ class SceneModel(StoryElementModel):
     
     def get_folder(self):
         log.log(self, currentframe())
-        folder = SELECTED_SE.get_selected_base(PlotHoleType.SCENE)
+        folder = SELECTED_SE.get_selected_base(PlotHoleType.CHAPTER)
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
 
@@ -303,7 +303,7 @@ class SceneModel(StoryElementModel):
         self.ui.set_title(scene.get(sec.TITLE))
         self.ui.set_genre(scene.get(sec.GENRE))
         self.ui.set_message(scene.get(sec.MESSAGE))
-        self.ui.set_tone(scene.get(sec.Tone))
+        self.ui.set_tone(scene.get(sec.TONE))
         self.ui.set_xtension(sec.XTENSION_0, scene.get(sec.XTENSION_0))
         self.ui.set_content(scene.get(sec.CONTENT))
         self.ui.set_note(scene.get(sec.NOTE))

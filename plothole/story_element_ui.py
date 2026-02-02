@@ -1331,7 +1331,7 @@ class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
     
 class SceneFrame(StoryElementFrame, UIObservable, NavigationPoint):
     def __init__(self, root, *args, **kwargs):
-        super().__init__(root, self.create_conf(), PlotHoleType.CHAPTER, *args, **kwargs)
+        super().__init__(root, self.create_conf(), PlotHoleType.SCENE, *args, **kwargs)
     
     def create_conf(self):
         conf = __SEConfiguration__()
