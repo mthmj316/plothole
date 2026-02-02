@@ -408,6 +408,60 @@ class ChapterOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPo
         conf.set_button_width(secontrol, 5)
         
         return conf
+    
+class SceneOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_conf(), PlotHoleType.SCENE, *args, **kwargs)
+
+    def create_conf(self):
+        
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_row_weigth(3, 1)
+        conf.set_grid_column_ctn(6)
+        conf.set_grid_row_ctn(5)
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Szenen Übersicht')
+        conf.set_label_position(__SEControls__.HEADER, (0,0))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+    
+        secontrol = __SEControls__.BTN_NEW
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Neu')
+        conf.set_control_padx(secontrol, (20,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        return conf
 
 class PlotholeOverviewFrame(StoryElementOverviewFrame, UIObservable, NavigationPoint):
     def __init__(self, root, *args, **kwargs):
@@ -464,14 +518,10 @@ if __name__ == '__main__':
     frame = ChapterOverviewFrame(w)
     frame.grid(row=0, column=0, sticky="NSEW")
     
-    
-    # scrollbar_frame = create_scrollable_se_overview(w, frame)
-    
-    
     for i in range(20):
-        frame.add_overview_item(f"test_id{i}", f'Test Eintrag {i}')
+        frame.add_overview_item(f"scene_id{i}", f'Szene {i}')
     
-    frame.add_overview_item("cooleStory", 'Alaska')
+    frame.add_overview_item("cool scene", 'Kalte Szene')
     
     # frame.remove_all_overview_items()
 

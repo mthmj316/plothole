@@ -45,6 +45,16 @@ class __SEControls__(enum.StrEnum):
     SEQUENTIAL_NO = 'sequential_no'
     TITLE = 'title'
     TONE = 'tone'
+    XTENSION_1 = 'xtension_1'
+    XTENSION_2 = 'xtension_2'
+    XTENSION_3 = 'xtension_3'
+    XTENSION_4 = 'xtension_4'
+    XTENSION_5 = 'xtension_5'    
+    XTENSION_6 = 'xtension_6'
+    XTENSION_7 = 'xtension_7'
+    XTENSION_8 = 'xtension_8'
+    XTENSION_9 = 'xtension_9'
+    XTENSION_0 = 'xtension_0'
     
     
 
@@ -71,6 +81,16 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         self.configure_content(conf)
         self.configure_note(conf)
         self.configure_actions(conf)
+        
+        self.configure_xtension(conf)
+        
+        
+    def configure_xtension(self, conf):
+        log.log_var(self, currentframe(), ("conf", conf)) 
+        for secontrol in [ x for x in  __SEControls__ if x.value.startswith('x')]:
+           self.configure_label(conf, secontrol)
+           self.configure_entry(conf, secontrol)
+        
         
     def add_navigator(self, navigator):
         log.log_var(self, currentframe(), ("navigator", navigator))
@@ -227,6 +247,19 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         self.configure_label(conf, __SEControls__.CONTENT)
         self.configure_scrolled_text(conf, __SEControls__.CONTENT)
 
+    def set_note(self, note):
+        log.log_var(self, currentframe(), ("note", note))
+        note_stxt = self.controls.get(__SEControls__.NOTE)
+        note_stxt.delete('1.0', tk.END)
+        note_stxt.insert(tk.INSERT, note)
+        
+    def get_note(self):
+        log.log(self, currentframe())
+        note_stxt = self.controls.get(__SEControls__.NOTE)
+        note =  note_stxt.get("1.0", tk.END)
+        log.log_var(self, currentframe(), ("note", note))
+        return note
+
     def set_content(self, content):
         log.log_var(self, currentframe(), ("content", content))
         content_stxt = self.controls.get(__SEControls__.CONTENT)
@@ -299,6 +332,16 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         title =  self.controls_vars.get(__SEControls__.TITLE).get()
         log.log_var(self, currentframe(), ("title", title))
         return title
+
+    def set_xtension(self, secontrol, xtension):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("xtension", xtension))
+        self.controls_vars.get(secontrol).set(xtension)
+
+    def get_xtension(self, secontrol):
+        log.log_var(self, currentframe(), ('secontrol', secontrol))
+        xtension =  self.controls_vars.get(secontrol).get()
+        log.log_var(self, currentframe(), ("xtension", xtension))
+        return xtension
     
     def configure_sequential_no(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))
@@ -839,6 +882,17 @@ class StoryFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.hide_control(__SEControls__.NOTE)
         conf.hide_control(__SEControls__.SEQUENTIAL_NO)
         
+        conf.hide_control(__SEControls__.XTENSION_1)
+        conf.hide_control(__SEControls__.XTENSION_2)
+        conf.hide_control(__SEControls__.XTENSION_3)
+        conf.hide_control(__SEControls__.XTENSION_4)
+        conf.hide_control(__SEControls__.XTENSION_5)
+        conf.hide_control(__SEControls__.XTENSION_6)
+        conf.hide_control(__SEControls__.XTENSION_7)
+        conf.hide_control(__SEControls__.XTENSION_8)
+        conf.hide_control(__SEControls__.XTENSION_9)
+        conf.hide_control(__SEControls__.XTENSION_0)
+        
         return conf
 
 class BookFrame(StoryElementFrame, UIObservable, NavigationPoint):
@@ -978,6 +1032,17 @@ class BookFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.hide_control(__SEControls__.BTN_OPEN)
         conf.hide_control(__SEControls__.BTN_UPDATE)
         conf.hide_control(__SEControls__.NOTE)
+        
+        conf.hide_control(__SEControls__.XTENSION_1)
+        conf.hide_control(__SEControls__.XTENSION_2)
+        conf.hide_control(__SEControls__.XTENSION_3)
+        conf.hide_control(__SEControls__.XTENSION_4)
+        conf.hide_control(__SEControls__.XTENSION_5)
+        conf.hide_control(__SEControls__.XTENSION_6)
+        conf.hide_control(__SEControls__.XTENSION_7)
+        conf.hide_control(__SEControls__.XTENSION_8)
+        conf.hide_control(__SEControls__.XTENSION_9)
+        conf.hide_control(__SEControls__.XTENSION_0)
         
         return conf
 
@@ -1119,6 +1184,17 @@ class PartFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.hide_control(__SEControls__.BTN_UPDATE)
         conf.hide_control(__SEControls__.NOTE)
         
+        conf.hide_control(__SEControls__.XTENSION_1)
+        conf.hide_control(__SEControls__.XTENSION_2)
+        conf.hide_control(__SEControls__.XTENSION_3)
+        conf.hide_control(__SEControls__.XTENSION_4)
+        conf.hide_control(__SEControls__.XTENSION_5)
+        conf.hide_control(__SEControls__.XTENSION_6)
+        conf.hide_control(__SEControls__.XTENSION_7)
+        conf.hide_control(__SEControls__.XTENSION_8)
+        conf.hide_control(__SEControls__.XTENSION_9)
+        conf.hide_control(__SEControls__.XTENSION_0)
+        
         return conf
 
 class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
@@ -1209,6 +1285,228 @@ class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
         
         secontrol = __SEControls__.BTN_SUB
         conf.set_control_position(secontrol, (4,0))
+        conf.set_label(secontrol,'Szene')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_NEXT
+        conf.set_control_position(secontrol, (9,0))
+        conf.set_label(secontrol,'>')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_TOP
+        conf.set_control_position(secontrol, (8,0))
+        conf.set_label(secontrol,'^')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        secontrol = __SEControls__.BTN_PREVIOUS
+        conf.set_control_position(secontrol, (7,0))
+        conf.set_label(secontrol,'<')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, 5)
+        
+        conf.hide_control(__SEControls__.BTN_NEW)
+        conf.hide_control(__SEControls__.BTN_OPEN)
+        # conf.hide_control(__SEControls__.BTN_SUB)
+        conf.hide_control(__SEControls__.BTN_UPDATE)
+        conf.hide_control(__SEControls__.GENRE)
+        conf.hide_control(__SEControls__.MESSAGE)
+        conf.hide_control(__SEControls__.NOTE)
+        conf.hide_control(__SEControls__.TONE)
+        
+        conf.hide_control(__SEControls__.XTENSION_1)
+        conf.hide_control(__SEControls__.XTENSION_2)
+        conf.hide_control(__SEControls__.XTENSION_3)
+        conf.hide_control(__SEControls__.XTENSION_4)
+        conf.hide_control(__SEControls__.XTENSION_5)
+        conf.hide_control(__SEControls__.XTENSION_6)
+        conf.hide_control(__SEControls__.XTENSION_7)
+        conf.hide_control(__SEControls__.XTENSION_8)
+        conf.hide_control(__SEControls__.XTENSION_9)
+        conf.hide_control(__SEControls__.XTENSION_0)
+        
+        return conf  
+    
+class SceneFrame(StoryElementFrame, UIObservable, NavigationPoint):
+    def __init__(self, root, *args, **kwargs):
+        super().__init__(root, self.create_conf(), PlotHoleType.SCENE, *args, **kwargs)
+    
+    def create_conf(self):
+        conf = __SEConfiguration__()
+        conf.set_column_weigth(3, 1)
+        conf.set_column_weigth(5, 1)
+        conf.set_grid_column_ctn(6)
+        
+        row_num = 0
+        
+        conf.set_label_colspan(__SEControls__.HEADER, 7)
+        conf.set_label(__SEControls__.HEADER,'Neue Szene')
+        conf.set_label_position(__SEControls__.HEADER, (0,row_num))
+        conf.set_label_sticky(__SEControls__.HEADER, tk.W)
+        conf.set_label_font(__SEControls__.HEADER, tkFont.Font(family='Helvetica', size=15, weight=tkFont.BOLD))
+        conf.set_label_anchor(__SEControls__.HEADER, tk.W)
+        
+        row_num += 1        
+        
+        conf.set_label(__SEControls__.SEQUENTIAL_NO,'Nr.')
+        conf.set_label_position(__SEControls__.SEQUENTIAL_NO, (0,row_num))
+        conf.set_control_position(__SEControls__.SEQUENTIAL_NO, (1,row_num))
+        conf.set_control_sticky(__SEControls__.SEQUENTIAL_NO, tk.EW)
+        
+        secontrol = __SEControls__.ALIAS
+        # row_num += 1
+        
+        conf.set_label(secontrol,'Alias')
+        conf.set_label_position(secontrol, (2,row_num))
+        conf.set_control_position(secontrol, (3,row_num))
+        conf.set_control_sticky(secontrol, tk.EW)
+
+        secontrol = __SEControls__.TITLE
+        # row_num += 1
+
+        conf.set_label(secontrol,'Titel')
+        conf.set_label_position(secontrol, (4,row_num))
+        conf.set_control_position(secontrol, (5,row_num))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        secontrol = __SEControls__.GENRE
+        row_num += 1
+
+        conf.set_label(secontrol,'Panels')
+        conf.set_label_position(secontrol, (0,row_num))
+        conf.set_control_position(secontrol, (1,row_num))
+        conf.set_control_sticky(secontrol, tk.EW)
+        conf.set_option_menu_values(secontrol, range(1,41))
+        
+        secontrol = __SEControls__.MESSAGE
+        # row_num += 1
+
+        conf.set_label(secontrol,'Kamera Perspektive')
+        conf.set_label_position(secontrol, (2,row_num))
+        conf.set_control_position(secontrol, (3,row_num))
+        conf.set_control_sticky(secontrol, tk.EW)
+       
+        secontrol = __SEControls__.XTENSION_0
+        # row_num += 1
+
+        conf.set_label(secontrol,'Ort')
+        conf.set_label_position(secontrol, (4,row_num))
+        conf.set_control_position(secontrol, (5,row_num))
+        conf.set_control_sticky(secontrol, tk.EW)
+        
+        # secontrol = __SEControls__.XTENSION_1
+        # row_num += 1
+
+        # conf.set_label(secontrol,'Ort')
+        # conf.set_label_position(secontrol, (0,row_num))
+        # conf.set_control_position(secontrol, (1,row_num))
+        # conf.set_control_sticky(secontrol, tk.EW)
+        # conf.set_control_colspan(secontrol, 5)
+        
+        '''
+        Eine Comic-Szenenbeschreibung (Skript) muss visuelle Informationen 
+        präzise für den Zeichner übersetzen, um Handlung, Emotionen und 
+        Ort effektiv zu vermitteln. 
+        Sie umfasst zwingend die Panel-Aufteilung, 
+        detaillierte Handlungen der Figuren, Schauplätze, Dialoge/Texte, 
+        Kameraperspektiven sowie Stimmung (Licht/Farbe). 
+        Ein Fokus auf klare visuelle Hinweise reduziert Textüberlastung. 
+        Panel-Aufteilung (Panel Breakdown): 
+            Nummerierung der Bilder und Beschreibung, 
+            was in jedem einzelnen Panel passiert.
+            Handlung & Charaktere: Genaue Beschreibung der Aktionen, 
+            Mimik und Gestik der Figuren, um Emotionen zu transportieren.
+            Hintergrund & Ort: Angabe, wo die Szene stattfindet (Setting), 
+            um den Kontext zu etablieren.
+        Kameraeinstellung & Perspektive: 
+            Festlegung, ob es sich um eine Nahaufnahme, 
+            Totale oder spezielle Perspektive handelt.
+            Dialoge & Text: Der genaue Text für Sprechblasen, 
+            Gedankenblasen oder Captions (Erzähltext).
+        Atmosphäre & Stil: Hinweise zu Lichtverhältnissen, 
+        Farben und dem allgemeinen "Look" der Szene (z. B. düster, fröhlich).
+        Soundeffekte (SFX): Beschreibung von Geräuschen, die visuell im Bild dargestellt werden. 
+        
+        '''
+        
+        secontrol = __SEControls__.TONE
+        row_num += 1
+
+        conf.set_label(secontrol,'Atmosphäre')
+        conf.set_label_position(secontrol, (0,row_num))
+        conf.set_control_position(secontrol, (1,row_num))
+        conf.set_control_sticky(secontrol, tk.EW)
+        conf.set_control_colspan(secontrol, 5)
+
+        secontrol = __SEControls__.CONTENT
+        row_num += 1
+
+        conf.set_label(secontrol,'Handlung')
+        conf.set_label_position(secontrol, (0,row_num))
+        conf.set_label_sticky(secontrol, tk.N)
+        conf.set_control_position(secontrol, (1,row_num))
+        conf.set_control_sticky(secontrol, tk.NSEW)
+        conf.set_control_colspan(secontrol, 5)
+        conf.set_control_pady(secontrol, (5,5))
+        
+        secontrol = __SEControls__.NOTE
+        row_num += 1
+
+        conf.set_label(secontrol,'Dialog + SFX')
+        conf.set_label_position(secontrol, (0,row_num))
+        conf.set_label_sticky(secontrol, tk.N)
+        conf.set_control_position(secontrol, (1,row_num))
+        conf.set_control_sticky(secontrol, tk.NSEW)
+        conf.set_control_colspan(secontrol, 5)
+        conf.set_control_pady(secontrol, (5,5))
+        
+        
+        conf.set_row_weigth(row_num, 1)
+        conf.set_row_weigth(row_num + 1, 1)
+        conf.set_grid_row_ctn(row_num + 2)
+        
+        btn_width = 15
+        
+        secontrol = __SEControls__.BTN_CHARACTER 
+        conf.set_control_position(secontrol, (6,0))
+        conf.set_label(secontrol,'Charakter')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_CLOSE    
+        conf.set_control_position(secontrol, (3,0))
+        conf.set_label(secontrol,'Schließen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_DELETE   
+        conf.set_control_position(secontrol, (2,0))
+        conf.set_label(secontrol,'Löschen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_PLOTHOLE   
+        conf.set_control_position(secontrol, (5,0))
+        conf.set_label(secontrol,'Plothole')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_REVERT   
+        conf.set_control_position(secontrol, (1,0))
+        conf.set_label(secontrol,'Zurücksetzen')
+        conf.set_control_padx(secontrol, (1,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SAVE
+        conf.set_control_position(secontrol, (0,0))
+        conf.set_label(secontrol,'Speichern')
+        conf.set_control_padx(secontrol, (0,1))
+        conf.set_button_width(secontrol, btn_width)
+        
+        secontrol = __SEControls__.BTN_SUB
+        conf.set_control_position(secontrol, (4,0))
         conf.set_label(secontrol,'Seiten')
         conf.set_control_padx(secontrol, (1,1))
         conf.set_button_width(secontrol, btn_width)
@@ -1235,12 +1533,23 @@ class ChapterFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.hide_control(__SEControls__.BTN_OPEN)
         conf.hide_control(__SEControls__.BTN_SUB)
         conf.hide_control(__SEControls__.BTN_UPDATE)
-        conf.hide_control(__SEControls__.GENRE)
-        conf.hide_control(__SEControls__.MESSAGE)
-        conf.hide_control(__SEControls__.NOTE)
-        conf.hide_control(__SEControls__.TONE)
+        # conf.hide_control(__SEControls__.GENRE)
+        # conf.hide_control(__SEControls__.MESSAGE)
+        # conf.hide_control(__SEControls__.NOTE)
+        # conf.hide_control(__SEControls__.TONE)
         
-        return conf    
+        conf.hide_control(__SEControls__.XTENSION_1)
+        conf.hide_control(__SEControls__.XTENSION_2)
+        conf.hide_control(__SEControls__.XTENSION_3)
+        conf.hide_control(__SEControls__.XTENSION_4)
+        conf.hide_control(__SEControls__.XTENSION_5)
+        conf.hide_control(__SEControls__.XTENSION_6)
+        conf.hide_control(__SEControls__.XTENSION_7)
+        conf.hide_control(__SEControls__.XTENSION_8)
+        conf.hide_control(__SEControls__.XTENSION_9)
+        # conf.hide_control(__SEControls__.XTENSION_0)
+        
+        return conf 
         
 class PlotholeFrame(StoryElementFrame, UIObservable, NavigationPoint):
     def __init__(self, root, *args, **kwargs):
@@ -1350,6 +1659,17 @@ class PlotholeFrame(StoryElementFrame, UIObservable, NavigationPoint):
         conf.hide_control(__SEControls__.NOTE)
         conf.hide_control(__SEControls__.TONE)
         
+        conf.hide_control(__SEControls__.XTENSION_1)
+        conf.hide_control(__SEControls__.XTENSION_2)
+        conf.hide_control(__SEControls__.XTENSION_3)
+        conf.hide_control(__SEControls__.XTENSION_4)
+        conf.hide_control(__SEControls__.XTENSION_5)
+        conf.hide_control(__SEControls__.XTENSION_6)
+        conf.hide_control(__SEControls__.XTENSION_7)
+        conf.hide_control(__SEControls__.XTENSION_8)
+        conf.hide_control(__SEControls__.XTENSION_9)
+        conf.hide_control(__SEControls__.XTENSION_0)
+        
         return conf
      
 if __name__ == '__main__':
@@ -1367,7 +1687,8 @@ if __name__ == '__main__':
     # frame = BookFrame(w)
     # frame = PartFrame(w)
     # frame = PlotholeFrame(w)
-    frame = ChapterFrame(w)
+    # frame = ChapterFrame(w)
+    frame = SceneFrame(w)
     frame.grid(row=0, column=0, sticky="NSEW")
     # frame.set_options(['eins', 'zwei', 'drei', 'vier', 'fünf'], 3, __SEControls__.GENRE)
 
