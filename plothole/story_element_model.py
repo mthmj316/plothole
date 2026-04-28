@@ -174,6 +174,12 @@ class StoryElementModel(UIObserver):
         
     def on_option_select(self, selected, secontrol):
         pass
+    
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
+        element = hlp.get(path, as_dict=True)
+        self.this_story_element = element
+        self.load()
 
 class SceneModel(StoryElementModel):
     
@@ -331,6 +337,9 @@ class SceneModel(StoryElementModel):
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        
+        if path.endswith('.scene'):
+            super().on_treeview_select(path)
 
 class ChapterModel(StoryElementModel):
     
@@ -469,6 +478,9 @@ class ChapterModel(StoryElementModel):
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        
+        if path.endswith('.chapter'):
+            super().on_treeview_select(path)
 
 class PlotholeModel(StoryElementModel):
     
@@ -689,6 +701,7 @@ class PlotholeModel(StoryElementModel):
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        pass
 
 class PartModel(StoryElementModel):
     
@@ -839,6 +852,9 @@ class PartModel(StoryElementModel):
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        
+        if path.endswith('.part'):
+            super().on_treeview_select(path)
 
 class BookModel(StoryElementModel):
     
@@ -988,6 +1004,9 @@ class BookModel(StoryElementModel):
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        
+        if path.endswith('.book'):
+            super().on_treeview_select(path)
 
 class StoryModel(StoryElementModel):
     
@@ -1106,3 +1125,5 @@ class StoryModel(StoryElementModel):
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        if path.endswith('.story'):
+            super().on_treeview_select(path)

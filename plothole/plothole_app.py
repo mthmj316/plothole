@@ -84,7 +84,7 @@ if __name__ == '__main__':
     
     if path_repros == TEST_PLOTHOLE_REPOS:
         log.ENABLE_LOGGING=True
-        log.TRACE_ONLY = True
+        log.TRACE_ONLY = False
     
     log.log_var(None, currentframe(), ('path_repros',path_repros))
     
