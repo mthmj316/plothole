@@ -89,6 +89,16 @@ UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP = {
     'Plothole': 'plothole',
     'Charakter': 'character'
     }
+
+CHILD_PLOTHOLE_TYPE = {
+    'story': 'book',
+    'book': 'part',
+    'part': 'chapter',
+    'chapter': 'scene',
+    'scene': 'page',
+    'page': 'panel',
+    'panel': None
+    }
     
 if __name__ == '__main__':
 

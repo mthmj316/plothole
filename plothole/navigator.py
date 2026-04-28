@@ -58,6 +58,10 @@ class Navigator(ABC):
     def on_top(self):
         pass
     
+    @abstractmethod
+    def on_tree_select(self):
+        pass
+    
 class NavigatorInstance(ABC):
     
     def __init__(self, start_frame, ui_frames_dict, ui_overview_frames_dict):
@@ -351,3 +355,14 @@ class NavigatorInstance(ABC):
         next_frame.tkraise(aboveThis=self.current_frame)
         self.current_frame = next_frame            
         self.current_ph_type = None
+        
+    def on_tree_select(self, ptype):
+        log.log_var(self, currentframe(), ("ptype", ptype))
+        
+        # after tree select it is always navigated to the ui (not overview ui).
+        next_frame = self.ui_frames_dict.get(ptype)
+        next_frame.tkraise(aboveThis=self.current_frame)
+        self.current_frame = next_frame            
+        self.current_ph_type = ptype
+        
+        

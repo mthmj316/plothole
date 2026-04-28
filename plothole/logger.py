@@ -12,7 +12,7 @@ import logger_conf as logconf
 
 # Global parameter
 ENABLE_LOGGING = False
-TRACE_ONLY = True
+TRACE_ONLY = False
 
 def get_current_time_stamp():
     return datetime.datetime.now(datetime.UTC).strftime('%F %T.%f')[:-3]

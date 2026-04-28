@@ -41,6 +41,7 @@ class StoryElementOverviewFrame(tk.Frame, UIObservable, NavigationPoint):
         self.configure_actions(conf)
         self.item_container = self.create_scrollable_overview_container()
         
+        
     def create_scrollable_overview_container(self):
         log.log(self, currentframe())
         

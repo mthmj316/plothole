@@ -315,7 +315,7 @@ class SceneModel(StoryElementModel):
     def get_scene_header(self):
         log.log(self, currentframe())        
         chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)        
-        self.ui.set_header(f"Kapitel: {chapter.get(sec.TITLE)} Scene: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
+        self.ui.set_header(f"Kapitel: {chapter.get(sec.TITLE)} Szene: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
   
     def on_new(self):
         log.log(self, currentframe())
@@ -328,6 +328,9 @@ class SceneModel(StoryElementModel):
         self.load_overview()
         chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)  
         self.overview_ui.set_header(f"Szenen von '{chapter.get(sec.TITLE)}'")
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
 
 class ChapterModel(StoryElementModel):
     
@@ -463,6 +466,9 @@ class ChapterModel(StoryElementModel):
         self.load_overview()
         part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)  
         self.overview_ui.set_header(f"Kapitel von '{part.get(sec.TITLE)}'")
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
 
 class PlotholeModel(StoryElementModel):
     
@@ -680,6 +686,9 @@ class PlotholeModel(StoryElementModel):
         self.load_overview()
         story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
         self.overview_ui.set_header(f"Plotholes von '{story.get(sec.TITLE)}'")
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
 
 class PartModel(StoryElementModel):
     
@@ -827,6 +836,9 @@ class PartModel(StoryElementModel):
         self.load_overview()
         book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)  
         self.overview_ui.set_header(f"Teile von '{book.get(sec.TITLE)}'")
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
 
 class BookModel(StoryElementModel):
     
@@ -973,6 +985,9 @@ class BookModel(StoryElementModel):
         self.load_overview()
         story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
         self.overview_ui.set_header(f"Bücher von '{story.get(sec.TITLE)}'")
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
 
 class StoryModel(StoryElementModel):
     
@@ -1088,3 +1103,6 @@ class StoryModel(StoryElementModel):
         log.log_var(self, currentframe())
         self.load_overview()
         SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))

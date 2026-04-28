@@ -11,7 +11,9 @@ import logger as log
 from inspect import currentframe
 
 from plothole_types import FILE_EXTENSIONS_DUMP as fed
-from plothole_types import PlotHoleType
+from plothole_types import PlotHoleType, CHILD_PLOTHOLE_TYPE
+
+from pathlib import Path
 
 class SelectedStoryElements():
     
@@ -107,6 +109,19 @@ def init_dump(base_dir):
     fa.create_dir(dump_path)
     log.log_var(None, currentframe(), ('return',dump_path))
     return dump_path
+
+def get_ptype_for_path(path):
+    log.log_var(None, currentframe(), ('path',path))    
+    pt = PlotHoleType(Path(path).suffix.split('.')[1:][0])
+    log.log_var(None, currentframe(), ('return',pt))    
+    return pt
+
+def get_ptype_for_parentpath(parentpath):
+    log.log_var(None, currentframe(), ('parentpath',parentpath))
+    parentpt = get_ptype_for_path(parentpath)
+    pt = CHILD_PLOTHOLE_TYPE.get(parentpt)
+    log.log_var(None, currentframe(), ('return',pt))  
+    return pt
     
 if __name__ == '__main__':
     alias = 'Mein Geschichte'

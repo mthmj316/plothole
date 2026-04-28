@@ -1,8 +1,8 @@
-LOGGING_ALL=False
+LOGGING_ALL=True
 LOGGING_SOURCE = [
-    # 'PartModel#*',
+    #'StoryElementTreeview#*'
     # 'BookModel#*',
-    # 'NavigatorInstance#*'
+    'NavigatorInstance#*'
     # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
     # 'StoryModel#*'

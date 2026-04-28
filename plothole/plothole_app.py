@@ -18,6 +18,7 @@ import story_element_overview_ui as seoui
 import navigator as navi
 
 from plothole_types import PlotHoleType
+import story_element_treeview as setree
 
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
@@ -34,6 +35,40 @@ def file_menu(menu_bar, win):
     file_menu.add_command(label="Exit", command=lambda: _exit(win))
     return file_menu
 
+   
+def create_scrollable_treeview_container(root):
+    
+    container = tk.Frame(root)
+    container.grid(row=0, column=1, sticky=tk.NSEW)
+    container.grid_rowconfigure(0, weight=1)
+    container.grid_columnconfigure(0, weight=1)
+    
+    canvas = tk.Canvas(container)
+    scrollbar = tk.Scrollbar(container, orient=tk.VERTICAL, command=canvas.yview)    
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    canvas.grid(row=0, column=0, sticky=tk.NSEW)    
+    scrollbar.grid(row=0, column=1, sticky=tk.NS)
+    
+    
+    scrollbar_frame = tk.Frame(canvas)
+    scrollbar_frame.grid_rowconfigure(0, weight=1)
+    scrollbar_frame.grid_columnconfigure(0, weight=1)
+    
+    canvas_frame = canvas.create_window((0,0),window=scrollbar_frame, anchor=tk.NW)
+    
+    
+    scrollbar_frame.bind('<Configure>', lambda e: on_configure(e, canvas))
+    canvas.bind('<Configure>', lambda e: resize_frame(e, canvas, canvas_frame))
+    
+    return canvas
+
+def on_configure(event, canvas):
+    canvas.configure(scrollregion=canvas.bbox(tk.ALL))
+    
+def resize_frame(event, canvas, canvas_frame):
+    canvas.itemconfig(canvas_frame, width=event.width)   
+
 if __name__ == '__main__':
     
     path_repros = TEST_PLOTHOLE_REPOS
@@ -49,15 +84,20 @@ if __name__ == '__main__':
     
     if path_repros == TEST_PLOTHOLE_REPOS:
         log.ENABLE_LOGGING=True
-        log.TRACE_ONLY = False
+        log.TRACE_ONLY = True
     
     log.log_var(None, currentframe(), ('path_repros',path_repros))
     
     w = tk.Tk()
     w.title(f"Plothole v{VERSION}")
     w.geometry("1250x750+300+100")
-    w.grid_columnconfigure(0, weight=1)
+    w.grid_columnconfigure(1, weight=1)
     w.grid_rowconfigure(0, weight=1) 
+    
+    
+    tree_container = create_scrollable_treeview_container(w);
+    
+    treeview = setree.StoryElementTreeview(path_repros, tree_container)
     
     scene_ui = seui.SceneFrame(w)
     scene_ui.grid(row=0, column=0, sticky="NSEW")
@@ -127,6 +167,13 @@ if __name__ == '__main__':
     scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros)
     
     story_model.on_raised()
+    
+    treeview.register(story_model)
+    treeview.register(book_model)
+    treeview.register(part_model)
+    treeview.register(chapter_model)
+    treeview.register(scene_model)
+    treeview.navigator(navi)
     
     menu_bar = tk.Menu(w)  
     file_menu = file_menu(menu_bar, w)

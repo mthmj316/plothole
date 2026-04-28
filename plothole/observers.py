@@ -93,3 +93,7 @@ class UIObserver(ABC):
     @abstractmethod
     def on_raised(self):
         pass
+    
+    @abstractmethod
+    def on_treeview_select(self, path):
+        pass
