@@ -12,7 +12,6 @@ FILE_EXTENSIONS_DUMP = {
     'part': 'partdump',
     'chapter': 'chapterdump',
     'scene': 'scenedump',
-    'page': 'pagedump',
     'panel': 'paneldump',
     'plothole': 'plotholedump',
     'character': 'characterdump'
@@ -24,7 +23,6 @@ class PlotHoleType(enum.StrEnum):
     PART = 'part'
     CHAPTER = 'chapter'
     SCENE = 'scene'
-    PAGE = 'page'
     PANEL = 'panel'
     PLOTHOLE = 'plothole'
     CHARATCTER = 'character'
@@ -71,7 +69,6 @@ PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP = {
     'part': 'Teil',
     'chapter': 'Kapitel',
     'scene': 'Szene',
-    'page': 'Seite',
     'panel': 'Panel',
     'plothole': 'Plothole',
     'character': 'Charakter'
@@ -84,7 +81,6 @@ UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP = {
     'Teil': 'part',
     'Kapitel': 'chapter',
     'Szene': 'scene',
-    'Seite': 'page',
     'Panel': 'panel',
     'Plothole': 'plothole',
     'Charakter': 'character'
@@ -95,9 +91,17 @@ CHILD_PLOTHOLE_TYPE = {
     'book': 'part',
     'part': 'chapter',
     'chapter': 'scene',
-    'scene': 'page',
-    'page': 'panel',
+    'scene': 'panel',
     'panel': None
+    }
+
+PARENT_PLOTHOLE_TYPE = {
+    'panel': 'scene',
+    'scene': 'chapter',
+    'chapter': 'part',
+    'part': 'book',
+    'book': 'story',
+    'story': None
     }
     
 if __name__ == '__main__':

@@ -68,12 +68,6 @@ class StoryElementTreeview(UIObservable):
         selection = self.treeview.selection()
         log.log_var(self, currentframe(), ("selection", selection))
 
-        
-    def has_next(self):
-        pass
-    
-    def get_next(self):
-        pass
     
     def append_children(self, tree, parent_ui, parent_path, parent_ptype):
         
