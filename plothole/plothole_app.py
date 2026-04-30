@@ -163,7 +163,7 @@ if __name__ == '__main__':
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
     part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
     chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros)
-    plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros)
+    plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros, story_model)
     scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros)
     
     story_model.on_raised()

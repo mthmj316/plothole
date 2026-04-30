@@ -15,7 +15,6 @@ import helpers as hlp
 import json
 import file_access as fa
 import pathlib
-from plothole_core import SELECTED_SE
 import relation_desolver as rd
 
 class StoryElementModel(UIObserver):
@@ -35,9 +34,11 @@ class StoryElementModel(UIObserver):
     def get_plothole_type(self):
         pass
     
-    @abstractmethod
     def get_folder(self):
-        pass
+        log.log(self, currentframe())
+        folder = rd.get_parent_path(self.fq_file_name)
+        log.log_var(self, currentframe(), ("folder", folder))
+        return folder
     
     @abstractmethod
     def get_id(self, from_ui):
@@ -70,6 +71,11 @@ class StoryElementModel(UIObserver):
     @abstractmethod
     def load_overview(self):
         pass
+    
+    def get_fq_file_name(self):
+        log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
+        return self.fq_file_name
+        
         
     def clear(self):
         log.log(self, currentframe())        
@@ -161,8 +167,6 @@ class StoryElementModel(UIObserver):
          
         self.after_save()
         
-        SELECTED_SE.select(self.get_plothole_type(), self.fq_file_name)
-
     def on_sub(self):
         log.log(self, currentframe(), 'not relevant')
 
@@ -198,7 +202,6 @@ class SceneModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id)) 
         self.this_story_element = hlp.get_scene_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_scene_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.SCENE, self.fq_file_name)  
         self.load()   
 
     def load_overview(self):
@@ -249,12 +252,6 @@ class SceneModel(StoryElementModel):
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
     
-    def get_folder(self):
-        log.log(self, currentframe())
-        folder = SELECTED_SE.get_selected_base(PlotHoleType.CHAPTER)
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
-
     def get_id(self, from_ui):
         log.log_var(self, currentframe(),('from_ui',from_ui))
         _id = ''
@@ -333,14 +330,14 @@ class SceneModel(StoryElementModel):
   
     def on_new(self):
         log.log(self, currentframe())
+        chapter = rd.desolve_parent_by_path(self.fq_file_name)
         self.clear()
-        chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)       
         self.ui.set_header(f"Neues Szene für '{chapter.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log(self, currentframe())
+        chapter = rd.desolve_parent_by_path(self.fq_file_name)
         self.load_overview()
-        chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)  
         self.overview_ui.set_header(f"Szenen von '{chapter.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
@@ -359,7 +356,6 @@ class ChapterModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id)) 
         self.this_story_element = hlp.get_chapter_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_chapter_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.CHAPTER, self.fq_file_name)  
         self.load()   
 
     def load_overview(self):
@@ -405,12 +401,6 @@ class ChapterModel(StoryElementModel):
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
     
-    def get_folder(self):
-        log.log(self, currentframe())
-        folder = SELECTED_SE.get_selected_base(PlotHoleType.PART)
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
-
     def get_id(self, from_ui):
         log.log_var(self, currentframe(),('from_ui',from_ui))
         _id = ''
@@ -474,14 +464,14 @@ class ChapterModel(StoryElementModel):
          
     def on_new(self):
         log.log(self, currentframe())
+        part = rd.desolve_parent_by_path(self.fq_file_name)
         self.clear()
-        part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.Part), as_dict=True)       
         self.ui.set_header(f"Neues Kapitel für '{part.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log(self, currentframe())
+        part = rd.desolve_parent_by_path(self.fq_file_name)
         self.load_overview()
-        part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)  
         self.overview_ui.set_header(f"Kapitel von '{part.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
@@ -492,9 +482,10 @@ class ChapterModel(StoryElementModel):
 
 class PlotholeModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir):
+    def __init__(self, ui, overview_ui, base_dir, story_model):
         super().__init__(ui, overview_ui, base_dir)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("story_model", story_model))
+        self.story_model = story_model
         
     def on_option_select(self, selected, secontrol):
         log.log_var(self, currentframe(), ("selected", selected), ("secontrol", secontrol))        
@@ -509,7 +500,7 @@ class PlotholeModel(StoryElementModel):
         titles = []
         selected_item = None
         if ph_type != PlotHoleType.STORY:
-            selected_story_path = SELECTED_SE.get_selected_base(PlotHoleType.STORY)        
+            selected_story_path = pathlib.Path(self.story_model.get_fq_file_name()).parent        
             se_items = hlp.get_all(selected_story_path, ph_type.value, as_dict=True)
 
             for item in sorted(se_items, key=lambda x: x[sec.TITLE]):
@@ -527,7 +518,6 @@ class PlotholeModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id)) 
         self.this_story_element = hlp.get_plothole_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_plothole_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.PLOTHOLE, self.fq_file_name)  
         self.load()   
 
     def load_overview(self):
@@ -577,8 +567,8 @@ class PlotholeModel(StoryElementModel):
     
     def get_folder(self):
         log.log(self, currentframe())
-        # folder == parent folder of the part -> book folder
-        folder = f"{SELECTED_SE.get_selected_base(PlotHoleType.STORY)}/plotholes"
+        story_folder = pathlib.Path(self.story_model.get_fq_file_name()).parent
+        folder = f"{story_folder}/plotholes"
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
 
@@ -628,7 +618,7 @@ class PlotholeModel(StoryElementModel):
         classification_alias = None
         
         if classification_level == 'Geschichte':
-            selected_story = SELECTED_SE.get_select(PlotHoleType.STORY)
+            selected_story = self.story_model.get_fq_file_name()
             classification_alias = hlp.get_story(selected_story, as_dict=True).get(sec.ALIAS)
         else:
             classification_alias = self.extract_alias()
@@ -669,14 +659,14 @@ class PlotholeModel(StoryElementModel):
         
         if PlotHoleType(plothole.get(sec.SEQUENTIAL_NO)) != PlotHoleType.STORY:
             classification_object = hlp.get_by_alias(
-                SELECTED_SE.get_selected_base(PlotHoleType.STORY), 
                 plothole.get(sec.GENRE), 
-                plothole.get(sec.SEQUENTIAL_NO))
+                plothole.get(sec.SEQUENTIAL_NO),
+                PlotHoleType.PLOTHOLE)
             
             classification = self.create_classification_optmenu_entry(classification_object)
             
             # get for the selected 'Betrifft' the corresponding choises
-            story_path = SELECTED_SE.get_selected_base(PlotHoleType.STORY)
+            story_path = pathlib.Path(self.story_model.get_fq_file_name()).parent
             log.log_var(self, currentframe(), ('story_path',story_path))
             classification_choises = hlp.get_all(story_path, classification_type, as_dict=True)
             
@@ -698,13 +688,13 @@ class PlotholeModel(StoryElementModel):
     def on_new(self):
         log.log(self, currentframe())
         self.clear()
-        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)       
+        story = hlp.get_book(self.story_model.get_fq_file_name(), as_dict=True)       
         self.ui.set_header(f"Neues Plothole für '{story.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log(self, currentframe())
         self.load_overview()
-        story = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
+        story = hlp.get_book(self.story_model.get_fq_file_name(), as_dict=True)  
         self.overview_ui.set_header(f"Plotholes von '{story.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
@@ -721,7 +711,6 @@ class PartModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id)) 
         self.this_story_element = hlp.get_part_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_part_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.PART, self.fq_file_name)  
         self.load()   
 
     def load_overview(self):
@@ -769,13 +758,6 @@ class PartModel(StoryElementModel):
         phtype = PlotHoleType.PART
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def get_folder(self):
-        log.log(self, currentframe())
-        # folder == parent folder of the part -> book folder
-        folder = pathlib.Path(SELECTED_SE.get_select(PlotHoleType.BOOK)).parent 
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
 
     def get_id(self, from_ui):
         log.log_var(self, currentframe(),('from_ui',from_ui))
@@ -849,14 +831,14 @@ class PartModel(StoryElementModel):
          
     def on_new(self):
         log.log(self, currentframe())
+        book = rd.desolve_parent_by_path(self.fq_file_name)
         self.clear()
-        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)       
         self.ui.set_header(f"Neuer Teil für '{book.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log_var(self, currentframe())
+        book = rd.desolve_parent_by_path(self.fq_file_name)
         self.load_overview()
-        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)  
         self.overview_ui.set_header(f"Teile von '{book.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
@@ -875,7 +857,6 @@ class BookModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id))         
         self.this_story_element = hlp.get_book_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_book_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.BOOK, self.fq_file_name)  
         self.load()  
 
     def load_overview(self):
@@ -923,12 +904,6 @@ class BookModel(StoryElementModel):
         phtype = PlotHoleType.BOOK
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def get_folder(self):
-        log.log(self, currentframe())
-        folder = pathlib.Path(SELECTED_SE.get_select(PlotHoleType.STORY)).parent 
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
 
     def get_id(self, from_ui):
         log.log_var(self, currentframe(),('from_ui',from_ui))
@@ -1002,14 +977,14 @@ class BookModel(StoryElementModel):
          
     def on_new(self):
         log.log(self, currentframe())
+        story = rd.desolve_parent_by_path(self.fq_file_name)
         self.clear()
-        story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)        
         self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")
     
     def on_raised(self): 
         log.log_var(self, currentframe())
+        story = rd.desolve_parent_by_path(self.fq_file_name)
         self.load_overview()
-        story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)  
         self.overview_ui.set_header(f"Bücher von '{story.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
@@ -1028,7 +1003,6 @@ class StoryModel(StoryElementModel):
         log.log_var(self, currentframe(),('_id',_id))
         self.this_story_element = hlp.get_story_by_alias(self.get_folder(), _id)
         self.fq_file_name = hlp.get_story_path_by_alias(self.get_folder(), _id)
-        SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)
         self.load()       
 
     def load_overview(self):
@@ -1054,7 +1028,6 @@ class StoryModel(StoryElementModel):
         self.ui.set_content('')
         self.ui.enable_alias()
         super().clear()
-        SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)
     
     def get_plothole_type(self):
         log.log(self, currentframe())
@@ -1131,7 +1104,6 @@ class StoryModel(StoryElementModel):
     def on_raised(self): 
         log.log_var(self, currentframe())
         self.load_overview()
-        SELECTED_SE.select(PlotHoleType.STORY, self.fq_file_name)
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))

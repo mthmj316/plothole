@@ -37,11 +37,11 @@ def desolve_by_path(path, return_path_only=False):
         parent_alias = parent_obj.get(sec.ALIAS)
         log.log_var(None, currentframe(), ('parent_alias',parent_alias))
         
-        parent_path = hlp.get_path_for_alias(__get_parent_path(path), parent_alias, extension=parent_ptype)
+        parent_path = hlp.get_path_for_alias(get_parent_path(path), parent_alias, extension=parent_ptype)
         log.log_var(None, currentframe(), ('parent_path',parent_path))
         
         parent_obj['path'] = parent_path
-        parent_obj['pytpe'] = parent_ptype
+        parent_obj['ptype'] = parent_ptype
         relations[parent_ptype] = parent_obj        
         
         path = parent_path
@@ -61,7 +61,7 @@ def __get_ptype_by_path(path):
 
     return ptype    
 
-def __get_parent_path(child_path):
+def get_parent_path(child_path):
 
     log.log_var(None, currentframe(), ("child_path", child_path))
     
@@ -78,7 +78,7 @@ def desolve_parent_by_path(path, return_path_only=False):
     log.log_var(None, currentframe(), ('path',path), ('return_path_only',return_path_only))
     
     # folder of the story element parent: part -> book
-    parent_folder = __get_parent_path(path)
+    parent_folder = get_parent_path(path)
     log.log_var(None, currentframe(), ("parent_folder", parent_folder))
     
     parent_ptype = __get_parent_ptype_by_path(path)
