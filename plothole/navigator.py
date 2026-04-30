@@ -74,6 +74,8 @@ class NavigatorInstance(ABC):
         self.frame_before_plothole = None
         self.ph_type_before_plothole = None
         self.before_character = None
+        self.frame_before_treeview_select = None
+        self.ptype_before_treeview_select = None
     
     def on_character(self):
         pass
@@ -84,7 +86,18 @@ class NavigatorInstance(ABC):
         log.log_var(self, currentframe(), ("current_frame", self.current_frame))
         log.log_var(self, currentframe(), ("current_ph_type", self.current_ph_type))
         
-        if  self.current_ph_type == PlotHoleType.STORY and event_source_ph_type == PlotHoleType.STORY:
+        if self.frame_before_treeview_select is not None:
+            
+            next_frame = self.frame_before_treeview_select 
+            next_frame.tkraise(aboveThis=self.current_frame)
+            
+            self.current_frame = self.frame_before_treeview_select             
+            self.current_ph_type = self.ptype_before_treeview_select
+            
+            self.frame_before_treeview_select = None
+            self.ptype_before_treeview_select = None
+            
+        elif  self.current_ph_type == PlotHoleType.STORY and event_source_ph_type == PlotHoleType.STORY:
             # you are currently on the story ui frame
             # and you want to change back to the story overview frame
             next_frame = self.ui_overview_frames_dict.get(PlotHoleType.STORY)
@@ -362,6 +375,11 @@ class NavigatorInstance(ABC):
         # after tree select it is always navigated to the ui (not overview ui).
         next_frame = self.ui_frames_dict.get(ptype)
         next_frame.tkraise(aboveThis=self.current_frame)
+        
+        if self.frame_before_treeview_select is None:
+            self.frame_before_treeview_select = self.current_frame
+            self.ptype_before_treeview_select = self.current_ph_type
+        
         self.current_frame = next_frame            
         self.current_ph_type = ptype
         

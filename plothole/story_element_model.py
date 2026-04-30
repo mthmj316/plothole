@@ -16,6 +16,7 @@ import json
 import file_access as fa
 import pathlib
 from plothole_core import SELECTED_SE
+import relation_desolver as rd
 
 class StoryElementModel(UIObserver):
     
@@ -28,6 +29,7 @@ class StoryElementModel(UIObserver):
         self.overview_ui.register(self)
         self.this_story_element = None
         self.fq_file_name = ''
+        self.is_treeview_selected = False
     
     @abstractmethod
     def get_plothole_type(self):
@@ -86,7 +88,10 @@ class StoryElementModel(UIObserver):
         # close means always that currently the story element ui is visible
         # it is changed to the corresponding overview frame
         # hence reload all story elements
-        self.load_overview()
+        if not self.is_treeview_selected:
+            self.load_overview()
+        else:
+            self.is_treeview_selected = False
     
     def on_character(self):
         log.log(self, currentframe(), 'not relevant')
@@ -177,9 +182,11 @@ class StoryElementModel(UIObserver):
     
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
+        self.fq_file_name = path
         element = hlp.get(path, as_dict=True)
         self.this_story_element = element
         self.load()
+        self.is_treeview_selected = True
 
 class SceneModel(StoryElementModel):
     
@@ -319,8 +326,9 @@ class SceneModel(StoryElementModel):
         self.get_scene_header()
         
     def get_scene_header(self):
-        log.log(self, currentframe())        
-        chapter = hlp.get_chapter(SELECTED_SE.get_select(PlotHoleType.CHAPTER), as_dict=True)        
+        log.log(self, currentframe())   
+        relations = rd.desolve_by_path(self.fq_file_name)
+        chapter = relations.get('chapter')        
         self.ui.set_header(f"Kapitel: {chapter.get(sec.TITLE)} Szene: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
   
     def on_new(self):
@@ -459,10 +467,10 @@ class ChapterModel(StoryElementModel):
         self.get_chapter_header()
         
     def get_chapter_header(self):
-        log.log(self, currentframe())        
-        part = hlp.get_part(SELECTED_SE.get_select(PlotHoleType.PART), as_dict=True)        
+        log.log(self, currentframe()) 
+        relations = rd.desolve_by_path(self.fq_file_name)
+        part = relations.get('part')       
         self.ui.set_header(f"{part.get(sec.TITLE)} Kapitel: {self.this_story_element.get(sec.TITLE)} ({self.this_story_element.get(sec.SEQUENTIAL_NO)})")
-  
          
     def on_new(self):
         log.log(self, currentframe())
@@ -834,8 +842,9 @@ class PartModel(StoryElementModel):
         self.get_part_header()
   
     def get_part_header(self):
-        log.log(self, currentframe())        
-        book = hlp.get_book(SELECTED_SE.get_select(PlotHoleType.BOOK), as_dict=True)        
+        log.log(self, currentframe())
+        relations = rd.desolve_by_path(self.fq_file_name)
+        book = relations.get('book')
         self.ui.set_header(f"Buch: {book.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Teil: {self.this_story_element.get(sec.TITLE)}")
          
     def on_new(self):
@@ -986,8 +995,9 @@ class BookModel(StoryElementModel):
         self.get_book_header()
   
     def get_book_header(self):
-        log.log(self, currentframe())        
-        story = hlp.get_story(SELECTED_SE.get_select(PlotHoleType.STORY), as_dict=True)        
+        log.log(self, currentframe()) 
+        relations = rd.desolve_by_path(self.fq_file_name)
+        story = relations.get('story')
         self.ui.set_header(f"{story.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Buch: {self.this_story_element.get(sec.TITLE)}")
          
     def on_new(self):

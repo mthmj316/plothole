@@ -23,7 +23,7 @@ import story_element_treeview as setree
 TEST_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
 PROD_PLOTHOLE_REPOS = "C:\\Users\\mthoma\\Documents\\PlotHole_Repos"
 
-VERSION = 0.4
+VERSION = 0.5
 
 def _exit(win):
     log.log_var(None, currentframe(), ('win',win))
