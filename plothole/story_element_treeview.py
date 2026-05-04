@@ -24,11 +24,33 @@ class StoryElementTreeview(UIObservable):
         self.tree_container = tree_container
         self.observers = []
         self.last_element_id = '<start>'
-        
+        self.tree_view_folding_state = {}
+        self.tree = None
         self.treeview = self.create_tree_view(self.tree_container)
         self.treeview.bind('<<TreeviewSelect>>', self.on_select)
         self.treeview.bind('<Double-1>', self.on_double_click)
+        self.treeview.bind('<<TreeviewOpen>>', self.on_open)
+        self.treeview.bind('<<TreeviewClose>>', self.on_close)
         self.navi = None
+        self.selected_item = None
+
+    def update_tree_view(self):
+        log.log(self, currentframe())
+        self.create_tree_view(self.tree_container)
+        if self.selected_item is not None:
+            self.tree.focus(self.selected_item)
+            self.tree.selection_set(self.selected_item)
+        
+
+    def on_open(self, event):
+        log.log_var(self, currentframe(), ("event", event))
+        item = self.treeview.focus()
+        self.tree_view_folding_state[item] = True
+        
+    def on_close(self, event):
+        log.log_var(self, currentframe(), ("event", event))
+        item = self.treeview.focus()
+        self.tree_view_folding_state[item] = False
 
     def navigator(self, navi):
         log.log_var(self, currentframe(), ("navi", navi))
@@ -67,6 +89,7 @@ class StoryElementTreeview(UIObservable):
         
         selection = self.treeview.selection()
         log.log_var(self, currentframe(), ("selection", selection))
+        self.selected_item = selection
 
     
     def append_children(self, tree, parent_ui, parent_path, parent_ptype):
@@ -85,23 +108,28 @@ class StoryElementTreeview(UIObservable):
                 
                 self.append_children(tree, tree_view_ui, folder, ptypes.PlotHoleType(child_ptype))
                 
+                if tree_view_ui in self.tree_view_folding_state:
+                    self.tree.item(tree_view_ui, open=self.tree_view_folding_state.get(tree_view_ui))
     
     def create_tree_view(self, tree_container):
         
-        tree = ttk.Treeview(tree_container)
+        if self.tree is not None:
+            self.tree.delete(*self.tree.get_children())
+        else:
+            self.tree = ttk.Treeview(tree_container)
         
         # Spalten definieren
-        tree["columns"] = ("Type")
+        self.tree["columns"] = ("Type")
         
         # Erste Spalte (#0) = Baumspalte
-        tree.heading("#0", text="Element")
-        tree.column("#0", width=150)
+        self.tree.heading("#0", text="Element")
+        self.tree.column("#0", width=150)
         
         # Weitere Spalten
-        tree.heading("Type", text="Type")
-        tree.column("Type", width=80)
+        self.tree.heading("Type", text="Type")
+        self.tree.column("Type", width=80)
 
-        tree.pack(fill='both', expand=True)
+        self.tree.pack(fill='both', expand=True)
         
         for story in sorted(hlp.get_all_stories(self.path_repros, as_dict=True), key=lambda x: x[sec.TITLE.value]):
             
@@ -112,12 +140,15 @@ class StoryElementTreeview(UIObservable):
             ptype_display = ptypes.PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(ptype)
             
             
-            tree_view_ui = tree.insert("", "end", text=story.get(sec.TITLE), values=(ptype_display), iid=path)
+            tree_view_ui = self.tree.insert("", "end", text=story.get(sec.TITLE), values=(ptype_display), iid=path)
             folder = pathlib.Path(path).parent
             
+            if tree_view_ui in self.tree_view_folding_state:
+                self.tree.item(tree_view_ui, open=self.tree_view_folding_state.get(tree_view_ui))
             
-            self.append_children(tree, tree_view_ui, folder, ptypes.PlotHoleType.STORY)
+            
+            self.append_children(self.tree, tree_view_ui, folder, ptypes.PlotHoleType.STORY)
         
-        tree.pack(fill="both", expand=True, padx=5, pady=5)   
+        self.tree.pack(fill="both", expand=True, padx=5, pady=5)   
         
-        return tree
+        return self.tree

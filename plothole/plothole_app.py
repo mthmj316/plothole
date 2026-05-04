@@ -159,12 +159,12 @@ if __name__ == '__main__':
     scene_ui.add_navigator(navi)
     scene_overview_ui.add_navigator(navi)
     
-    story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros)    
-    book_model = sem.BookModel(book_ui, book_overview_ui, path_repros)
-    part_model = sem.PartModel(part_ui, part_overview_ui, path_repros)
-    chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros)
-    plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros, story_model)
-    scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros)
+    story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros, treeview)    
+    book_model = sem.BookModel(book_ui, book_overview_ui, path_repros, treeview)
+    part_model = sem.PartModel(part_ui, part_overview_ui, path_repros, treeview)
+    chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros, treeview)
+    plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros, story_model, treeview)
+    scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros, treeview)
     
     story_model.on_raised()
     

@@ -19,7 +19,7 @@ import relation_desolver as rd
 
 class StoryElementModel(UIObserver):
     
-    def __init__(self, ui, overview_ui, base_dir):
+    def __init__(self, ui, overview_ui, base_dir, tree_view):
         log.log_var(self, currentframe(), ("ui", ui), ("overview_ui", overview_ui), ("base_dir", base_dir))
         self.base_dir = base_dir
         self.ui = ui
@@ -29,14 +29,21 @@ class StoryElementModel(UIObserver):
         self.this_story_element = None
         self.fq_file_name = ''
         self.is_treeview_selected = False
+        self.tree_view = tree_view
     
     @abstractmethod
     def get_plothole_type(self):
         pass
     
-    def get_folder(self):
+    def get_ui_folder(self):
         log.log(self, currentframe())
         folder = rd.get_parent_path(self.fq_file_name)
+        log.log_var(self, currentframe(), ("folder", folder))
+        return folder
+    
+    def get_overview_folder(self):
+        log.log(self, currentframe())
+        folder = rd.get_parent_path(rd.get_parent_path(self.fq_file_name))
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
     
@@ -106,9 +113,10 @@ class StoryElementModel(UIObserver):
         log.log(super, currentframe())
         _id = self.get_id(False)
         if _id is not None:        
-            folder = self.get_folder()
+            folder = self.get_ui_folder()
             phtype = self.get_plothole_type()
             pc.delete(folder, _id, phtype)
+            self.tree_view.update_tree_view()
         self.clear()
 
     def on_new(self):
@@ -147,7 +155,7 @@ class StoryElementModel(UIObserver):
             self.ui.raise_error(f"{self.get_id_name()} muss gesetzt sein.")
             return
         
-        if hlp.exists_alias(self.get_folder(), _id):
+        if hlp.exists_alias(self.get_overview_folder(), _id):
             self.ui.raise_error(f"{_id} existiert bereits!")
             return
         
@@ -164,7 +172,9 @@ class StoryElementModel(UIObserver):
             fa.create_dir(path)  
              
         fa.write(self.fq_file_name, data)
-         
+        
+        self.tree_view.update_tree_view()
+        
         self.after_save()
         
     def on_sub(self):
@@ -179,6 +189,7 @@ class StoryElementModel(UIObserver):
         self.prepare_save()
         data = json.dumps(self.this_story_element)
         fa.write(self.fq_file_name, data)
+        self.tree_view.update_tree_view()
         self.after_save()
         
     def on_option_select(self, selected, secontrol):
@@ -194,8 +205,8 @@ class StoryElementModel(UIObserver):
 
 class SceneModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir):
-        super().__init__(ui, overview_ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir, tree_view):
+        super().__init__(ui, overview_ui, base_dir, tree_view)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
         
     def on_open(self, _id):
@@ -348,8 +359,8 @@ class SceneModel(StoryElementModel):
 
 class ChapterModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir):
-        super().__init__(ui, overview_ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir, tree_view):
+        super().__init__(ui, overview_ui, base_dir, tree_view)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
         
     def on_open(self, _id):
@@ -482,8 +493,8 @@ class ChapterModel(StoryElementModel):
 
 class PlotholeModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir, story_model):
-        super().__init__(ui, overview_ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir, story_model, tree_view):
+        super().__init__(ui, overview_ui, base_dir, tree_view)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("story_model", story_model))
         self.story_model = story_model
         
@@ -703,8 +714,8 @@ class PlotholeModel(StoryElementModel):
 
 class PartModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir):
-        super().__init__(ui, overview_ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir, tree_view):
+        super().__init__(ui, overview_ui, base_dir, tree_view)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
     
     def on_open(self, _id):
@@ -849,8 +860,8 @@ class PartModel(StoryElementModel):
 
 class BookModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir):
-        super().__init__(ui, overview_ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir, tree_view):
+        super().__init__(ui, overview_ui, base_dir, tree_view)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
     
     def on_open(self, _id):
@@ -995,20 +1006,20 @@ class BookModel(StoryElementModel):
 
 class StoryModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir):
-        super().__init__(ui, overview_ui, base_dir)
+    def __init__(self, ui, overview_ui, base_dir, tree_view):
+        super().__init__(ui, overview_ui, base_dir, tree_view)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
 
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id))
-        self.this_story_element = hlp.get_story_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_story_path_by_alias(self.get_folder(), _id)
+        self.this_story_element = hlp.get_story_by_alias(self.get_ui_older(), _id)
+        self.fq_file_name = hlp.get_story_path_by_alias(self.ge_ui_folder(), _id)
         self.load()       
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for story in sorted(hlp.get_all_stories(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE.value]):
+        for story in sorted(hlp.get_all_stories(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.TITLE.value]):
             self.overview_ui.add_overview_item(story.get(sec.ALIAS), story.get(sec.TITLE))
 
     def load_previous(self):
@@ -1035,11 +1046,6 @@ class StoryModel(StoryElementModel):
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
     
-    def get_folder(self):
-        log.log(self, currentframe())
-        folder = self.base_dir
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
     
     def get_id(self, from_ui):
         log.log_var(self, currentframe(),('from_ui',from_ui))
@@ -1109,3 +1115,9 @@ class StoryModel(StoryElementModel):
         log.log_var(self, currentframe(), ("path", path))
         if path.endswith('.story'):
             super().on_treeview_select(path)
+            
+    def get_overview_folder(self):
+        log.log(self, currentframe())
+        folder = self.base_dir
+        log.log_var(self, currentframe(), ("folder", folder))
+        return folder
