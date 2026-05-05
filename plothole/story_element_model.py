@@ -19,8 +19,8 @@ import relation_desolver as rd
 
 class StoryElementModel(UIObserver):
     
-    def __init__(self, ui, overview_ui, base_dir, tree_view):
-        log.log_var(self, currentframe(), ("ui", ui), ("overview_ui", overview_ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        log.log_var(self, currentframe(), ("ui", ui), ("overview_ui", overview_ui), ("base_dir", base_dir), ("parent_model", parent_model))
         self.base_dir = base_dir
         self.ui = ui
         self.overview_ui = overview_ui
@@ -30,6 +30,7 @@ class StoryElementModel(UIObserver):
         self.fq_file_name = ''
         self.is_treeview_selected = False
         self.tree_view = tree_view
+        self.parent_model = parent_model
     
     @abstractmethod
     def get_plothole_type(self):
@@ -37,13 +38,13 @@ class StoryElementModel(UIObserver):
     
     def get_ui_folder(self):
         log.log(self, currentframe())
-        folder = rd.get_parent_path(self.fq_file_name)
+        folder = rd.get_folder_from_fqpath(self.fq_file_name)
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
     
     def get_overview_folder(self):
         log.log(self, currentframe())
-        folder = rd.get_parent_path(rd.get_parent_path(self.fq_file_name))
+        folder = rd.get_folder_from_fqpath(self.parent_model.get_fq_file_name())
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
     
@@ -82,7 +83,7 @@ class StoryElementModel(UIObserver):
     def get_fq_file_name(self):
         log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
         return self.fq_file_name
-        
+    
         
     def clear(self):
         log.log(self, currentframe())        
@@ -90,13 +91,13 @@ class StoryElementModel(UIObserver):
         self.fq_file_name = ''
         
     def get_file_name(self):
-        log.log(super, currentframe())
+        log.log(self, currentframe())
         file_name = self.get_id(False)
         log.log_var(self, currentframe(),('file_name',file_name))
         return file_name     
     
     def on_close(self):
-        log.log(self, currentframe())
+        log.log(super, currentframe())
         self.clear()
         # close means always that currently the story element ui is visible
         # it is changed to the corresponding overview frame
@@ -110,13 +111,19 @@ class StoryElementModel(UIObserver):
         log.log(self, currentframe(), 'not relevant')
     
     def on_delete(self):
-        log.log(super, currentframe())
+        log.log(self, currentframe())
+        
         _id = self.get_id(False)
+        log.log_var(self, currentframe(), ('_id',_id))
+        
         if _id is not None:        
             folder = self.get_ui_folder()
+            log.log_var(self, currentframe(), ('folder',folder))
             phtype = self.get_plothole_type()
+            log.log_var(self, currentframe(), ('phtype',phtype))
             pc.delete(folder, _id, phtype)
             self.tree_view.update_tree_view()
+            
         self.clear()
 
     def on_new(self):
@@ -163,7 +170,7 @@ class StoryElementModel(UIObserver):
         
         data = json.dumps(self.this_story_element)        
         file_name = "".join(x for x in self.get_file_name() if x.isalnum())
-        path = f"{self.get_folder()}/{file_name}"
+        path = f"{self.get_overview_folder()}/{file_name}"
         self.fq_file_name = f"{path}/{file_name}.{self.get_plothole_type().value}"  
         
         log.log_var(self, currentframe(), ("fq_file_name", self.fq_file_name))
@@ -205,9 +212,9 @@ class StoryElementModel(UIObserver):
 
 class SceneModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir, tree_view):
-        super().__init__(ui, overview_ui, base_dir, tree_view)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
         
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
@@ -359,9 +366,9 @@ class SceneModel(StoryElementModel):
 
 class ChapterModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir, tree_view):
-        super().__init__(ui, overview_ui, base_dir, tree_view)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
         
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
@@ -494,7 +501,7 @@ class ChapterModel(StoryElementModel):
 class PlotholeModel(StoryElementModel):
     
     def __init__(self, ui, overview_ui, base_dir, story_model, tree_view):
-        super().__init__(ui, overview_ui, base_dir, tree_view)
+        super().__init__(ui, overview_ui, base_dir, tree_view, None)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("story_model", story_model))
         self.story_model = story_model
         
@@ -714,20 +721,20 @@ class PlotholeModel(StoryElementModel):
 
 class PartModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir, tree_view):
-        super().__init__(ui, overview_ui, base_dir, tree_view)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
     
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_part_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_part_path_by_alias(self.get_folder(), _id)
+        self.this_story_element = hlp.get_part_by_alias(self.get_overview_folder(), _id)
+        self.fq_file_name = hlp.get_part_path_by_alias(self.get_ui_folder(), _id)
         self.load()   
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for part in sorted(hlp.get_all_parts(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+        for part in sorted(hlp.get_all_parts(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
             self.overview_ui.add_overview_item(part.get(sec.ALIAS), part.get(sec.TITLE))
 
     def load_previous(self):
@@ -762,6 +769,12 @@ class PartModel(StoryElementModel):
         self.ui.set_message('')
         self.ui.set_content('')
         self.ui.enable_alias()
+                        
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
+        book = hlp.get(selected_parent, as_dict=True)
+        self.ui.set_header(f"Neuer Teil für '{book.get(sec.TITLE)}'")  
+        
         super().clear()
         
     def get_plothole_type(self):
@@ -836,19 +849,25 @@ class PartModel(StoryElementModel):
   
     def get_part_header(self):
         log.log(self, currentframe())
-        relations = rd.desolve_by_path(self.fq_file_name)
-        book = relations.get('book')
+        
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
+        book = hlp.get(selected_parent, as_dict=True)
+        
         self.ui.set_header(f"Buch: {book.get(sec.TITLE)} {self.this_story_element.get(sec.SEQUENTIAL_NO)}. Teil: {self.this_story_element.get(sec.TITLE)}")
          
     def on_new(self):
         log.log(self, currentframe())
-        book = rd.desolve_parent_by_path(self.fq_file_name)
         self.clear()
-        self.ui.set_header(f"Neuer Teil für '{book.get(sec.TITLE)}'")           
 
     def on_raised(self): 
         log.log_var(self, currentframe())
-        book = rd.desolve_parent_by_path(self.fq_file_name)
+        
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))  
+        
+        book = hlp.get(selected_parent, as_dict=True)
+        
         self.load_overview()
         self.overview_ui.set_header(f"Teile von '{book.get(sec.TITLE)}'")
         
@@ -860,20 +879,20 @@ class PartModel(StoryElementModel):
 
 class BookModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir, tree_view):
-        super().__init__(ui, overview_ui, base_dir, tree_view)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
     
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id))         
-        self.this_story_element = hlp.get_book_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_book_path_by_alias(self.get_folder(), _id)
+        self.this_story_element = hlp.get_book_by_alias(self.get_overview_folder(), _id)
+        self.fq_file_name = hlp.get_book_path_by_alias(self.get_overview_folder(), _id)
         self.load()  
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for book in sorted(hlp.get_all_books(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+        for book in sorted(hlp.get_all_books(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
             self.overview_ui.add_overview_item(book.get(sec.ALIAS), book.get(sec.TITLE))
 
     def load_previous(self):
@@ -908,6 +927,12 @@ class BookModel(StoryElementModel):
         self.ui.set_message('')
         self.ui.set_content('')
         self.ui.enable_alias()
+                
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
+        story = hlp.get(selected_parent, as_dict=True)
+        self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")
+        
         super().clear()
         
     def get_plothole_type(self):
@@ -988,13 +1013,17 @@ class BookModel(StoryElementModel):
          
     def on_new(self):
         log.log(self, currentframe())
-        story = rd.desolve_parent_by_path(self.fq_file_name)
+        
         self.clear()
-        self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")
     
     def on_raised(self): 
         log.log_var(self, currentframe())
-        story = rd.desolve_parent_by_path(self.fq_file_name)
+        
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
+        
+        story = hlp.get(selected_parent, as_dict=True)
+        
         self.load_overview()
         self.overview_ui.set_header(f"Bücher von '{story.get(sec.TITLE)}'")
         
@@ -1006,14 +1035,18 @@ class BookModel(StoryElementModel):
 
 class StoryModel(StoryElementModel):
     
-    def __init__(self, ui, overview_ui, base_dir, tree_view):
-        super().__init__(ui, overview_ui, base_dir, tree_view)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir))
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
 
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id))
-        self.this_story_element = hlp.get_story_by_alias(self.get_ui_older(), _id)
-        self.fq_file_name = hlp.get_story_path_by_alias(self.ge_ui_folder(), _id)
+        self.fq_file_name = hlp.get_story_path_by_alias(self.get_overview_folder(), _id)
+        log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
+        
+        self.this_story_element = hlp.get_story_by_alias(self.get_ui_folder(), _id)
+        log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
+        
         self.load()       
 
     def load_overview(self):
@@ -1114,7 +1147,7 @@ class StoryModel(StoryElementModel):
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
         if path.endswith('.story'):
-            super().on_treeview_select(path)
+            super().on_treeview_select(path)   
             
     def get_overview_folder(self):
         log.log(self, currentframe())

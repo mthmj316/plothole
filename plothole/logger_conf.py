@@ -1,13 +1,15 @@
-LOGGING_ALL=True
+LOGGING_ALL=False
 LOGGING_SOURCE = [
     #'StoryElementTreeview#*'
     # 'BookModel#*',
-    'NavigatorInstance#*',
-    'relation_desolver#*'
+    #'NavigatorInstance#*',
+    #'relation_desolver#*'
     # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
-    # 'StoryModel#*'
-    # 'StoryElement#*',
+    'PartModel#*',
+    'StoryElement#*',
+    'plothole_core#*',
+    'helpers#get_path_for_alias'
     # '*#get_all'
     ]
 

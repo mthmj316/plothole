@@ -22,7 +22,8 @@ def delete(base_dir, alias, plothole_type):
         delete_story(base_dir, alias)
         log.log_var(None, currentframe(), ('return',"void"))
     else:
-        path = hlp.get_path_by_alias(base_dir, alias)
+        path = hlp.get_path_for_alias(base_dir, alias, extension=plothole_type)
+        log.log_var(None, currentframe(), ('path',path))
         dump_path = dump_file_extension(path, plothole_type.value)
         fa.move(path, dump_path)
     log.log_var(None, currentframe(), ('return',"void"))

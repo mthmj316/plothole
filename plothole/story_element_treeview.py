@@ -15,6 +15,7 @@ from observers import UIObservable
 
 import plothole_types as ptypes
 import plothole_core as ptcore
+import time
 
 class StoryElementTreeview(UIObservable):
     
@@ -37,9 +38,12 @@ class StoryElementTreeview(UIObservable):
     def update_tree_view(self):
         log.log(self, currentframe())
         self.create_tree_view(self.tree_container)
+        
+        #time.sleep(5)
+        
         if self.selected_item is not None:
-            self.tree.focus(self.selected_item)
             self.tree.selection_set(self.selected_item)
+            #self.tree.focus(self.selected_item)
         
 
     def on_open(self, event):
