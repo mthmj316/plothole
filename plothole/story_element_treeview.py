@@ -105,8 +105,9 @@ class StoryElementTreeview(UIObservable):
                 
                 path = hlp.get_path_for_alias(parent_path, element.get(sec.ALIAS), child_ptype)
                 ptype_display = ptypes.PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(child_ptype)
+                sequence = element.get(sec.SEQUENTIAL_NO)
                 
-                tree_view_ui = tree.insert(parent_ui, "end", text=element.get(sec.TITLE), values=(ptype_display), iid=path)
+                tree_view_ui = tree.insert(parent_ui, "end", text=element.get(sec.TITLE), values=(sequence, ptype_display), iid=path)
                 
                 folder = pathlib.Path(path).parent
                 
@@ -123,7 +124,7 @@ class StoryElementTreeview(UIObservable):
             self.tree = ttk.Treeview(tree_container)
         
         # Spalten definieren
-        self.tree["columns"] = ("Type")
+        self.tree["columns"] = ("Sequence", "Type")
         
         # Erste Spalte (#0) = Baumspalte
         self.tree.heading("#0", text="Element")
@@ -132,6 +133,8 @@ class StoryElementTreeview(UIObservable):
         # Weitere Spalten
         self.tree.heading("Type", text="Type")
         self.tree.column("Type", width=80)
+        self.tree.heading("Sequence", text="Nr.")
+        self.tree.column("Type", width=20)
 
         self.tree.pack(fill='both', expand=True)
         
@@ -144,7 +147,7 @@ class StoryElementTreeview(UIObservable):
             ptype_display = ptypes.PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(ptype)
             
             
-            tree_view_ui = self.tree.insert("", "end", text=story.get(sec.TITLE), values=(ptype_display), iid=path)
+            tree_view_ui = self.tree.insert("", "end", text=story.get(sec.TITLE), values=('-', ptype_display), iid=path)
             folder = pathlib.Path(path).parent
             
             if tree_view_ui in self.tree_view_folding_state:

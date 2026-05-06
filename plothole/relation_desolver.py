@@ -97,6 +97,9 @@ def desolve_parent_by_path(path, return_path_only=False):
     
     if parent_ptype is not None:
         parent_se = hlp.get_all(parent_folder, parent_ptype, as_dict=True)[0]
+        
+    if return_path_only:
+        parent_se = hlp.get_path_for_alias(parent_folder, parent_se.get(sec.ALIAS), extension=parent_ptype)
     
     log.log_var(None, currentframe(), ("parent_se", parent_se))
     
