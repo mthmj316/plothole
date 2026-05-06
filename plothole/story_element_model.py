@@ -244,14 +244,14 @@ class SceneModel(StoryElementModel):
         
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_scene_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_scene_path_by_alias(self.get_folder(), _id)
+        self.this_story_element = hlp.get_scene_by_alias(self.get_overview_folder(), _id)
+        self.fq_file_name = hlp.get_scene_path_by_alias(self.get_overview_folder(), _id)
         self.load()   
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for scene in sorted(hlp.get_all_scenes(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+        for scene in sorted(hlp.get_all_scenes(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
             self.overview_ui.add_overview_item(scene.get(sec.ALIAS), scene.get(sec.TITLE))
 
     def load_previous(self):
@@ -262,7 +262,7 @@ class SceneModel(StoryElementModel):
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
-        scenes = sorted(hlp.get_all_scenes(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        scenes = sorted(hlp.get_all_scenes(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
         select_next = False
         for scene in scenes:
             if select_next:
@@ -378,7 +378,12 @@ class SceneModel(StoryElementModel):
 
     def on_raised(self): 
         log.log(self, currentframe())
-        chapter = rd.desolve_parent_by_path(self.fq_file_name)
+                
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))  
+        
+        chapter = hlp.get(selected_parent, as_dict=True)
+        
         self.load_overview()
         self.overview_ui.set_header(f"Szenen von '{chapter.get(sec.TITLE)}'")
         
@@ -396,14 +401,14 @@ class ChapterModel(StoryElementModel):
         
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_chapter_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_chapter_path_by_alias(self.get_folder(), _id)
+        self.this_story_element = hlp.get_chapter_by_alias(self.get_overview_folder(), _id)
+        self.fq_file_name = hlp.get_chapter_path_by_alias(self.get_overview_folder(), _id)
         self.load()   
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for chapter in sorted(hlp.get_all_chapters(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+        for chapter in sorted(hlp.get_all_chapters(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
             self.overview_ui.add_overview_item(chapter.get(sec.ALIAS), chapter.get(sec.TITLE))
 
     def load_previous(self):
@@ -414,7 +419,7 @@ class ChapterModel(StoryElementModel):
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
-        chapters = sorted(hlp.get_all_chapters(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        chapters = sorted(hlp.get_all_chapters(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
         select_next = False
         for chapter in chapters:
             if select_next:
@@ -509,8 +514,13 @@ class ChapterModel(StoryElementModel):
         self.ui.set_header(f"Neues Kapitel für '{part.get(sec.TITLE)}'")           
 
     def on_raised(self): 
-        log.log(self, currentframe())
-        part = rd.desolve_parent_by_path(self.fq_file_name)
+        log.log_var(self, currentframe())
+        
+        selected_parent = self.parent_model.get_fq_file_name()        
+        log.log_var(self, currentframe(),('selected_parent', selected_parent))  
+        
+        part = hlp.get(selected_parent, as_dict=True)
+        
         self.load_overview()
         self.overview_ui.set_header(f"Kapitel von '{part.get(sec.TITLE)}'")
         
@@ -556,14 +566,14 @@ class PlotholeModel(StoryElementModel):
         
     def on_open(self, _id):
         log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_plothole_by_alias(self.get_folder(), _id)
-        self.fq_file_name = hlp.get_plothole_path_by_alias(self.get_folder(), _id)
+        self.this_story_element = hlp.get_plothole_by_alias(self.get_overview_folder(), _id)
+        self.fq_file_name = hlp.get_plothole_path_by_alias(self.get_overview_folder(), _id)
         self.load()   
 
     def load_overview(self):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
-        for plothole in sorted(hlp.get_all_plotholes(self.get_folder(), as_dict=True), key=lambda x: x[sec.TITLE]):
+        for plothole in sorted(hlp.get_all_plotholes(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.TITLE]):
             self.overview_ui.add_overview_item(plothole.get(sec.ALIAS), plothole.get(sec.TITLE))
 
     def load_previous(self):
@@ -574,7 +584,7 @@ class PlotholeModel(StoryElementModel):
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
-        parts = sorted(hlp.get_all_parts(self.get_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
+        parts = sorted(hlp.get_all_parts(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
         select_next = False
         for part in parts:
             if select_next:

@@ -14,6 +14,27 @@ import plothole_types as pt
 from story_element_ui import __SEControls__ as sec
 
 
+def desolve(base):
+    log.log_var(None, currentframe(), ('base',base))
+    for story in hlp.get_all_stories(base, as_dict=True):
+        story['ptype'] = pt.PlotHoleType.STORY.value
+        story['path'] = hlp.get_path_for_alias(base, story.get(sec.ALIAS))
+        
+        log.log_var(None, currentframe(), ('story',story))
+        
+        desolve_children(story)
+
+def desolve_children(story_element):
+    log.log_var(None, currentframe(), ('story_element',story_element))
+    parent_path = get_folder_from_fqpath(story_element.get('path'))
+    log.log_var(None, currentframe(), ('parent_path',parent_path))
+    child_ptype = pt.CHILD_PLOTHOLE_TYPE.get(story_element.get('ptype'))
+    for child in hlp.get_all(parent_path, extension=child_ptype, as_dict=True):
+        child['ptype'] = child_ptype
+        child['path'] = hlp.get_path_for_alias(parent_path, child.get(sec.ALIAS), child.get('ptype'))
+        
+        log.log_var(None, currentframe(), ('child',child))
+
 def desolve_by_path(path, return_path_only=False):
     
     log.log_var(None, currentframe(), ('path',path), ('return_path_only',return_path_only))
@@ -150,14 +171,6 @@ if __name__ == '__main__':
     log.ENABLE_LOGGING = True
     log.TRACE_ONLY = False
     
-    test_path = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos\\LearningMotionComic\\TheSnakeAndTheMouse\\TheSnakeAndTheMouse\\TheSnakeAndTheMouse\\TheSnakeAndTheMouse.chapter"
+    test_path = "C:\\Users\\mthoma\\Documents\\PlotHole-Test_Repos"
     
-    result_desolve_parent_by_path = desolve_parent_by_path(test_path)   
-    log.log_var(None, currentframe(), ("result_desolve_parent_by_path", result_desolve_parent_by_path))
-    
-    result_desolve_children_by_path = desolve_children_by_path(test_path)   
-    log.log_var(None, currentframe(), ("result_desolve_children_by_path", result_desolve_children_by_path))   
-    
-    result_relations = desolve_by_path(test_path)   
-    log.log_var(None, currentframe(), ("result_relations", result_relations))    
-    
+    desolve(test_path)    

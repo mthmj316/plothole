@@ -3,13 +3,13 @@ LOGGING_SOURCE = [
     #'StoryElementTreeview#*'
     # 'BookModel#*',
     #'NavigatorInstance#*',
-    #'relation_desolver#*'
+    'relation_desolver#*'
     # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
-    'PartModel#*',
-    'StoryElement#*',
-    'plothole_core#*',
-    'helpers#get_path_for_alias'
+    #'PartModel#*',
+    #'StoryElement#*',
+    #'plothole_core#*',
+    #'helpers#get_path_for_alias'
     # '*#get_all'
     ]
 
