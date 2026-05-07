@@ -31,6 +31,7 @@ class StoryElementModel(UIObserver):
         self.is_treeview_selected = False
         self.tree_view = tree_view
         self.parent_model = parent_model
+        self.treeview_selection = None
     
     @abstractmethod
     def get_plothole_type(self):
@@ -65,7 +66,7 @@ class StoryElementModel(UIObserver):
         pass
     
     @abstractmethod
-    def load(self):
+    def load(self, element):
         pass
         
     @abstractmethod
@@ -76,19 +77,27 @@ class StoryElementModel(UIObserver):
     def load_next(self):
         pass
     
-    @abstractmethod
     def load_overview(self):
-        pass
+        log.log(self, currentframe())
+        # delete the current overview content
+        self.overview_ui.remove_all_overview_items()
+        
+        ptype = pc.CHILD_PLOTHOLE_TYPE.get(self.parent_model.get(sec.PTYPE.value))
+        
+        elements = hlp.get_all(self.get_overview_folder(), ptype ,as_dict=True)
+        
+        for element in sorted(elements, key=lambda x: x[sec.SEQUENTIAL_NO]):
+            self.overview_ui.add_overview_item(element.get(sec.PATH), element.get(sec.TITLE))
     
     def get_fq_file_name(self):
         log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
         return self.fq_file_name
-    
-        
+       
     def clear(self):
         log.log(self, currentframe())        
         self.this_story_element = None
         self.fq_file_name = ''
+        
         
     def get_file_name(self):
         log.log(self, currentframe())
@@ -134,9 +143,16 @@ class StoryElementModel(UIObserver):
         log.log(self, currentframe())
         self.load_next()
 
-    @abstractmethod
     def on_open(self, _id, ph_type=None):
-        pass
+        log.log_var(self, currentframe(),('_id',_id))
+        
+        self.fq_file_name = _id
+        log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
+        
+        self.this_story_element = hlp.get(_id, as_dict=True)
+        log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
+        
+        self.load()  
 
     def on_plothole(self):
         log.log(self, currentframe(), 'not relevant')
@@ -147,7 +163,7 @@ class StoryElementModel(UIObserver):
 
     def on_revert(self):
         log.log(self, currentframe())
-        self.load()
+        self.load(self.treeview_selection if self.is_treeview_selected else self.this_story_element)
 
     def on_save(self):
         log.log(self, currentframe())
@@ -183,6 +199,7 @@ class StoryElementModel(UIObserver):
         self.tree_view.update_tree_view()
         
         self.after_save()
+        rd.desolve(self.base_dir)
         
     def on_sub(self):
         log.log(self, currentframe(), 'not relevant')
@@ -198,6 +215,7 @@ class StoryElementModel(UIObserver):
         fa.write(self.fq_file_name, data)
         self.tree_view.update_tree_view()
         self.after_save()
+        rd.desolve(self.base_dir)
         
     def on_option_select(self, selected, secontrol):
         pass
@@ -206,11 +224,15 @@ class StoryElementModel(UIObserver):
         log.log_var(self, currentframe(), ("path", path))
         self.fq_file_name = path
         element = hlp.get(path, as_dict=True)
-        self.this_story_element = element
-        self.load()
+        
+        self.treeview_selection = element
+        
+        self.load(element)
+        
         self.is_treeview_selected = True
 
     def get_header(self, ptype):
+        
         log.log_var(self, currentframe(), ("ptype", ptype))
         
         parent_element = None
@@ -348,10 +370,10 @@ class SceneModel(StoryElementModel):
         
         self.get_scene_header()
     
-    def load(self):
+    def load(self, element):
         log.log(self, currentframe())
         
-        scene = self.this_story_element
+        scene = element
         self.ui.set_sequential_no(scene.get(sec.SEQUENTIAL_NO))        
         self.ui.set_alias(scene.get(sec.ALIAS))
         self.ui.set_title(scene.get(sec.TITLE))
@@ -362,14 +384,9 @@ class SceneModel(StoryElementModel):
         self.ui.set_content(scene.get(sec.CONTENT))
         self.ui.set_note(scene.get(sec.NOTE))
         
-        self.ui.disable_alias()
-        
-        self.get_scene_header()
-        
-    def get_scene_header(self):
-        log.log(self, currentframe())
+        self.ui.disable_alias()        
         self.get_header(PlotHoleType.SCENE)
-         
+        
     def on_new(self):
         log.log(self, currentframe())
         chapter = rd.desolve_parent_by_path(self.fq_file_name)
@@ -490,23 +507,18 @@ class ChapterModel(StoryElementModel):
         
         self.get_chapter_header()
     
-    def load(self):
+    def load(self, element):
         log.log(self, currentframe())
         
-        chapter = self.this_story_element
+        chapter = element
         self.ui.set_sequential_no(chapter.get(sec.SEQUENTIAL_NO))        
         self.ui.set_alias(chapter.get(sec.ALIAS))
         self.ui.set_title(chapter.get(sec.TITLE))
         self.ui.set_content(chapter.get(sec.CONTENT))
         
-        self.ui.disable_alias()
-        
-        self.get_chapter_header()
-        
-    def get_chapter_header(self):
-        log.log(self, currentframe())        
+        self.ui.disable_alias()        
         self.get_header(PlotHoleType.CHAPTER)
-         
+        
     def on_new(self):
         log.log(self, currentframe())
         part = rd.desolve_parent_by_path(self.fq_file_name)
@@ -863,9 +875,10 @@ class PartModel(StoryElementModel):
         
         self.get_part_header()
     
-    def load(self):
+    def load(self, element):
         log.log(self, currentframe())
-        part = self.this_story_element
+        
+        part = element
         
         self.ui.set_sequential_no(part.get(sec.SEQUENTIAL_NO))
         self.ui.set_alias(part.get(sec.ALIAS))
@@ -876,13 +889,8 @@ class PartModel(StoryElementModel):
         self.ui.set_content(part.get(sec.CONTENT))
         
         self.ui.disable_alias()
-        
-        self.get_part_header()
-  
-    def get_part_header(self):
-        log.log(self, currentframe())
         self.get_header(PlotHoleType.PART)
-         
+  
     def on_new(self):
         log.log(self, currentframe())
         self.clear()
@@ -916,11 +924,11 @@ class BookModel(StoryElementModel):
         self.fq_file_name = hlp.get_book_path_by_alias(self.get_overview_folder(), _id)
         self.load()  
 
-    def load_overview(self):
-        log.log(self, currentframe())
-        self.overview_ui.remove_all_overview_items()
-        for book in sorted(hlp.get_all_books(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(book.get(sec.ALIAS), book.get(sec.TITLE))
+    # def load_overview(self):
+    #     log.log(self, currentframe())
+    #     self.overview_ui.remove_all_overview_items()
+    #     for book in sorted(hlp.get_all_books(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
+    #         self.overview_ui.add_overview_item(book.get(sec.PATH), book.get(sec.TITLE))
 
     def load_previous(self):
         log.log(self, currentframe())        
@@ -1016,9 +1024,10 @@ class BookModel(StoryElementModel):
         
         self.get_book_header()
     
-    def load(self):
+    def load(self, element):
         log.log(self, currentframe())
-        book = self.this_story_element
+        
+        book = element
         
         self.ui.set_sequential_no(book.get(sec.SEQUENTIAL_NO))
         self.ui.set_alias(book.get(sec.ALIAS))
@@ -1028,13 +1037,11 @@ class BookModel(StoryElementModel):
         self.ui.set_message(book.get(sec.MESSAGE))
         self.ui.set_content(book.get(sec.CONTENT))
         
-        self.ui.disable_alias()
-        
-        self.get_book_header()
+        self.ui.disable_alias() 
+        self.get_header(PlotHoleType.BOOK)
   
     def get_book_header(self):
-        log.log(self, currentframe()) 
-        self.get_header(PlotHoleType.BOOK)
+        log.log(self, currentframe())
         
     def on_new(self):
         log.log(self, currentframe())
@@ -1064,15 +1071,15 @@ class StoryModel(StoryElementModel):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
 
-    def on_open(self, _id):
-        log.log_var(self, currentframe(),('_id',_id))
-        self.fq_file_name = hlp.get_story_path_by_alias(self.get_overview_folder(), _id)
-        log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
+    # def on_open(self, _id):
+    #     log.log_var(self, currentframe(),('_id',_id))
+    #     self.fq_file_name = hlp.get_story_path_by_alias(self.get_overview_folder(), _id)
+    #     log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
         
-        self.this_story_element = hlp.get_story_by_alias(self.get_ui_folder(), _id)
-        log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
+    #     self.this_story_element = hlp.get_story_by_alias(self.get_ui_folder(), _id)
+    #     log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
         
-        self.load()       
+    #     self.load()       
 
     def load_overview(self):
         log.log(self, currentframe())
@@ -1150,9 +1157,10 @@ class StoryModel(StoryElementModel):
         self.ui.disable_alias()        
         self.get_header(PlotHoleType.STORY)
         
-    def load(self):
+    def load(self, element):
+        
         log.log(self, currentframe())
-        story = self.this_story_element
+        story = element
         
         self.ui.set_alias(story.get(sec.ALIAS))
         self.ui.set_title(story.get(sec.TITLE))
@@ -1162,7 +1170,6 @@ class StoryModel(StoryElementModel):
         self.ui.set_content(story.get(sec.CONTENT))
         
         self.ui.disable_alias()
-        
         self.get_header(PlotHoleType.STORY)
         
     def on_raised(self): 

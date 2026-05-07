@@ -9,6 +9,9 @@ from inspect import currentframe
 import logger as log
 import helpers as hlp
 
+import json
+import file_access as fa
+
 import pathlib
 import plothole_types as pt
 from story_element_ui import __SEControls__ as sec
@@ -23,17 +26,42 @@ def desolve(base):
         log.log_var(None, currentframe(), ('story',story))
         
         desolve_children(story)
+        
+        data = json.dumps(story, sort_keys=False, indent=2)
+        fa.write(story.get('path'), data)
 
 def desolve_children(story_element):
-    log.log_var(None, currentframe(), ('story_element',story_element))
-    parent_path = get_folder_from_fqpath(story_element.get('path'))
-    log.log_var(None, currentframe(), ('parent_path',parent_path))
+   
     child_ptype = pt.CHILD_PLOTHOLE_TYPE.get(story_element.get('ptype'))
-    for child in hlp.get_all(parent_path, extension=child_ptype, as_dict=True):
-        child['ptype'] = child_ptype
-        child['path'] = hlp.get_path_for_alias(parent_path, child.get(sec.ALIAS), child.get('ptype'))
+    log.log_var(None, currentframe(), ('child_ptype',child_ptype))
+    
+    if child_ptype is not None:
+        log.log_var(None, currentframe(), ('story_element',story_element))
+        parent_path = get_folder_from_fqpath(story_element.get('path'))
+        log.log_var(None, currentframe(), ('parent_path',parent_path))
         
-        log.log_var(None, currentframe(), ('child',child))
+        parent_ptype = story_element.get('ptype')
+        
+        for child in hlp.get_all(parent_path, extension=child_ptype, as_dict=True):
+            child['ptype'] = child_ptype
+            child['path'] = hlp.get_path_for_alias(parent_path, child.get(sec.ALIAS), child.get('ptype'))
+            
+            child['pptype'] = parent_ptype
+            child[parent_ptype] = story_element.get('path')
+            
+            for ptype in pt.PlotHoleType:
+                
+                ptype_value = ptype.value
+                
+                if ptype_value in story_element:
+                    child[ptype.value] = story_element.get(ptype.value)
+            
+            log.log_var(None, currentframe(), ('child',child))
+            
+            desolve_children(child)
+            
+            data = json.dumps(child, sort_keys=False, indent=2)
+            fa.write(child.get('path'), data)
 
 def desolve_by_path(path, return_path_only=False):
     

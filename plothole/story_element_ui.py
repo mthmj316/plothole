@@ -42,6 +42,8 @@ class __SEControls__(enum.StrEnum):
     HEADER = 'header'
     MESSAGE = 'msg'
     NOTE = 'note'
+    PATH = 'path'
+    PTYPE = 'ptype'
     SEQUENTIAL_NO = 'sequential_no'
     TITLE = 'title'
     TONE = 'tone'
