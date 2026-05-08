@@ -8,7 +8,7 @@ from abc import abstractmethod
 from inspect import currentframe
 import logger as log
 from observers import UIObserver
-from plothole_types import PlotHoleType, UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP, PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP, PARENT_PLOTHOLE_TYPE
+import plothole_types as pt
 import plothole_core as pc
 from story_element_ui import __SEControls__ as sec
 import helpers as hlp
@@ -27,35 +27,51 @@ class StoryElementModel(UIObserver):
         self.ui.register(self)
         self.overview_ui.register(self)
         self.this_story_element = None
-        self.fq_file_name = ''
-        self.is_treeview_selected = False
         self.tree_view = tree_view
         self.parent_model = parent_model
         self.treeview_selection = None
     
     @abstractmethod
     def get_plothole_type(self):
+        '''
+        Returns the plothole type for the correspondings story element model.
+        -------
+        None
+        '''
         pass
-    
-    def get_ui_folder(self):
-        log.log(self, currentframe())
-        folder = rd.get_folder_from_fqpath(self.fq_file_name)
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
-    
-    def get_overview_folder(self):
-        log.log(self, currentframe())
-        folder = rd.get_folder_from_fqpath(self.parent_model.get_fq_file_name())
-        log.log_var(self, currentframe(), ("folder", folder))
-        return folder
-    
-    @abstractmethod
+
     def get_id(self, from_ui):
-        pass
+        '''
+        Returns the either the alias of the current active story element
+        or if from_ui == True the value of the ui input field 'Alias'.
+        
+        None is returned if from_ui == True and there is no active story element.
+        '''
+        
+        log.log_var(self, currentframe(),('from_ui',from_ui))
+        _id = ''
+        
+        if from_ui:
+            _id = self.ui.get_alias()
+        else:
+            
+            active_story_element = self.get_active_story_element()
+            
+            if active_story_element is not None:
+                _id = active_story_element.get(sec.ALIAS)
+        
+        log.log_var(self, currentframe(), ("_id", _id))
+        return _id
     
-    @abstractmethod
     def get_id_name(self):
-        pass
+        '''
+        Returns the name of the id attribute of the story element.
+        By default alias is returned.
+        '''
+        log.log(self, currentframe())
+        name = 'Alias'
+        log.log_var(self, currentframe(), ("name", name))
+        return name
     
     @abstractmethod
     def prepare_save(self):
@@ -231,32 +247,60 @@ class StoryElementModel(UIObserver):
         
         self.is_treeview_selected = True
 
-    def get_header(self, ptype):
+    def set_header(self):
+        """
+        Sets the of the ui user interface.
+        The following cases are covered:
+            1.: New story element creation:
+                This means no this_story_element/treeview_selection is None -> Generic header: e.g. "Neues Buch"
+            2.: Story elements is displayed:
+                This means get_active_story_element returns the active story element -> specific header: "2. Buch: Die Zwei Türme"
+                Template: <squence nr>. <story element ui representation>: <story element title>
+                If no sequence nr is avaialable:
+                Template: <story element ui representation>: <story element title>
+        """        
+        log.log_var(self, currentframe())
         
-        log.log_var(self, currentframe(), ("ptype", ptype))
+        active_story_element = self.get_active_story_element()
         
-        parent_element = None
-        sequence_part = ''
-        this_story_element_title = ""
+        header = ""
+        ptype = self.get_plothole_type()
+        ptype4ui = pt.PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(ptype)
         
-        if self.fq_file_name is not None:
-            relations = rd.desolve_by_path(self.fq_file_name)
-            parent_element = relations.get(PARENT_PLOTHOLE_TYPE.get(ptype))
+        if active_story_element is not None:
+            # Create specific header
             
-            if self.this_story_element.get(sec.SEQUENTIAL_NO) is not None:
-                sequence_part = f" {self.this_story_element.get(sec.SEQUENTIAL_NO)}."
+            sequence_no = active_story_element.get(sec.SEQUENTIAL_NO)
+            log.log_var(self, currentframe(), ('sequence_no',sequence_no))
+            
+            sequence_part = ''
+            if sequence_no is not None:
+                sequence_part = f"{sequence_no}. "
                 
-            this_story_element_title = f": {self.this_story_element.get(sec.TITLE)}"
+            header = f"{sequence_part}{ptype4ui}: {active_story_element.get(sec.TITLE)}"
+            
         else:
-            parent_element = hlp.get(self.parent_model.get_fq_file_name, as_dict=True)
-            
+            # create genric header
+            header = f"Neue(s) {ptype4ui}"
+
+        self.ui.set_header(header)
+
+    def get_active_story_element(self):
+        """
+        Returns the this_story_element object if the treeview_selection is None
+        """
+        log.log(self, currentframe())
         
-        parent_element_header_part = ""
-        if parent_element is not None:
-            f"{parent_element.get(sec.TITLE)}{sequence_part} "
-            
+        if self.treeview_selection is not None:
+            log.log(self, currentframe(), 'treeview_selection is returned')
+            return self.treeview_selection
+        elif self.this_story_element is not None:
+            log.log(self, currentframe(), 'this_story_element is returned')
+            return self.this_story_element
+        else:
+            log.log(self, currentframe(), 'None is returned')
+            return None
         
-        self.ui.set_header(f"{parent_element_header_part}{sequence_part} {PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(ptype)}{this_story_element_title}")
 
 class SceneModel(StoryElementModel):
     
@@ -314,27 +358,9 @@ class SceneModel(StoryElementModel):
         
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.SCENE
+        phtype = pt.PlotHoleType.SCENE
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def get_id(self, from_ui):
-        log.log_var(self, currentframe(),('from_ui',from_ui))
-        _id = ''
-        
-        if from_ui:
-            _id = self.ui.get_alias()
-        else:
-            if self.this_story_element is not None:
-                _id = self.this_story_element.get(sec.ALIAS)
-        log.log_var(self, currentframe(), ("_id", _id))
-        return _id
-    
-    def get_id_name(self):
-        log.log(self, currentframe())
-        name = 'Alias'
-        log.log_var(self, currentframe(), ("name", name))
-        return name
     
     def prepare_save(self):
         log.log_var(self, currentframe())
@@ -385,7 +411,7 @@ class SceneModel(StoryElementModel):
         self.ui.set_note(scene.get(sec.NOTE))
         
         self.ui.disable_alias()        
-        self.get_header(PlotHoleType.SCENE)
+        self.set_header()
         
     def on_new(self):
         log.log(self, currentframe())
@@ -461,27 +487,9 @@ class ChapterModel(StoryElementModel):
         
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.CHAPTER
+        phtype = pt.PlotHoleType.CHAPTER
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def get_id(self, from_ui):
-        log.log_var(self, currentframe(),('from_ui',from_ui))
-        _id = ''
-        
-        if from_ui:
-            _id = self.ui.get_alias()
-        else:
-            if self.this_story_element is not None:
-                _id = self.this_story_element.get(sec.ALIAS)
-        log.log_var(self, currentframe(), ("_id", _id))
-        return _id
-    
-    def get_id_name(self):
-        log.log(self, currentframe())
-        name = 'Alias'
-        log.log_var(self, currentframe(), ("name", name))
-        return name
     
     def prepare_save(self):
         log.log_var(self, currentframe())
@@ -517,7 +525,7 @@ class ChapterModel(StoryElementModel):
         self.ui.set_content(chapter.get(sec.CONTENT))
         
         self.ui.disable_alias()        
-        self.get_header(PlotHoleType.CHAPTER)
+        self.set_header()
         
     def on_new(self):
         log.log(self, currentframe())
@@ -623,7 +631,7 @@ class PlotholeModel(StoryElementModel):
         
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.PLOTHOLE
+        phtype = pt.PlotHoleType.PLOTHOLE
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
     
@@ -633,24 +641,6 @@ class PlotholeModel(StoryElementModel):
         folder = f"{story_folder}/plotholes"
         log.log_var(self, currentframe(), ("folder", folder))
         return folder
-
-    def get_id(self, from_ui):
-        log.log_var(self, currentframe(),('from_ui',from_ui))
-        _id = ''
-        
-        if from_ui:
-            _id = self.ui.get_alias()
-        else:
-            if self.this_story_element is not None:
-                _id = self.this_story_element.get(sec.ALIAS)
-        log.log_var(self, currentframe(), ("_id", _id))
-        return _id
-    
-    def get_id_name(self):
-        log.log(self, currentframe())
-        name = 'Alias'
-        log.log_var(self, currentframe(), ("name", name))
-        return name
     
     def prepare_save(self):
         log.log_var(self, currentframe())
@@ -823,27 +813,9 @@ class PartModel(StoryElementModel):
         
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.PART
+        phtype = pt.PlotHoleType.PART
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-
-    def get_id(self, from_ui):
-        log.log_var(self, currentframe(),('from_ui',from_ui))
-        _id = ''
-        
-        if from_ui:
-            _id = self.ui.get_alias()
-        else:
-            if self.this_story_element is not None:
-                _id = self.this_story_element.get(sec.ALIAS)
-        log.log_var(self, currentframe(), ("_id", _id))
-        return _id
-    
-    def get_id_name(self):
-        log.log(self, currentframe())
-        name = 'Alias'
-        log.log_var(self, currentframe(), ("name", name))
-        return name
     
     def prepare_save(self):
         log.log_var(self, currentframe())
@@ -889,7 +861,7 @@ class PartModel(StoryElementModel):
         self.ui.set_content(part.get(sec.CONTENT))
         
         self.ui.disable_alias()
-        self.get_header(PlotHoleType.PART)
+        self.set_header()
   
     def on_new(self):
         log.log(self, currentframe())
@@ -972,27 +944,9 @@ class BookModel(StoryElementModel):
         
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.BOOK
+        phtype = pt.PlotHoleType.BOOK
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-
-    def get_id(self, from_ui):
-        log.log_var(self, currentframe(),('from_ui',from_ui))
-        _id = ''
-        
-        if from_ui:
-            _id = self.ui.get_alias()
-        else:
-            if self.this_story_element is not None:
-                _id = self.this_story_element.get(sec.ALIAS)
-        log.log_var(self, currentframe(), ("_id", _id))
-        return _id
-    
-    def get_id_name(self):
-        log.log(self, currentframe())
-        name = 'Alias'
-        log.log_var(self, currentframe(), ("name", name))
-        return name
     
     def prepare_save(self):
         log.log_var(self, currentframe())
@@ -1038,7 +992,7 @@ class BookModel(StoryElementModel):
         self.ui.set_content(book.get(sec.CONTENT))
         
         self.ui.disable_alias() 
-        self.get_header(PlotHoleType.BOOK)
+        self.set_header()
   
     def get_book_header(self):
         log.log(self, currentframe())
@@ -1107,28 +1061,9 @@ class StoryModel(StoryElementModel):
     
     def get_plothole_type(self):
         log.log(self, currentframe())
-        phtype = PlotHoleType.STORY
+        phtype = pt.PlotHoleType.STORY
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    
-    def get_id(self, from_ui):
-        log.log_var(self, currentframe(),('from_ui',from_ui))
-        _id = ''
-        
-        if from_ui:
-            _id = self.ui.get_alias()
-        else:
-            if self.this_story_element is not None:
-                _id = self.this_story_element.get(sec.ALIAS)
-        log.log_var(self, currentframe(), ("_id", _id))
-        return _id
-    
-    def get_id_name(self):
-        log.log(self, currentframe())
-        name = 'Alias'
-        log.log_var(self, currentframe(), ("name", name))
-        return name
     
     def prepare_save(self):
         log.log_var(self, currentframe())
@@ -1155,7 +1090,7 @@ class StoryModel(StoryElementModel):
     def after_save(self):
         log.log(self, currentframe())
         self.ui.disable_alias()        
-        self.get_header(PlotHoleType.STORY)
+        self.set_header()
         
     def load(self, element):
         
@@ -1170,7 +1105,7 @@ class StoryModel(StoryElementModel):
         self.ui.set_content(story.get(sec.CONTENT))
         
         self.ui.disable_alias()
-        self.get_header(PlotHoleType.STORY)
+        self.set_header()
         
     def on_raised(self): 
         log.log_var(self, currentframe())
