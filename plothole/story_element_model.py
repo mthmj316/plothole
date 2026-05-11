@@ -42,7 +42,7 @@ class StoryElementModel(UIObserver):
 
     def get_id(self, from_ui):
         '''
-        Returns the either the alias of the current active story element
+        Returns either the alias of the current active story element
         or if from_ui == True the value of the ui input field 'Alias'.
         
         None is returned if from_ui == True and there is no active story element.
@@ -73,113 +73,378 @@ class StoryElementModel(UIObserver):
         log.log_var(self, currentframe(), ("name", name))
         return name
     
-    @abstractmethod
     def prepare_save(self):
-        pass
-    
-    @abstractmethod
-    def after_save(self):
-        pass
-    
-    @abstractmethod
-    def load(self, element):
-        pass
+        '''
+        Is called before save and update.
         
-    @abstractmethod
-    def load_previous(self):
-        pass
+        Create a new this_story_element dictionary, fetches the data from the ui, and, if not None,
+        writes the ui value to the corresponding entry of the dictionary.
+        '''
+        log.log_var(self, currentframe())
+        
+        alias = self.ui.get_alias()
+        content = self.ui.get_content()
+        genre = self.ui.get_genre() 
+        message = self.ui.get_message()
+        note = self.ui.get_note()
+        sequential_no = self.ui.get_sequential_no()
+        title = self.ui.get_title()
+        tone = self.ui.get_tone()
+        xtension_0 = self.ui.get_xtension(sec.XTENSION_0)
+        xtension_1 = self.ui.get_xtension(sec.XTENSION_1)
+        xtension_2 = self.ui.get_xtension(sec.XTENSION_2)
+        xtension_3 = self.ui.get_xtension(sec.XTENSION_3)
+        xtension_4 = self.ui.get_xtension(sec.XTENSION_4)
+        xtension_5 = self.ui.get_xtension(sec.XTENSION_5)
+        xtension_6 = self.ui.get_xtension(sec.XTENSION_6)
+        xtension_7 = self.ui.get_xtension(sec.XTENSION_7)
+        xtension_8 = self.ui.get_xtension(sec.XTENSION_8)
+        xtension_9 = self.ui.get_xtension(sec.XTENSION_9)        
+        
+        self.this_story_element= {}
+        
+        if alias is not None:
+            self.this_story_element[sec.ALIAS.value] = alias.strip()
+        
+        if content is not None:
+            self.this_story_element[sec.CONTENT.value] = content.strip()
+        
+        if genre is not None:
+            self.this_story_element[sec.GENRE.value] = genre.strip()
+        
+        if message is not None:
+            self.this_story_element[sec.MESSAGE.value] = message.strip()
+        
+        if note is not None:
+            self.this_story_element[sec.NOTE.value] = note.strip()
+        
+        if sequential_no is not None:
+            self.this_story_element[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
+        
+        if title is not None:
+            self.this_story_element[sec.TITLE.value] = title.strip()
+        
+        if tone is not None:
+            self.this_story_element[sec.TONE.value] = tone.strip()
+        
+        if xtension_0 is not None:
+            self.this_story_element[sec.XTENSION_0.value] = xtension_0.strip()
+        
+        if xtension_1 is not None:
+            self.this_story_element[sec.XTENSION_1.value] = xtension_1.strip()
+        
+        if xtension_2 is not None:
+            self.this_story_element[sec.XTENSION_2.value] = xtension_2.strip()
+        
+        if xtension_3 is not None:
+            self.this_story_element[sec.XTENSION_3.value] = xtension_3.strip()
+        
+        if xtension_4 is not None:
+            self.this_story_element[sec.XTENSION_4.value] = xtension_4.strip()
+        
+        if xtension_5 is not None:
+            self.this_story_element[sec.XTENSION_5.value] = xtension_5.strip()
+        
+        if xtension_6 is not None:
+            self.this_story_element[sec.XTENSION_6.value] = xtension_6.strip()
+        
+        if xtension_7 is not None:
+            self.this_story_element[sec.XTENSION_7.value] = xtension_7.strip()
+        
+        if xtension_8 is not None:
+            self.this_story_element[sec.XTENSION_8.value] = xtension_8.strip()
+        
+        if xtension_9 is not None:
+            self.this_story_element[sec.XTENSION_9.value] = xtension_9.strip()
+        
+        log.log_var(self, currentframe(), ("this_story_element", self.this_story_element))
+    
 
-    @abstractmethod
+    def after_save(self):
+        '''
+        Is called after save and update.
+        
+        Disables the ui field alias and sets the header by calling the set_header() function.
+        '''
+        log.log_var(self, currentframe())
+        self.ui.disable_alias()        
+        self.set_header()
+    
+    def load(self, element):
+        '''
+        Loads the data in element dictionary  into the corresponding ui field.
+        '''        
+        log.log(self, currentframe())
+        
+        self.ui.set_alias(element.get(sec.ALIAS))
+        self.ui.set_content(element.get(sec.CONTENT))
+        self.ui.set_genre(element.get(sec.GENRE))
+        self.ui.set_message(element.get(sec.MESSAGE))
+        self.ui.set_note(element.get(sec.NOTE))
+        self.ui.set_sequential_no(element.get(sec.SEQUENTIAL_NO))        
+        self.ui.set_title(element.get(sec.TITLE))
+        self.ui.set_tone(element.get(sec.TONE))
+        self.ui.set_xtension(sec.XTENSION_0, element.get(sec.XTENSION_0))
+        self.ui.set_xtension(sec.XTENSION_1, element.get(sec.XTENSION_1))
+        self.ui.set_xtension(sec.XTENSION_2, element.get(sec.XTENSION_2))
+        self.ui.set_xtension(sec.XTENSION_3, element.get(sec.XTENSION_3))
+        self.ui.set_xtension(sec.XTENSION_4, element.get(sec.XTENSION_4))
+        self.ui.set_xtension(sec.XTENSION_5, element.get(sec.XTENSION_5))
+        self.ui.set_xtension(sec.XTENSION_6, element.get(sec.XTENSION_6))
+        self.ui.set_xtension(sec.XTENSION_7, element.get(sec.XTENSION_7))
+        self.ui.set_xtension(sec.XTENSION_8, element.get(sec.XTENSION_8))
+        self.ui.set_xtension(sec.XTENSION_9, element.get(sec.XTENSION_8))
+        
+        self.ui.disable_alias()        
+        self.set_header()
+        
+
+    def load_previous(self):
+        '''
+        If the squence no is available in the this_story_element object
+        and sequence no is > 1 the load_next_seq function with parameter 
+        reverse == True.
+
+        Returns
+        -------
+        None
+        '''
+        log.log(self, currentframe())        
+        if self.this_story_element is not None:   
+            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
+                self.load_next_seq(True)
+
     def load_next(self):
-        pass
+        '''
+        If the squence no is available in the this_story_element object
+        the load_next_seq function with parameter reverse == False.
+
+        Returns
+        -------
+        None
+        '''
+        log.log(self, currentframe())
+        if self.this_story_element is not None:
+            self.load_next_seq(False)
     
     def load_overview(self):
+        '''
+        Loads the story elements for the currently selceted parent element.
+
+        Returns
+        -------
+        None
+        '''        
         log.log(self, currentframe())
         # delete the current overview content
         self.overview_ui.remove_all_overview_items()
         
-        ptype = pc.CHILD_PLOTHOLE_TYPE.get(self.parent_model.get(sec.PTYPE.value))
+        active_parent_element = self.parent_model.get_active_story_element()
+        parent_folder = pathlib.Path(active_parent_element.get(sec.PATH)).parent
         
-        elements = hlp.get_all(self.get_overview_folder(), ptype ,as_dict=True)
+        ptype = pc.CHILD_PLOTHOLE_TYPE.get(active_parent_element.get(sec.PTYPE.value))
+        
+        elements = hlp.get_all(parent_folder, ptype ,as_dict=True)
         
         for element in sorted(elements, key=lambda x: x[sec.SEQUENTIAL_NO]):
             self.overview_ui.add_overview_item(element.get(sec.PATH), element.get(sec.TITLE))
-    
-    def get_fq_file_name(self):
-        log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
-        return self.fq_file_name
        
     def clear(self):
-        log.log(self, currentframe())        
+        '''
+        Clears all input fields.
+        '''
+        log.log(self, currentframe())
+        self.ui.set_alias('')
+        self.ui.set_content('')
+        self.ui.set_genre('')
+        self.ui.set_message('')
+        self.ui.set_note('')
+        self.ui.set_sequential_no('')        
+        self.ui.set_title('')
+        self.ui.set_tone('')
+        self.ui.set_xtension(sec.XTENSION_0, '')
+        self.ui.set_xtension(sec.XTENSION_1, '')
+        self.ui.set_xtension(sec.XTENSION_2, '')
+        self.ui.set_xtension(sec.XTENSION_3, '')
+        self.ui.set_xtension(sec.XTENSION_4, '')
+        self.ui.set_xtension(sec.XTENSION_5, '')
+        self.ui.set_xtension(sec.XTENSION_6, '')
+        self.ui.set_xtension(sec.XTENSION_7, '')
+        self.ui.set_xtension(sec.XTENSION_8, '')
+        self.ui.set_xtension(sec.XTENSION_9, '')
         self.this_story_element = None
         self.fq_file_name = ''
+        self.treeview_selection = None
         
+    def get_fq_file_name(self):
+        '''
+        Returns the fully qualified path of the currently selected story element.
+
+        Returns
+        -------
+        String
+        '''
+        log.log(self, currentframe())
         
+        active_story_element = self.get_active_story_element()
+        fq_file_name = None
+        
+        if active_story_element is not None:
+            fq_file_name = active_story_element.get(sec.PATH)
+            
+        
+        log.log_var(self, currentframe(),('fq_file_name', fq_file_name))
+        return fq_file_name
+    
     def get_file_name(self):
+        '''
+        Returns the file name without extension
+        of the story element which is about to be saved.
+        
+        Hint: The file name is actually just the alias of the story element
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+        '''
         log.log(self, currentframe())
         file_name = self.get_id(False)
         log.log_var(self, currentframe(),('file_name',file_name))
         return file_name     
     
     def on_close(self):
+        '''
+        Close means always that currently the story element ui is visible
+        If a treeview selection is displayed the ui is cleared, and, if
+        this_story_element is not None the ui is filled with its data.
+        If no treeview selection active it will load the overview.
+        
+        The overview is also loaded if treeview selection is active but 
+        this_story_element is None.
+
+        Returns
+        -------
+        None
+        '''
         log.log(super, currentframe())
         self.clear()
-        # close means always that currently the story element ui is visible
-        # it is changed to the corresponding overview frame
-        # hence reload all story elements
-        if not self.is_treeview_selected:
+
+        if self.treeview_selection is None:
             self.load_overview()
         else:
-            self.is_treeview_selected = False
+            self.treeview_selection = None
+            if self.this_story_element is not None:
+                self.load(self.this_story_element)
+            else:
+                self.load_overview()
+                
     
     def on_character(self):
+        '''
+        Not yet needed
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe(), 'not relevant')
     
     def on_delete(self):
+        '''
+        Deletes the currently active story elemet.
+        Either this_story_element or the treeview_selection is deleted
+        
+        After deletion the ui is cleared.
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
         
-        _id = self.get_id(False)
-        log.log_var(self, currentframe(), ('_id',_id))
+        active_story_element = self.get_active_story_element()
+        log.log_var(self, currentframe(), ('active_story_element',active_story_element))
         
-        if _id is not None:        
-            folder = self.get_ui_folder()
-            log.log_var(self, currentframe(), ('folder',folder))
-            phtype = self.get_plothole_type()
-            log.log_var(self, currentframe(), ('phtype',phtype))
-            pc.delete(folder, _id, phtype)
-            self.tree_view.update_tree_view()
+        if active_story_element is not None:
+           pc.delete_story_element(active_story_element)
+           self.tree_view.update_tree_view()
             
         self.clear()
 
     def on_new(self):
+        '''
+        Just calls the clear function.
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
         self.clear()
 
     def on_next(self):
+        '''
+        Just calls the load_nextfunction 
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
         self.load_next()
 
-    def on_open(self, _id, ph_type=None):
-        log.log_var(self, currentframe(),('_id',_id))
+    def on_open(self, fq_filename, ph_type=None):
+        '''
+        Opens the story element for the given fq_filename.       
+
+        Parameters
+        ----------
+        fq_filename : String
+            The fully qualified file name of the story element which must be opened.
+        ph_type : PlotHoleType, optional
+            Type of the story element which must be opened. (not needed anymore)
+
+        Returns
+        -------
+        None
+        '''
+        log.log_var(self, currentframe(),('fq_filename',fq_filename), ('ph_type',ph_type))
         
-        self.fq_file_name = _id
-        log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
-        
-        self.this_story_element = hlp.get(_id, as_dict=True)
+        self.this_story_element = hlp.get(fq_filename, as_dict=True)
         log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
         
-        self.load()  
+        self.load(self.this_story_element)  
+        self.tree_view.
 
     def on_plothole(self):
+        '''
+        Not yet implemented.
+        '''        
         log.log(self, currentframe(), 'not relevant')
 
     def on_previous(self):
+        '''
+        Just calls the load_previous function.
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
         self.load_previous()
 
     def on_revert(self):
+        '''
+        Loads the stored data of the currently active story eleement into the ui.
+        All unsaved changes will be lost. 
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
-        self.load(self.treeview_selection if self.is_treeview_selected else self.this_story_element)
+        self.load(self.treeview_selection if self.treeview_selection is not None else self.this_story_element)
 
     def on_save(self):
         log.log(self, currentframe())
@@ -244,8 +509,6 @@ class StoryElementModel(UIObserver):
         self.treeview_selection = element
         
         self.load(element)
-        
-        self.is_treeview_selected = True
 
     def set_header(self):
         """
@@ -306,25 +569,7 @@ class SceneModel(StoryElementModel):
     
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
-        
-    def on_open(self, _id):
-        log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_scene_by_alias(self.get_overview_folder(), _id)
-        self.fq_file_name = hlp.get_scene_path_by_alias(self.get_overview_folder(), _id)
-        self.load()   
-
-    def load_overview(self):
-        log.log(self, currentframe())
-        self.overview_ui.remove_all_overview_items()
-        for scene in sorted(hlp.get_all_scenes(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(scene.get(sec.ALIAS), scene.get(sec.TITLE))
-
-    def load_previous(self):
-        log.log(self, currentframe())        
-        if self.this_story_element is not None:   
-            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
-                self.load_next_seq(True)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))  
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
@@ -336,88 +581,12 @@ class SceneModel(StoryElementModel):
                 break
             if scene.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
                 select_next = True
-
-    def load_next(self):
-        log.log(self, currentframe())
-        if self.this_story_element is not None:
-            self.load_next_seq(False)
-
-    def clear(self):
-        log.log(self, currentframe())
-        self.ui.set_sequential_no('1')
-        self.ui.set_alias('')
-        self.ui.set_title('')
-        self.ui.set_genre('1')
-        self.ui.set_message('')
-        self.ui.set_tone('')
-        self.ui.set_xtension(sec.XTENSION_0, '')
-        self.ui.set_content('')
-        self.ui.set_note('')
-        self.ui.enable_alias()
-        super().clear()
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.SCENE
         log.log_var(self, currentframe(), ("phtype", phtype))
-        return phtype
-    
-    def prepare_save(self):
-        log.log_var(self, currentframe())
-        
-        sequential_no = self.ui.get_sequential_no()
-        alias = self.ui.get_alias()
-        title = self.ui.get_title()
-        genre = self.ui.get_genre() 
-        message = self.ui.get_message()
-        tone = self.ui.get_tone()
-        xtension_0 = self.ui.get_xtension(sec.XTENSION_0)
-        content = self.ui.get_content()
-        note = self.ui.get_note()
-        
-        scene= {}
-        scene[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
-        scene[sec.ALIAS.value] = alias.strip()
-        scene[sec.TITLE.value] = title.strip()
-        scene[sec.GENRE.value] = genre.strip()
-        scene[sec.MESSAGE.value] = message.strip()
-        scene[sec.TONE.value] = tone.strip()
-        scene[sec.XTENSION_0.value] = xtension_0.strip()
-        scene[sec.CONTENT.value] = content.strip()
-        scene[sec.NOTE.value] = note.strip()
-        
-        log.log_var(self, currentframe(), ("scene", scene))
-        
-        self.this_story_element = scene
-    
-    def after_save(self):
-        log.log(self, currentframe())
-        self.ui.disable_alias()
-        
-        self.get_scene_header()
-    
-    def load(self, element):
-        log.log(self, currentframe())
-        
-        scene = element
-        self.ui.set_sequential_no(scene.get(sec.SEQUENTIAL_NO))        
-        self.ui.set_alias(scene.get(sec.ALIAS))
-        self.ui.set_title(scene.get(sec.TITLE))
-        self.ui.set_genre(scene.get(sec.GENRE))
-        self.ui.set_message(scene.get(sec.MESSAGE))
-        self.ui.set_tone(scene.get(sec.TONE))
-        self.ui.set_xtension(sec.XTENSION_0, scene.get(sec.XTENSION_0))
-        self.ui.set_content(scene.get(sec.CONTENT))
-        self.ui.set_note(scene.get(sec.NOTE))
-        
-        self.ui.disable_alias()        
-        self.set_header()
-        
-    def on_new(self):
-        log.log(self, currentframe())
-        chapter = rd.desolve_parent_by_path(self.fq_file_name)
-        self.clear()
-        self.ui.set_header(f"Neues Szene für '{chapter.get(sec.TITLE)}'")           
+        return phtype        
 
     def on_raised(self): 
         log.log(self, currentframe())
@@ -441,24 +610,6 @@ class ChapterModel(StoryElementModel):
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
-        
-    def on_open(self, _id):
-        log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_chapter_by_alias(self.get_overview_folder(), _id)
-        self.fq_file_name = hlp.get_chapter_path_by_alias(self.get_overview_folder(), _id)
-        self.load()   
-
-    def load_overview(self):
-        log.log(self, currentframe())
-        self.overview_ui.remove_all_overview_items()
-        for chapter in sorted(hlp.get_all_chapters(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(chapter.get(sec.ALIAS), chapter.get(sec.TITLE))
-
-    def load_previous(self):
-        log.log(self, currentframe())        
-        if self.this_story_element is not None:   
-            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
-                self.load_next_seq(True)
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
@@ -470,68 +621,12 @@ class ChapterModel(StoryElementModel):
                 break
             if chapter.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
                 select_next = True
-
-    def load_next(self):
-        log.log(self, currentframe())
-        if self.this_story_element is not None:
-            self.load_next_seq(False)
-
-    def clear(self):
-        log.log(self, currentframe())
-        self.ui.set_sequential_no('1')
-        self.ui.set_alias('')
-        self.ui.set_title('')
-        self.ui.set_content('')
-        self.ui.enable_alias()
-        super().clear()
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.CHAPTER
         log.log_var(self, currentframe(), ("phtype", phtype))
-        return phtype
-    
-    def prepare_save(self):
-        log.log_var(self, currentframe())
-        
-        sequential_no = self.ui.get_sequential_no()
-        alias = self.ui.get_alias()
-        title = self.ui.get_title()
-        content = self.ui.get_content()
-        
-        chapter= {}
-        chapter[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
-        chapter[sec.ALIAS.value] = alias.strip()
-        chapter[sec.TITLE.value] = title.strip()
-        chapter[sec.CONTENT.value] = content.strip()
-        
-        log.log_var(self, currentframe(), ("chapter", chapter))
-        
-        self.this_story_element = chapter
-    
-    def after_save(self):
-        log.log(self, currentframe())
-        self.ui.disable_alias()
-        
-        self.get_chapter_header()
-    
-    def load(self, element):
-        log.log(self, currentframe())
-        
-        chapter = element
-        self.ui.set_sequential_no(chapter.get(sec.SEQUENTIAL_NO))        
-        self.ui.set_alias(chapter.get(sec.ALIAS))
-        self.ui.set_title(chapter.get(sec.TITLE))
-        self.ui.set_content(chapter.get(sec.CONTENT))
-        
-        self.ui.disable_alias()        
-        self.set_header()
-        
-    def on_new(self):
-        log.log(self, currentframe())
-        part = rd.desolve_parent_by_path(self.fq_file_name)
-        self.clear()
-        self.ui.set_header(f"Neues Kapitel für '{part.get(sec.TITLE)}'")           
+        return phtype        
 
     def on_raised(self): 
         log.log_var(self, currentframe())
@@ -560,16 +655,16 @@ class PlotholeModel(StoryElementModel):
     def on_option_select(self, selected, secontrol):
         log.log_var(self, currentframe(), ("selected", selected), ("secontrol", secontrol))        
         if secontrol == sec.SEQUENTIAL_NO:
-            self.load_classifications(UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP.get(selected))
+            self.load_classifications(pt.UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP.get(selected))
     
     def load_classifications(self, ph_type_str):
         log.log_var(self, currentframe(), ('ph_type_str',ph_type_str))
         
-        ph_type = PlotHoleType(ph_type_str)
+        ph_type = pt.PlotHoleType(ph_type_str)
         
         titles = []
         selected_item = None
-        if ph_type != PlotHoleType.STORY:
+        if ph_type != pt.PlotHoleType.STORY:
             selected_story_path = pathlib.Path(self.story_model.get_fq_file_name()).parent        
             se_items = hlp.get_all(selected_story_path, ph_type.value, as_dict=True)
 
@@ -595,12 +690,6 @@ class PlotholeModel(StoryElementModel):
         self.overview_ui.remove_all_overview_items()
         for plothole in sorted(hlp.get_all_plotholes(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.TITLE]):
             self.overview_ui.add_overview_item(plothole.get(sec.ALIAS), plothole.get(sec.TITLE))
-
-    def load_previous(self):
-        log.log(self, currentframe())        
-        if self.this_story_element is not None:   
-            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
-                self.load_next_seq(True)
     
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
@@ -612,22 +701,6 @@ class PlotholeModel(StoryElementModel):
                 break
             if part.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
                 select_next = True
-
-    def load_next(self):
-        log.log(self, currentframe())
-        if self.this_story_element is not None:
-            self.load_next_seq(False)
-
-    def clear(self):
-        log.log(self, currentframe())
-        self.ui.set_sequential_no('Geschichte')
-        self.ui.set_alias('')
-        self.ui.set_title('')
-        self.load_classifications(PlotHoleType.STORY.value)
-        self.ui.set_message('')
-        self.ui.set_content('')
-        self.ui.enable_alias()
-        super().clear()
         
     def get_plothole_type(self):
         log.log(self, currentframe())
@@ -653,7 +726,7 @@ class PlotholeModel(StoryElementModel):
         content = self.ui.get_content()
         
         plothole = {}
-        plothole[sec.SEQUENTIAL_NO.value] = UI_DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP.get(classification_level.strip())
+        plothole[sec.SEQUENTIAL_NO.value] = pt.DISPLAY_TO_PLOTHOLE_TYPE_VALUE_MAP.get(classification_level.strip())
         plothole[sec.ALIAS.value] = alias.strip()
         plothole[sec.TITLE.value] = title.strip()
         plothole[sec.GENRE.value] = classification.strip()
@@ -688,7 +761,6 @@ class PlotholeModel(StoryElementModel):
         log.log_var(self, currentframe(),('alias',alias))
         return alias
         
-        
     def after_save(self):
         log.log(self, currentframe())
         self.ui.disable_alias()
@@ -698,22 +770,22 @@ class PlotholeModel(StoryElementModel):
     def load(self):
         log.log(self, currentframe())
         
-        self.load_classifications(PlotHoleType.STORY.value)
+        self.load_classifications(pt.PlotHoleType.STORY.value)
         plothole = self.this_story_element
         
         # selected 'Betrifft' 
         classification_type = plothole.get(sec.SEQUENTIAL_NO)
         log.log_var(self, currentframe(), ('classification_type',classification_type))        
-        self.ui.set_sequential_no(PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(classification_type))
+        self.ui.set_sequential_no(pt.PLOTHOLE_TYPE_VALUE_TO_UI_DISPLAY_MAP.get(classification_type))
         
         self.ui.set_alias(plothole.get(sec.ALIAS))
         self.ui.set_title(plothole.get(sec.TITLE))
         
-        if PlotHoleType(plothole.get(sec.SEQUENTIAL_NO)) != PlotHoleType.STORY:
+        if pt.PlotHoleType(plothole.get(sec.SEQUENTIAL_NO)) != pt.PlotHoleType.STORY:
             classification_object = hlp.get_by_alias(
                 plothole.get(sec.GENRE), 
                 plothole.get(sec.SEQUENTIAL_NO),
-                PlotHoleType.PLOTHOLE)
+                pt.PlotHoleType.PLOTHOLE)
             
             classification = self.create_classification_optmenu_entry(classification_object)
             
@@ -759,24 +831,6 @@ class PartModel(StoryElementModel):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
     
-    def on_open(self, _id):
-        log.log_var(self, currentframe(),('_id',_id)) 
-        self.this_story_element = hlp.get_part_by_alias(self.get_overview_folder(), _id)
-        self.fq_file_name = hlp.get_part_path_by_alias(self.get_ui_folder(), _id)
-        self.load()   
-
-    def load_overview(self):
-        log.log(self, currentframe())
-        self.overview_ui.remove_all_overview_items()
-        for part in sorted(hlp.get_all_parts(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(part.get(sec.ALIAS), part.get(sec.TITLE))
-
-    def load_previous(self):
-        log.log(self, currentframe())        
-        if self.this_story_element is not None:   
-            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
-                self.load_next_seq(True)
-    
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
         parts = sorted(hlp.get_all_parts(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
@@ -787,85 +841,12 @@ class PartModel(StoryElementModel):
                 break
             if part.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
                 select_next = True
-
-    def load_next(self):
-        log.log(self, currentframe())
-        if self.this_story_element is not None:
-            self.load_next_seq(False)
-
-    def clear(self):
-        log.log(self, currentframe())
-        self.ui.set_sequential_no('')
-        self.ui.set_alias('')
-        self.ui.set_title('')
-        self.ui.set_genre('')
-        self.ui.set_tone('')
-        self.ui.set_message('')
-        self.ui.set_content('')
-        self.ui.enable_alias()
-                        
-        selected_parent = self.parent_model.get_fq_file_name()        
-        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
-        book = hlp.get(selected_parent, as_dict=True)
-        self.ui.set_header(f"Neuer Teil für '{book.get(sec.TITLE)}'")  
-        
-        super().clear()
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.PART
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def prepare_save(self):
-        log.log_var(self, currentframe())
-        
-        squential_no = self.ui.get_sequential_no()
-        alias = self.ui.get_alias()
-        title = self.ui.get_title()
-        tone = self.ui.get_tone()
-        genre = self.ui.get_genre()
-        message = self.ui.get_message()
-        content = self.ui.get_content()
-        
-        part = {}
-        part[sec.SEQUENTIAL_NO.value] = squential_no.strip()
-        part[sec.ALIAS.value] = alias.strip()
-        part[sec.TITLE.value] = title.strip()
-        part[sec.TONE.value] = tone.strip()
-        part[sec.GENRE.value] = genre.strip()
-        part[sec.MESSAGE.value] = message.strip()
-        part[sec.CONTENT.value] = content.strip()
-        
-        log.log_var(self, currentframe(), ("part", part))
-        
-        self.this_story_element = part
-        
-    def after_save(self):
-        log.log(self, currentframe())
-        self.ui.disable_alias()
-        
-        self.get_part_header()
-    
-    def load(self, element):
-        log.log(self, currentframe())
-        
-        part = element
-        
-        self.ui.set_sequential_no(part.get(sec.SEQUENTIAL_NO))
-        self.ui.set_alias(part.get(sec.ALIAS))
-        self.ui.set_title(part.get(sec.TITLE))
-        self.ui.set_tone(part.get(sec.TONE))
-        self.ui.set_genre(part.get(sec.GENRE))
-        self.ui.set_message(part.get(sec.MESSAGE))
-        self.ui.set_content(part.get(sec.CONTENT))
-        
-        self.ui.disable_alias()
-        self.set_header()
-  
-    def on_new(self):
-        log.log(self, currentframe())
-        self.clear()
 
     def on_raised(self): 
         log.log_var(self, currentframe())
@@ -890,24 +871,6 @@ class BookModel(StoryElementModel):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
     
-    def on_open(self, _id):
-        log.log_var(self, currentframe(),('_id',_id))         
-        self.this_story_element = hlp.get_book_by_alias(self.get_overview_folder(), _id)
-        self.fq_file_name = hlp.get_book_path_by_alias(self.get_overview_folder(), _id)
-        self.load()  
-
-    # def load_overview(self):
-    #     log.log(self, currentframe())
-    #     self.overview_ui.remove_all_overview_items()
-    #     for book in sorted(hlp.get_all_books(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO]):
-    #         self.overview_ui.add_overview_item(book.get(sec.PATH), book.get(sec.TITLE))
-
-    def load_previous(self):
-        log.log(self, currentframe())        
-        if self.this_story_element is not None:   
-            if int(self.this_story_element.get(sec.SEQUENTIAL_NO)) > 1:
-                self.load_next_seq(True)
-    
     def load_next_seq(self, reverse):
         log.log_var(self, currentframe(), ('reverse',reverse))
         books = sorted(hlp.get_all_books(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
@@ -918,89 +881,15 @@ class BookModel(StoryElementModel):
                 break
             if book.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
                 select_next = True
-
-    def load_next(self):
-        log.log(self, currentframe())
-        if self.this_story_element is not None:
-            self.load_next_seq(False)
-
-    def clear(self):
-        log.log(self, currentframe())
-        self.ui.set_sequential_no('')
-        self.ui.set_alias('')
-        self.ui.set_title('')
-        self.ui.set_genre('')
-        self.ui.set_tone('')
-        self.ui.set_message('')
-        self.ui.set_content('')
-        self.ui.enable_alias()
-                
-        selected_parent = self.parent_model.get_fq_file_name()        
-        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
-        story = hlp.get(selected_parent, as_dict=True)
-        self.ui.set_header(f"Neues Buch für '{story.get(sec.TITLE)}'")
-        
-        super().clear()
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.BOOK
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def prepare_save(self):
-        log.log_var(self, currentframe())
-        
-        squential_no = self.ui.get_sequential_no()
-        alias = self.ui.get_alias()
-        title = self.ui.get_title()
-        tone = self.ui.get_tone()
-        genre = self.ui.get_genre()
-        message = self.ui.get_message()
-        content = self.ui.get_content()
-        
-        book = {}
-        book[sec.SEQUENTIAL_NO.value] = squential_no.strip()
-        book[sec.ALIAS.value] = alias.strip()
-        book[sec.TITLE.value] = title.strip()
-        book[sec.TONE.value] = tone.strip()
-        book[sec.GENRE.value] = genre.strip()
-        book[sec.MESSAGE.value] = message.strip()
-        book[sec.CONTENT.value] = content.strip()
-        
-        log.log_var(self, currentframe(), ("book", book))
-        
-        self.this_story_element = book
-        
-    def after_save(self):
-        log.log(self, currentframe())
-        self.ui.disable_alias()
-        
-        self.get_book_header()
-    
-    def load(self, element):
-        log.log(self, currentframe())
-        
-        book = element
-        
-        self.ui.set_sequential_no(book.get(sec.SEQUENTIAL_NO))
-        self.ui.set_alias(book.get(sec.ALIAS))
-        self.ui.set_title(book.get(sec.TITLE))
-        self.ui.set_tone(book.get(sec.TONE))
-        self.ui.set_genre(book.get(sec.GENRE))
-        self.ui.set_message(book.get(sec.MESSAGE))
-        self.ui.set_content(book.get(sec.CONTENT))
-        
-        self.ui.disable_alias() 
-        self.set_header()
   
     def get_book_header(self):
         log.log(self, currentframe())
-        
-    def on_new(self):
-        log.log(self, currentframe())
-        
-        self.clear()
     
     def on_raised(self): 
         log.log_var(self, currentframe())
@@ -1039,73 +928,22 @@ class StoryModel(StoryElementModel):
         log.log(self, currentframe())
         self.overview_ui.remove_all_overview_items()
         for story in sorted(hlp.get_all_stories(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.TITLE.value]):
-            self.overview_ui.add_overview_item(story.get(sec.ALIAS), story.get(sec.TITLE))
+            self.overview_ui.add_overview_item(story.get(sec.PATH), story.get(sec.TITLE))
 
     def load_previous(self):
-        log.log(self, currentframe(), 'not relevant')
+        log.log(self, currentframe())
+        # is not used for stories
         
 
     def load_next(self):
-        log.log(self, currentframe(), 'not relevant')
-    
-    def clear(self):
         log.log(self, currentframe())
-        self.ui.set_alias('')
-        self.ui.set_title('')
-        self.ui.set_genre('')
-        self.ui.set_tone('')
-        self.ui.set_message('')
-        self.ui.set_content('')
-        self.ui.enable_alias()
-        super().clear()
+        # is not used for stories
     
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.STORY
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-    
-    def prepare_save(self):
-        log.log_var(self, currentframe())
-        
-        alias = self.ui.get_alias()
-        title = self.ui.get_title()
-        tone = self.ui.get_tone()
-        genre = self.ui.get_genre()
-        message = self.ui.get_message()
-        content = self.ui.get_content()
-        
-        story = {}        
-        story[sec.ALIAS.value] = alias.strip()
-        story[sec.TITLE.value] = title.strip()
-        story[sec.TONE.value] = tone.strip()
-        story[sec.GENRE.value] = genre.strip()
-        story[sec.MESSAGE.value] = message.strip()
-        story[sec.CONTENT.value] = content.strip()
-        
-        log.log_var(self, currentframe(), ("story", story))
-        
-        self.this_story_element = story
-        
-    def after_save(self):
-        log.log(self, currentframe())
-        self.ui.disable_alias()        
-        self.set_header()
-        
-    def load(self, element):
-        
-        log.log(self, currentframe())
-        story = element
-        
-        self.ui.set_alias(story.get(sec.ALIAS))
-        self.ui.set_title(story.get(sec.TITLE))
-        self.ui.set_tone(story.get(sec.TONE))
-        self.ui.set_genre(story.get(sec.GENRE))
-        self.ui.set_message(story.get(sec.MESSAGE))
-        self.ui.set_content(story.get(sec.CONTENT))
-        
-        self.ui.disable_alias()
-        self.set_header()
         
     def on_raised(self): 
         log.log_var(self, currentframe())

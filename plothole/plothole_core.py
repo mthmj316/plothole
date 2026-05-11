@@ -12,9 +12,18 @@ from inspect import currentframe
 
 from plothole_types import FILE_EXTENSIONS_DUMP as fed
 from plothole_types import PlotHoleType, CHILD_PLOTHOLE_TYPE
+from story_element_ui import __SEControls__ as sec
 
 from pathlib import Path
-        
+
+
+def delete_story_element(story_element):
+    log.log_var(None, currentframe(), ('story_element',story_element))
+    alias = story_element.get(sec.ALIAS)
+    ptype = story_element.get(sec.PTYPE)
+    path = pathlib.Path(story_element.get(sec.PATH)).parent
+    
+    delete(path, alias, ptype)
 
 def delete(base_dir, alias, plothole_type):
     log.log_var(None, currentframe(), ('base_dir',base_dir), ('alias',alias), ('plothole_type',plothole_type))    

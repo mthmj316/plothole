@@ -251,27 +251,40 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
 
     def set_note(self, note):
         log.log_var(self, currentframe(), ("note", note))
-        note_stxt = self.controls.get(__SEControls__.NOTE)
-        note_stxt.delete('1.0', tk.END)
-        note_stxt.insert(tk.INSERT, note)
+        if __SEControls__.NOTE in self.controls:
+            note_stxt = self.controls.get(__SEControls__.NOTE)
+            note_stxt.delete('1.0', tk.END)
+            note_stxt.insert(tk.INSERT, note)
         
     def get_note(self):
         log.log(self, currentframe())
-        note_stxt = self.controls.get(__SEControls__.NOTE)
-        note =  note_stxt.get("1.0", tk.END)
+        
+        note = None
+        
+        if __SEControls__.NOTE in self.controls:
+            note_stxt = self.controls.get(__SEControls__.NOTE)
+            note =  note_stxt.get("1.0", tk.END)
+            
         log.log_var(self, currentframe(), ("note", note))
         return note
 
     def set_content(self, content):
         log.log_var(self, currentframe(), ("content", content))
-        content_stxt = self.controls.get(__SEControls__.CONTENT)
-        content_stxt.delete('1.0', tk.END)
-        content_stxt.insert(tk.INSERT, content)
+        
+        if __SEControls__.CONTENT in self.controls:
+            content_stxt = self.controls.get(__SEControls__.CONTENT)
+            content_stxt.delete('1.0', tk.END)
+            content_stxt.insert(tk.INSERT, content)
         
     def get_content(self):
         log.log(self, currentframe())
-        content_stxt = self.controls.get(__SEControls__.CONTENT)
-        content =  content_stxt.get("1.0", tk.END)
+        
+        content = None
+        
+        if __SEControls__.CONTENT in self.controls:
+            content_stxt = self.controls.get(__SEControls__.CONTENT)
+            content =  content_stxt.get("1.0", tk.END)
+            
         log.log_var(self, currentframe(), ("content", content))
         return content
         
@@ -282,12 +295,20 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
 
     def set_message(self, message):
         log.log_var(self, currentframe(), ("message", message))
-        self.controls_vars.get(__SEControls__.MESSAGE).set(message)
+        
+        if __SEControls__.MESSAGE in self.controls:
+            self.controls_vars.get(__SEControls__.MESSAGE).set(message)
         
     def get_message(self):
         log.log(self, currentframe())
-        message =  self.controls_vars.get(__SEControls__.MESSAGE).get()
+        
+        message = None
+        
+        if __SEControls__.MESSAGE in self.controls:
+            message =  self.controls_vars.get(__SEControls__.MESSAGE).get()
+        
         log.log_var(self, currentframe(), ("message", message))
+            
         return message
         
     def configure_genre(self, conf):
@@ -297,11 +318,18 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
 
     def set_genre(self, genre):
         log.log_var(self, currentframe(), ("genre", genre))
-        self.controls_vars.get(__SEControls__.GENRE).set(genre)
+        
+        if __SEControls__.GENRE in self.controls:
+            self.controls_vars.get(__SEControls__.GENRE).set(genre)
         
     def get_genre(self):
         log.log(self, currentframe())
-        genre =  self.controls_vars.get(__SEControls__.GENRE).get()
+        
+        genre = None
+        
+        if __SEControls__.GENRE in self.controls:
+            genre =  self.controls_vars.get(__SEControls__.GENRE).get()
+            
         log.log_var(self, currentframe(), ("genre", genre))
         return genre
         
@@ -312,11 +340,18 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
 
     def set_tone(self, tone):
         log.log_var(self, currentframe(), ("tone", tone))
-        self.controls_vars.get(__SEControls__.TONE).set(tone)
+        
+        if __SEControls__.TONE in self.controls:
+            self.controls_vars.get(__SEControls__.TONE).set(tone)
         
     def get_tone(self):
         log.log(self, currentframe())
-        tone =  self.controls_vars.get(__SEControls__.TONE).get()
+        
+        tone = None
+        
+        if __SEControls__.TONE in self.controls:
+            tone =  self.controls_vars.get(__SEControls__.TONE).get()
+            
         log.log_var(self, currentframe(), ("tone", tone))
         return tone
         
@@ -327,21 +362,35 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
 
     def set_title(self, title):
         log.log_var(self, currentframe(), ("title", title))
-        self.controls_vars.get(__SEControls__.TITLE).set(title)
+        
+        if __SEControls__.TITLE in self.controls:
+            self.controls_vars.get(__SEControls__.TITLE).set(title)
         
     def get_title(self):
         log.log(self, currentframe())
-        title =  self.controls_vars.get(__SEControls__.TITLE).get()
+        
+        title = None
+        
+        if __SEControls__.TITLE in self.controls:
+            title =  self.controls_vars.get(__SEControls__.TITLE).get()
+            
         log.log_var(self, currentframe(), ("title", title))
         return title
 
     def set_xtension(self, secontrol, xtension):
         log.log_var(self, currentframe(), ("secontrol", secontrol), ("xtension", xtension))
-        self.controls_vars.get(secontrol).set(xtension)
+        
+        if secontrol in self.controls:
+            self.controls_vars.get(secontrol).set(xtension)
 
     def get_xtension(self, secontrol):
         log.log_var(self, currentframe(), ('secontrol', secontrol))
-        xtension =  self.controls_vars.get(secontrol).get()
+        
+        xtension = None
+        
+        if secontrol in self.controls:
+            xtension =  self.controls_vars.get(secontrol).get()
+        
         log.log_var(self, currentframe(), ("xtension", xtension))
         return xtension
     
@@ -352,11 +401,18 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         
     def set_sequential_no(self, no):
         log.log_var(self, currentframe(), ("no", no))
-        self.controls_vars.get(__SEControls__.SEQUENTIAL_NO).set(no)
+        
+        if __SEControls__.SEQUENTIAL_NO in self.controls:
+            self.controls_vars.get(__SEControls__.SEQUENTIAL_NO).set(no)
         
     def get_sequential_no(self):
         log.log(self, currentframe())
-        no =  self.controls_vars.get(__SEControls__.SEQUENTIAL_NO).get()
+        
+        no = None
+        
+        if __SEControls__.SEQUENTIAL_NO in self.controls:
+            no =  self.controls_vars.get(__SEControls__.SEQUENTIAL_NO).get()
+            
         log.log_var(self, currentframe(), ("no", no))
         return no
         
@@ -375,13 +431,20 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         
     def get_alias(self):
         log.log(self, currentframe())
-        alias = self.controls_vars.get(__SEControls__.ALIAS).get()
+        
+        alias = None
+        
+        if __SEControls__.ALIAS in self.controls:
+            alias = self.controls_vars.get(__SEControls__.ALIAS).get()
+            
         log.log_var(self, currentframe(), ("alias", alias))
         return alias
     
     def set_alias(self, alias):
         log.log_var(self, currentframe(), ("alias", alias))
-        self.controls_vars.get(__SEControls__.ALIAS).set(alias)
+        
+        if __SEControls__.ALIAS in self.controls:
+            self.controls_vars.get(__SEControls__.ALIAS).set(alias)
     
     def configure_header(self, conf):
         log.log_var(self, currentframe(), ("conf", conf))

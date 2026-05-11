@@ -34,6 +34,14 @@ class StoryElementTreeview(UIObservable):
         self.treeview.bind('<<TreeviewClose>>', self.on_close)
         self.navi = None
         self.selected_item = None
+        
+    def select(self, fqp_selected_element):
+        log.log_var(self, currentframe(), ("selected_element", selected_element))
+        
+        tree_view_ui = self.tree.
+        
+        self.tree.item(tree_view_ui, open=self.tree_view_folding_state.get(tree_view_ui))
+        
 
     def update_tree_view(self):
         log.log(self, currentframe())
@@ -41,8 +49,8 @@ class StoryElementTreeview(UIObservable):
         
         #time.sleep(5)
         
-        if self.selected_item is not None:
-            self.tree.selection_set(self.selected_item)
+        if self.selected_item is not None:d_item)
+            self.tree.selection_set(self.selecte
             #self.tree.focus(self.selected_item)
         
 
