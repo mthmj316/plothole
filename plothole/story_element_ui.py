@@ -42,7 +42,8 @@ class __SEControls__(enum.StrEnum):
     HEADER = 'header'
     MESSAGE = 'msg'
     NOTE = 'note'
-    PATH = 'path'
+    PATH = 'path' 
+    PPTYPE = 'pptype'
     PTYPE = 'ptype'
     SEQUENTIAL_NO = 'sequential_no'
     TITLE = 'title'
@@ -85,7 +86,45 @@ class StoryElementFrame(tk.Frame, UIObservable, NavigationPoint):
         self.configure_actions(conf)
         
         self.configure_xtension(conf)
+
+    def enable_btn_delete(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_DELETE, enabled) 
+
+    def enable_btn_top(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_TOP, enabled) 
+
+    def enable_btn_previous(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_PREVIOUS, enabled)   
+
+    def enable_btn_next(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_NEXT, enabled)   
+
+    def enable_btn_character(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_CHARACTER, enabled)   
+
+    def enable_btn_plothole(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_PLOTHOLE, enabled)        
+    
+    def enable_btn_sub(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))        
+        self.enable_btn(__SEControls__.BTN_SUB, enabled)
+    
+    def enable_btn(self, secontrol, enabled=True):
+        log.log_var(self, currentframe(), ("secontrol", secontrol), ("enabled", enabled))
         
+        state = 'normal'
+        
+        if not enabled:
+            state = 'disabled'
+        
+        if self.controls.get(secontrol.value) is not None:
+            self.controls.get(secontrol.value).config(state=state)
         
     def configure_xtension(self, conf):
         log.log_var(self, currentframe(), ("conf", conf)) 

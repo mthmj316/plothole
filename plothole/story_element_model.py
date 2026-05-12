@@ -30,6 +30,7 @@ class StoryElementModel(UIObserver):
         self.tree_view = tree_view
         self.parent_model = parent_model
         self.treeview_selection = None
+        self.is_overview = False
     
     @abstractmethod
     def get_plothole_type(self):
@@ -197,6 +198,7 @@ class StoryElementModel(UIObserver):
         
         self.ui.disable_alias()        
         self.set_header()
+        self.is_overview = False
         
 
     def load_previous(self):
@@ -236,19 +238,70 @@ class StoryElementModel(UIObserver):
         None
         '''        
         log.log(self, currentframe())
+        
+        self.is_overview = True
+        
         # delete the current overview content
         self.overview_ui.remove_all_overview_items()
         
         active_parent_element = self.parent_model.get_active_story_element()
-        parent_folder = pathlib.Path(active_parent_element.get(sec.PATH)).parent
         
-        ptype = pc.CHILD_PLOTHOLE_TYPE.get(active_parent_element.get(sec.PTYPE.value))
+        if active_parent_element is not None:
         
-        elements = hlp.get_all(parent_folder, ptype ,as_dict=True)
-        
-        for element in sorted(elements, key=lambda x: x[sec.SEQUENTIAL_NO]):
-            self.overview_ui.add_overview_item(element.get(sec.PATH), element.get(sec.TITLE))
+            parent_folder = pathlib.Path(active_parent_element.get(sec.PATH)).parent
+            
+            ptype = pc.CHILD_PLOTHOLE_TYPE.get(active_parent_element.get(sec.PTYPE.value))
+            
+            elements = hlp.get_all(parent_folder, ptype ,as_dict=True)
+            
+            for element in sorted(elements, key=lambda x: x[sec.SEQUENTIAL_NO]):
+                self.overview_ui.add_overview_item(element.get(sec.PATH), element.get(sec.TITLE))
+                
+        else:
+            self.overview_ui.on_close()
        
+    def load_next_seq(self, reverse):
+        '''
+        Loads the next item to the ui.
+
+        Parameters
+        ----------
+        reverse : boolean
+            If True the navigations is goning SEQUNENCE-1 else False navigations is goning SEQUNENCE+1
+
+        Returns
+        -------
+        None
+        '''
+        log.log_var(self, currentframe(), ('reverse',reverse))
+        
+        if self.treeview_selection is not None:
+            self.treeview_selection = None
+            self.enable_none_treeview_btn()
+        
+        active_story_element = self.this_story_element
+        
+        if active_story_element is not None:
+            parent_ptype = active_story_element.get(sec.PPTYPE)
+            parent_folder = pathlib.Path(active_story_element.get(parent_ptype)).parent      
+            
+            log.log_var(self, currentframe(),('parent_folder', parent_folder))
+            log.log_var(self, currentframe(),('parent_ptype', parent_ptype))
+            
+            child_ptype = active_story_element.get(sec.PTYPE)
+            log.log_var(self, currentframe(),('child_ptype', child_ptype))
+            
+            story_elements = sorted(hlp.get_all(parent_folder, extension=child_ptype ,as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO.value], reverse=reverse)
+            
+            select_next = False
+            for story_element in story_elements:
+                if select_next:
+                    self.overview_ui.on_item_select(story_element.get(sec.PATH))
+                    break
+                if story_element.get(sec.SEQUENTIAL_NO) == active_story_element.get(sec.SEQUENTIAL_NO):
+                    select_next = True
+    
+
     def clear(self):
         '''
         Clears all input fields.
@@ -275,6 +328,8 @@ class StoryElementModel(UIObserver):
         self.this_story_element = None
         self.fq_file_name = ''
         self.treeview_selection = None
+        self.enable_none_treeview_btn()
+        self.ui.enable_alias()
         
     def get_fq_file_name(self):
         '''
@@ -327,17 +382,33 @@ class StoryElementModel(UIObserver):
         -------
         None
         '''
-        log.log(super, currentframe())
-        self.clear()
-
-        if self.treeview_selection is None:
-            self.load_overview()
+        log.log(self, currentframe())
+        
+        if self.is_overview:
+            
+            # overview is closed
+            # this means parent element is displayed after close
+            self.overview_ui.remove_all_overview_items()
+            self.is_overview = False
         else:
-            self.treeview_selection = None
-            if self.this_story_element is not None:
-                self.load(self.this_story_element)
-            else:
+            
+            # story element ui is closed
+            # this overview is displayed
+            self.is_overview = True      
+
+            if self.treeview_selection is None:
+                # this_story_element is displayed
                 self.load_overview()
+                self.clear()
+            else:
+                # treeview selection is displayed
+                self.treeview_selection = None
+                self.enable_none_treeview_btn()
+                if self.this_story_element is not None:
+                    self.load(self.this_story_element)
+                else:
+                    self.clear()
+                    self.load_overview()
                 
     
     def on_character(self):
@@ -382,6 +453,7 @@ class StoryElementModel(UIObserver):
         '''
         log.log(self, currentframe())
         self.clear()
+        self.is_overview = False
 
     def on_next(self):
         '''
@@ -411,11 +483,13 @@ class StoryElementModel(UIObserver):
         '''
         log.log_var(self, currentframe(),('fq_filename',fq_filename), ('ph_type',ph_type))
         
+        self.is_overview = False
+        
         self.this_story_element = hlp.get(fq_filename, as_dict=True)
         log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
         
         self.load(self.this_story_element)  
-        self.tree_view.
+        self.tree_view.select(fq_filename)
 
     def on_plothole(self):
         '''
@@ -454,12 +528,16 @@ class StoryElementModel(UIObserver):
             return
             
         _id = self.get_id(True)
+        log.log_var(self, currentframe(),('_id', _id))
         
         if _id == '':
             self.ui.raise_error(f"{self.get_id_name()} muss gesetzt sein.")
             return
         
-        if hlp.exists_alias(self.get_overview_folder(), _id):
+        parent_folder = pathlib.Path(self.parent_model.get_active_story_element().get(sec.PATH)).parent
+        log.log_var(self, currentframe(),('parent_folder', parent_folder))
+        
+        if hlp.exists_alias(parent_folder, _id):
             self.ui.raise_error(f"{_id} existiert bereits!")
             return
         
@@ -467,7 +545,7 @@ class StoryElementModel(UIObserver):
         
         data = json.dumps(self.this_story_element)        
         file_name = "".join(x for x in self.get_file_name() if x.isalnum())
-        path = f"{self.get_overview_folder()}/{file_name}"
+        path = f"{parent_folder}/{file_name}"
         self.fq_file_name = f"{path}/{file_name}.{self.get_plothole_type().value}"  
         
         log.log_var(self, currentframe(), ("fq_file_name", self.fq_file_name))
@@ -483,9 +561,23 @@ class StoryElementModel(UIObserver):
         rd.desolve(self.base_dir)
         
     def on_sub(self):
+        '''
+        Currently nothing to do.
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe(), 'not relevant')
 
     def on_top(self):
+        '''
+        Clears the ui input fields only
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
         self.clear()
         
@@ -506,9 +598,19 @@ class StoryElementModel(UIObserver):
         self.fq_file_name = path
         element = hlp.get(path, as_dict=True)
         
-        self.treeview_selection = element
-        
+        self.treeview_selection = element        
+        self.enable_none_treeview_btn(enabled=False)        
         self.load(element)
+
+    def enable_none_treeview_btn(self, enabled=True):
+        log.log_var(self, currentframe(), ("enabled", enabled))
+        self.ui.enable_btn_sub(enabled=enabled)
+        self.ui.enable_btn_plothole(enabled=enabled)
+        self.ui.enable_btn_character(enabled=enabled)
+        self.ui.enable_btn_next(enabled=enabled)
+        self.ui.enable_btn_previous(enabled=enabled)
+        self.ui.enable_btn_top(enabled=enabled)
+        self.ui.enable_btn_delete(enabled=enabled)
 
     def set_header(self):
         """
@@ -563,41 +665,24 @@ class StoryElementModel(UIObserver):
         else:
             log.log(self, currentframe(), 'None is returned')
             return None
+     
+    
+    def on_raised(self): 
+        log.log_var(self, currentframe())
+        self.load_overview()
+        self.set_header()
         
-
 class SceneModel(StoryElementModel):
     
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))  
-    
-    def load_next_seq(self, reverse):
-        log.log_var(self, currentframe(), ('reverse',reverse))
-        scenes = sorted(hlp.get_all_scenes(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
-        select_next = False
-        for scene in scenes:
-            if select_next:
-                self.overview_ui.on_item_select(scene.get(sec.ALIAS))
-                break
-            if scene.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
-                select_next = True
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.SCENE
         log.log_var(self, currentframe(), ("phtype", phtype))
-        return phtype        
-
-    def on_raised(self): 
-        log.log(self, currentframe())
-                
-        selected_parent = self.parent_model.get_fq_file_name()        
-        log.log_var(self, currentframe(),('selected_parent', selected_parent))  
-        
-        chapter = hlp.get(selected_parent, as_dict=True)
-        
-        self.load_overview()
-        self.overview_ui.set_header(f"Szenen von '{chapter.get(sec.TITLE)}'")
+        return phtype
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
@@ -610,34 +695,12 @@ class ChapterModel(StoryElementModel):
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
-    
-    def load_next_seq(self, reverse):
-        log.log_var(self, currentframe(), ('reverse',reverse))
-        chapters = sorted(hlp.get_all_chapters(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
-        select_next = False
-        for chapter in chapters:
-            if select_next:
-                self.overview_ui.on_item_select(chapter.get(sec.ALIAS))
-                break
-            if chapter.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
-                select_next = True
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.CHAPTER
         log.log_var(self, currentframe(), ("phtype", phtype))
-        return phtype        
-
-    def on_raised(self): 
-        log.log_var(self, currentframe())
-        
-        selected_parent = self.parent_model.get_fq_file_name()        
-        log.log_var(self, currentframe(),('selected_parent', selected_parent))  
-        
-        part = hlp.get(selected_parent, as_dict=True)
-        
-        self.load_overview()
-        self.overview_ui.set_header(f"Kapitel von '{part.get(sec.TITLE)}'")
+        return phtype
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
@@ -830,34 +893,12 @@ class PartModel(StoryElementModel):
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
-    
-    def load_next_seq(self, reverse):
-        log.log_var(self, currentframe(), ('reverse',reverse))
-        parts = sorted(hlp.get_all_parts(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
-        select_next = False
-        for part in parts:
-            if select_next:
-                self.overview_ui.on_item_select(part.get(sec.ALIAS))
-                break
-            if part.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
-                select_next = True
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.PART
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-
-    def on_raised(self): 
-        log.log_var(self, currentframe())
-        
-        selected_parent = self.parent_model.get_fq_file_name()        
-        log.log_var(self, currentframe(),('selected_parent', selected_parent))  
-        
-        book = hlp.get(selected_parent, as_dict=True)
-        
-        self.load_overview()
-        self.overview_ui.set_header(f"Teile von '{book.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
@@ -870,37 +911,12 @@ class BookModel(StoryElementModel):
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
         log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
-    
-    def load_next_seq(self, reverse):
-        log.log_var(self, currentframe(), ('reverse',reverse))
-        books = sorted(hlp.get_all_books(self.get_overview_folder(), as_dict=True), key=lambda x: x[sec.SEQUENTIAL_NO], reverse=reverse)
-        select_next = False
-        for book in books:
-            if select_next:
-                self.overview_ui.on_item_select(book.get(sec.ALIAS))
-                break
-            if book.get(sec.SEQUENTIAL_NO) == self.this_story_element.get(sec.SEQUENTIAL_NO):
-                select_next = True
         
     def get_plothole_type(self):
         log.log(self, currentframe())
         phtype = pt.PlotHoleType.BOOK
         log.log_var(self, currentframe(), ("phtype", phtype))
         return phtype
-  
-    def get_book_header(self):
-        log.log(self, currentframe())
-    
-    def on_raised(self): 
-        log.log_var(self, currentframe())
-        
-        selected_parent = self.parent_model.get_fq_file_name()        
-        log.log_var(self, currentframe(),('selected_parent', selected_parent))    
-        
-        story = hlp.get(selected_parent, as_dict=True)
-        
-        self.load_overview()
-        self.overview_ui.set_header(f"Bücher von '{story.get(sec.TITLE)}'")
         
     def on_treeview_select(self, path):
         log.log_var(self, currentframe(), ("path", path))
@@ -912,17 +928,7 @@ class StoryModel(StoryElementModel):
     
     def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
         super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
-        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))
-
-    # def on_open(self, _id):
-    #     log.log_var(self, currentframe(),('_id',_id))
-    #     self.fq_file_name = hlp.get_story_path_by_alias(self.get_overview_folder(), _id)
-    #     log.log_var(self, currentframe(),('fq_file_name',self.fq_file_name))
-        
-    #     self.this_story_element = hlp.get_story_by_alias(self.get_ui_folder(), _id)
-    #     log.log_var(self, currentframe(),('this_story_element',self.this_story_element))
-        
-    #     self.load()       
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))   
 
     def load_overview(self):
         log.log(self, currentframe())
@@ -933,7 +939,6 @@ class StoryModel(StoryElementModel):
     def load_previous(self):
         log.log(self, currentframe())
         # is not used for stories
-        
 
     def load_next(self):
         log.log(self, currentframe())
