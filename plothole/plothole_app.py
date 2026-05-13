@@ -99,6 +99,11 @@ if __name__ == '__main__':
     
     treeview = setree.StoryElementTreeview(path_repros, tree_container)
     
+    panel_ui = seui.PanelFrame(w)
+    panel_ui.grid(row=0, column=0, sticky="NSEW")
+    panel_overview_ui = seoui.PanelOverviewFrame(w)
+    panel_overview_ui.grid(row=0, column=0, sticky="NSEW") 
+    
     scene_ui = seui.SceneFrame(w)
     scene_ui.grid(row=0, column=0, sticky="NSEW")
     scene_overview_ui = seoui.SceneOverviewFrame(w)
@@ -136,6 +141,7 @@ if __name__ == '__main__':
     ui_frames_dict[PlotHoleType.CHAPTER.value] = chapter_ui
     ui_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_ui
     ui_frames_dict[PlotHoleType.SCENE.value] = scene_ui
+    ui_frames_dict[PlotHoleType.PANEL.value] = panel_ui
     
     ui_overview_frames_dict = {}
     ui_overview_frames_dict[PlotHoleType.STORY.value] = story_overview_ui
@@ -144,6 +150,7 @@ if __name__ == '__main__':
     ui_overview_frames_dict[PlotHoleType.CHAPTER.value] = chapter_overview_ui
     ui_overview_frames_dict[PlotHoleType.PLOTHOLE.value] = plothole_overview_ui
     ui_overview_frames_dict[PlotHoleType.SCENE.value] = scene_overview_ui
+    ui_overview_frames_dict[PlotHoleType.PANEL.value] = panel_overview_ui
     
     navi = navi.NavigatorInstance(story_overview_ui, ui_frames_dict, ui_overview_frames_dict)
     story_ui.add_navigator(navi)
@@ -158,6 +165,8 @@ if __name__ == '__main__':
     plothole_overview_ui.add_navigator(navi)
     scene_ui.add_navigator(navi)
     scene_overview_ui.add_navigator(navi)
+    panel_ui.add_navigator(navi)
+    panel_overview_ui.add_navigator(navi)
     
     story_model = sem.StoryModel(story_ui, story_overview_ui, path_repros, treeview, None)    
     book_model = sem.BookModel(book_ui, book_overview_ui, path_repros, treeview, story_model)
@@ -165,6 +174,7 @@ if __name__ == '__main__':
     chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros, treeview, part_model)
     plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros, story_model, treeview)
     scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros, treeview, chapter_model)
+    panel_model = sem.SceneModel(panel_ui, panel_overview_ui, path_repros, treeview, scene_model)
     
     story_model.on_raised()
     
@@ -173,6 +183,7 @@ if __name__ == '__main__':
     treeview.register(part_model)
     treeview.register(chapter_model)
     treeview.register(scene_model)
+    treeview.register(panel_model)
     treeview.navigator(navi)
     
     menu_bar = tk.Menu(w)  

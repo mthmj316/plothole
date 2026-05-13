@@ -102,63 +102,68 @@ class StoryElementModel(UIObserver):
         xtension_8 = self.ui.get_xtension(sec.XTENSION_8)
         xtension_9 = self.ui.get_xtension(sec.XTENSION_9)        
         
-        self.this_story_element= {}
+        story_element = {}
         
         if alias is not None:
-            self.this_story_element[sec.ALIAS.value] = alias.strip()
+            story_element[sec.ALIAS.value] = alias.strip()
         
         if content is not None:
-            self.this_story_element[sec.CONTENT.value] = content.strip()
+            story_element[sec.CONTENT.value] = content.strip()
         
         if genre is not None:
-            self.this_story_element[sec.GENRE.value] = genre.strip()
+            story_element[sec.GENRE.value] = genre.strip()
         
         if message is not None:
-            self.this_story_element[sec.MESSAGE.value] = message.strip()
+            story_element[sec.MESSAGE.value] = message.strip()
         
         if note is not None:
-            self.this_story_element[sec.NOTE.value] = note.strip()
+            story_element[sec.NOTE.value] = note.strip()
         
         if sequential_no is not None:
-            self.this_story_element[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
+            story_element[sec.SEQUENTIAL_NO.value] = sequential_no.strip()
         
         if title is not None:
-            self.this_story_element[sec.TITLE.value] = title.strip()
+            story_element[sec.TITLE.value] = title.strip()
         
         if tone is not None:
-            self.this_story_element[sec.TONE.value] = tone.strip()
+            story_element[sec.TONE.value] = tone.strip()
         
         if xtension_0 is not None:
-            self.this_story_element[sec.XTENSION_0.value] = xtension_0.strip()
+            story_element[sec.XTENSION_0.value] = xtension_0.strip()
         
         if xtension_1 is not None:
-            self.this_story_element[sec.XTENSION_1.value] = xtension_1.strip()
+            story_element[sec.XTENSION_1.value] = xtension_1.strip()
         
         if xtension_2 is not None:
-            self.this_story_element[sec.XTENSION_2.value] = xtension_2.strip()
+            story_element[sec.XTENSION_2.value] = xtension_2.strip()
         
         if xtension_3 is not None:
-            self.this_story_element[sec.XTENSION_3.value] = xtension_3.strip()
+            story_element[sec.XTENSION_3.value] = xtension_3.strip()
         
         if xtension_4 is not None:
-            self.this_story_element[sec.XTENSION_4.value] = xtension_4.strip()
+            story_element[sec.XTENSION_4.value] = xtension_4.strip()
         
         if xtension_5 is not None:
-            self.this_story_element[sec.XTENSION_5.value] = xtension_5.strip()
+            story_element[sec.XTENSION_5.value] = xtension_5.strip()
         
         if xtension_6 is not None:
-            self.this_story_element[sec.XTENSION_6.value] = xtension_6.strip()
+            story_element[sec.XTENSION_6.value] = xtension_6.strip()
         
         if xtension_7 is not None:
-            self.this_story_element[sec.XTENSION_7.value] = xtension_7.strip()
+            story_element[sec.XTENSION_7.value] = xtension_7.strip()
         
         if xtension_8 is not None:
-            self.this_story_element[sec.XTENSION_8.value] = xtension_8.strip()
+            story_element[sec.XTENSION_8.value] = xtension_8.strip()
         
         if xtension_9 is not None:
-            self.this_story_element[sec.XTENSION_9.value] = xtension_9.strip()
+            story_element[sec.XTENSION_9.value] = xtension_9.strip()
         
-        log.log_var(self, currentframe(), ("this_story_element", self.this_story_element))
+        log.log_var(self, currentframe(), ("story_element", story_element))
+        
+        if self.treeview_selection is not None:
+            self.treeview_selection = story_element
+        else:
+            self.this_story_element = story_element
     
 
     def after_save(self):
@@ -170,6 +175,8 @@ class StoryElementModel(UIObserver):
         log.log_var(self, currentframe())
         self.ui.disable_alias()        
         self.set_header()
+        
+        rd.desolve(self.base_dir)
     
     def load(self, element):
         '''
@@ -521,12 +528,23 @@ class StoryElementModel(UIObserver):
         self.load(self.treeview_selection if self.treeview_selection is not None else self.this_story_element)
 
     def on_save(self):
+        '''
+        Stores the data in the file system
+
+        Returns
+        -------
+        None
+        '''
         log.log(self, currentframe())
         
-        if self.this_story_element is not None:
+        active_story_element = self.get_active_story_element()        
+        
+        if active_story_element is not None:
             self.on_update()
             return
-            
+        
+        # new item -> at this point active_story_element is None
+        
         _id = self.get_id(True)
         log.log_var(self, currentframe(),('_id', _id))
         
@@ -543,11 +561,16 @@ class StoryElementModel(UIObserver):
         
         self.prepare_save()
         
-        data = json.dumps(self.this_story_element)        
-        file_name = "".join(x for x in self.get_file_name() if x.isalnum())
-        path = f"{parent_folder}/{file_name}"
-        self.fq_file_name = f"{path}/{file_name}.{self.get_plothole_type().value}"  
+        data = json.dumps(self.this_story_element)
+        log.log_var(self, currentframe(), ("data", data))
         
+        file_name = "".join(x for x in self.get_file_name() if x.isalnum())
+        log.log_var(self, currentframe(), ("file_name", file_name))
+        
+        path = f"{parent_folder}/{file_name}"
+        log.log_var(self, currentframe(), ("path", path))
+        
+        self.fq_file_name = f"{path}/{file_name}.{self.get_plothole_type().value}"        
         log.log_var(self, currentframe(), ("fq_file_name", self.fq_file_name))
 
         if not fa.exists(self.fq_file_name):            
@@ -558,7 +581,6 @@ class StoryElementModel(UIObserver):
         self.tree_view.update_tree_view()
         
         self.after_save()
-        rd.desolve(self.base_dir)
         
     def on_sub(self):
         '''
@@ -582,27 +604,86 @@ class StoryElementModel(UIObserver):
         self.clear()
         
     def on_update(self):
-        log.log(self, currentframe())        
+        '''
+        Performs an update
+
+        Returns
+        -------
+        None
+        '''
+        log.log(self, currentframe())    
+        
+        # get the active story element
+        # it's either the selected treeview element or the this_story_element
+        # at this point the active_story_element cannot be None
+        active_story_element = self.get_active_story_element()
+        log.log_var(self, currentframe(), ("active_story_element", active_story_element))
+        
+        # get the fq filename fron the active_story_element
+        # self.fq_file_name cannot be used, since, in case of treeview selection
+        # self.fq_file_name points to the wrong object, if, indeed, it is set at all
+        fq_file_name = active_story_element.get(sec.PATH)
+        log.log_var(self, currentframe(), ("fq_file_name", fq_file_name))
+        
         self.prepare_save()
-        data = json.dumps(self.this_story_element)
-        fa.write(self.fq_file_name, data)
+                
+        # update active_story_element
+        active_story_element = self.get_active_story_element()
+        log.log_var(self, currentframe(), ("active_story_element", active_story_element))
+        
+        # update the file system
+        data = json.dumps(active_story_element)
+        log.log_var(self, currentframe(), ("data", data))
+        
+        fa.write(fq_file_name, data)
+        
         self.tree_view.update_tree_view()
         self.after_save()
-        rd.desolve(self.base_dir)
         
     def on_option_select(self, selected, secontrol):
-        pass
+        '''
+        Currently nothing to do.
+        '''
+        log.log(self, currentframe())    
+        
     
     def on_treeview_select(self, path):
+        '''
+        Is called from the treeview module after a item is selected.
+        Parameters
+        ----------
+        path : String
+            Fully qualified path of the selected item.
+
+        Returns
+        -------
+        None
+        '''
         log.log_var(self, currentframe(), ("path", path))
         self.fq_file_name = path
         element = hlp.get(path, as_dict=True)
+        log.log_var(self, currentframe(), ("element", element))
         
         self.treeview_selection = element        
         self.enable_none_treeview_btn(enabled=False)        
         self.load(element)
 
     def enable_none_treeview_btn(self, enabled=True):
+        '''
+        Disbales or enables the ui buttons which are not available for
+        the treeview selected item:
+            sub, plothole, character, next, previous, top and delete buttons.
+
+        Parameters
+        ----------
+        enabled : boolean, optional
+            DESCRIPTION. The default is True.
+            If False the 
+
+        Returns
+        -------
+        None
+        '''
         log.log_var(self, currentframe(), ("enabled", enabled))
         self.ui.enable_btn_sub(enabled=enabled)
         self.ui.enable_btn_plothole(enabled=enabled)
@@ -665,12 +746,32 @@ class StoryElementModel(UIObserver):
         else:
             log.log(self, currentframe(), 'None is returned')
             return None
-     
     
-    def on_raised(self): 
+    def on_raised(self):
+        '''
+        Is called from the overview uid tkraise function.
+        '''
         log.log_var(self, currentframe())
         self.load_overview()
         self.set_header()
+
+class PanelModel(StoryElementModel):
+    
+    def __init__(self, ui, overview_ui, base_dir, tree_view, parent_model):
+        super().__init__(ui, overview_ui, base_dir, tree_view, parent_model)
+        log.log_var(self, currentframe(), ("ui", ui), ("base_dir", base_dir), ("parent_model", parent_model))  
+        
+    def get_plothole_type(self):
+        log.log(self, currentframe())
+        phtype = pt.PlotHoleType.PANEL
+        log.log_var(self, currentframe(), ("phtype", phtype))
+        return phtype
+        
+    def on_treeview_select(self, path):
+        log.log_var(self, currentframe(), ("path", path))
+        
+        if path.endswith('.panel'):
+            super().on_treeview_select(path)
         
 class SceneModel(StoryElementModel):
     

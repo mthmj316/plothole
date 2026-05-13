@@ -187,6 +187,21 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = PlotHoleType.CHAPTER
+
+        elif self.current_ph_type == PlotHoleType.PANEL and event_source_ph_type == PlotHoleType.PANEL:
+            # You are on scene ui and close button has been clicked.
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PANEL)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.SCENE
+
+        elif self.current_ph_type == PlotHoleType.SCENE and event_source_ph_type == PlotHoleType.PANEL:
+            # You are on panel overview ui and close button has been clicked.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.SCENE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = PlotHoleType.SCENE
+        
             
     def on_delete(self):
         pass
@@ -235,6 +250,13 @@ class NavigatorInstance(ABC):
         elif event_source_ph_type is PlotHoleType.SCENE:
             # you are on the scene overview and the new button has been pressed.
             next_frame = self.ui_frames_dict.get(PlotHoleType.SCENE)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
+            
+        elif event_source_ph_type is PlotHoleType.PANEL:
+            # you are on the panel overview and the new button has been pressed.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PANEL)
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
@@ -299,6 +321,14 @@ class NavigatorInstance(ABC):
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
             self.current_ph_type = event_source_ph_type
+            
+ 
+        elif self.current_ph_type == PlotHoleType.SCENE and event_source_ph_type == PlotHoleType.PANEL:
+            # You are on panel overview ui and a panel has been double clicked.
+            next_frame = self.ui_frames_dict.get(PlotHoleType.PANEL)
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            self.current_ph_type = event_source_ph_type
     
     def on_plothole(self):
         log.log(self, currentframe())
@@ -356,6 +386,14 @@ class NavigatorInstance(ABC):
         elif self.current_ph_type == PlotHoleType.CHAPTER:
             # You are on chapter ui and the scene button has been pressed.
             next_frame = self.ui_overview_frames_dict.get(PlotHoleType.SCENE)
+            log.log_var(self, currentframe(), ("next_frame", next_frame))
+            next_frame.tkraise(aboveThis=self.current_frame)
+            self.current_frame = next_frame
+            # self.current_ph_type = ... not needed to be set
+            
+        elif self.current_ph_type == PlotHoleType.SCENE:
+            # You are on scene ui and the panel button has been pressed.
+            next_frame = self.ui_overview_frames_dict.get(PlotHoleType.PANEL)
             log.log_var(self, currentframe(), ("next_frame", next_frame))
             next_frame.tkraise(aboveThis=self.current_frame)
             self.current_frame = next_frame
