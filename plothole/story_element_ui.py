@@ -1762,7 +1762,7 @@ class SceneFrame(StoryElementFrame, UIObservable, NavigationPoint):
 
 class PanelFrame(StoryElementFrame, UIObservable, NavigationPoint):
     def __init__(self, root, *args, **kwargs):
-        super().__init__(root, self.create_conf(), PlotHoleType.SCENE, *args, **kwargs)
+        super().__init__(root, self.create_conf(), PlotHoleType.PANEL, *args, **kwargs)
     
     def create_conf(self):
         conf = __SEConfiguration__()

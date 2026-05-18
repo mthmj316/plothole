@@ -2,16 +2,17 @@ LOGGING_ALL=True
 LOGGING_SOURCE = [
     #'StoryElementTreeview#*'
     # 'BookModel#*',
-    #'NavigatorInstance#*',
+    #'NavigatorInstance#*'
     #'relation_desolver#desolve_children'
     #'file_access#*'
     # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
     #'PartModel#*',
-    'StoryModel#*'
+    #'StoryModel#*'
     #'plothole_core#*',
     #'helpers#get_path_for_alias'
     # '*#get_all'
+    #'StoryElementTreeview#*'
     ]
 
 

@@ -31,6 +31,7 @@ class StoryElementModel(UIObserver):
         self.parent_model = parent_model
         self.treeview_selection = None
         self.is_overview = False
+        self.fq_file_name = None
     
     @abstractmethod
     def get_plothole_type(self):
@@ -175,8 +176,9 @@ class StoryElementModel(UIObserver):
         log.log_var(self, currentframe())
         self.ui.disable_alias()        
         self.set_header()
-        
         rd.desolve(self.base_dir)
+        self.this_story_element = hlp.get(self.fq_file_name, as_dict=True)
+        log.log_var(self, currentframe(), ("this_story_element", self.this_story_element))
     
     def load(self, element):
         '''
@@ -567,10 +569,10 @@ class StoryElementModel(UIObserver):
         file_name = "".join(x for x in self.get_file_name() if x.isalnum())
         log.log_var(self, currentframe(), ("file_name", file_name))
         
-        path = f"{parent_folder}/{file_name}"
+        path = f"{parent_folder}\{file_name}"
         log.log_var(self, currentframe(), ("path", path))
         
-        self.fq_file_name = f"{path}/{file_name}.{self.get_plothole_type().value}"        
+        self.fq_file_name = f"{path}\{file_name}.{self.get_plothole_type().value}"        
         log.log_var(self, currentframe(), ("fq_file_name", self.fq_file_name))
 
         if not fa.exists(self.fq_file_name):            
@@ -578,9 +580,11 @@ class StoryElementModel(UIObserver):
              
         fa.write(self.fq_file_name, data)
         
-        self.tree_view.update_tree_view()
-        
         self.after_save()
+        
+        self.tree_view.update_tree_view(self.fq_file_name)
+        
+        
         
     def on_sub(self):
         '''
@@ -637,8 +641,9 @@ class StoryElementModel(UIObserver):
         
         fa.write(fq_file_name, data)
         
-        self.tree_view.update_tree_view()
         self.after_save()
+        
+        self.tree_view.update_tree_view()
         
     def on_option_select(self, selected, secontrol):
         '''
