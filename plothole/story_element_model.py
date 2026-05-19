@@ -32,6 +32,21 @@ class StoryElementModel(UIObserver):
         self.treeview_selection = None
         self.is_overview = False
         self.fq_file_name = None
+        
+    def get_parent_folder(self):
+        log.log(self, currentframe())
+        
+        path = None
+        
+        if self.parent_model is not None:
+            path = pathlib.Path(self.parent_model.get_active_story_element().get(sec.PATH)).parent
+        else:
+            # is a story
+            path = self.base_dir
+        
+        
+        log.log_var(self, currentframe(),('path',path))
+        return path
     
     @abstractmethod
     def get_plothole_type(self):
@@ -103,7 +118,12 @@ class StoryElementModel(UIObserver):
         xtension_8 = self.ui.get_xtension(sec.XTENSION_8)
         xtension_9 = self.ui.get_xtension(sec.XTENSION_9)        
         
-        story_element = {}
+        active_story_element = self.get_active_story_element()
+        
+        if active_story_element is None:
+            active_story_element = {}
+        
+        story_element = active_story_element
         
         if alias is not None:
             story_element[sec.ALIAS.value] = alias.strip()
@@ -165,6 +185,9 @@ class StoryElementModel(UIObserver):
             self.treeview_selection = story_element
         else:
             self.this_story_element = story_element
+            
+        if sec.PATH in story_element:
+            self.fq_file_name = story_element.get(sec.PATH.value)
     
 
     def after_save(self):
@@ -554,7 +577,7 @@ class StoryElementModel(UIObserver):
             self.ui.raise_error(f"{self.get_id_name()} muss gesetzt sein.")
             return
         
-        parent_folder = pathlib.Path(self.parent_model.get_active_story_element().get(sec.PATH)).parent
+        parent_folder = self.get_parent_folder()
         log.log_var(self, currentframe(),('parent_folder', parent_folder))
         
         if hlp.exists_alias(parent_folder, _id):

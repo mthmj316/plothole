@@ -1,4 +1,4 @@
-LOGGING_ALL=True
+LOGGING_ALL=False
 LOGGING_SOURCE = [
     #'StoryElementTreeview#*'
     # 'BookModel#*',
@@ -8,7 +8,7 @@ LOGGING_SOURCE = [
     # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
     #'PartModel#*',
-    #'StoryModel#*'
+    'StoryModel#*'
     #'plothole_core#*',
     #'helpers#get_path_for_alias'
     # '*#get_all'
