@@ -174,7 +174,7 @@ if __name__ == '__main__':
     chapter_model = sem.ChapterModel(chapter_ui, chapter_overview_ui, path_repros, treeview, part_model)
     plothole_model = sem.PlotholeModel(plothole_ui, plothole_overview_ui, path_repros, story_model, treeview)
     scene_model = sem.SceneModel(scene_ui, scene_overview_ui, path_repros, treeview, chapter_model)
-    panel_model = sem.SceneModel(panel_ui, panel_overview_ui, path_repros, treeview, scene_model)
+    panel_model = sem.PanelModel(panel_ui, panel_overview_ui, path_repros, treeview, scene_model)
     
     story_model.on_raised()
     

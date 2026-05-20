@@ -752,12 +752,13 @@ class StoryElementModel(UIObserver):
                 sequence_part = f"{sequence_no}. "
                 
             header = f"{sequence_part}{ptype4ui}: {active_story_element.get(sec.TITLE)}"
+            self.ui.set_header(header)
             
         else:
             # create genric header
             header = f"Neue(s) {ptype4ui}"
 
-        self.ui.set_header(header)
+            #self.ui.set_header(header)
 
     def get_active_story_element(self):
         """

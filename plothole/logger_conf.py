@@ -8,7 +8,9 @@ LOGGING_SOURCE = [
     # 'PlotholeModel#*'
     # 'SelectedStoryElements#*',
     #'PartModel#*',
-    'StoryModel#*'
+    #'StoryModel#*',
+    'SceneModel#*',
+    'PanelModel#*'
     #'plothole_core#*',
     #'helpers#get_path_for_alias'
     # '*#get_all'
